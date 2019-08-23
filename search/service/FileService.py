@@ -3,7 +3,7 @@
 
 import os
 
-from ..clazz.file import File
+from search.clazz.file import File
 
 
 class FileService:

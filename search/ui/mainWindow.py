@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 
 
-import sys
 import os
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+
 from PyQt5.QtCore import Qt
-from ..service.FileService import FileService
-from ..const.FileConst import FileConst
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+
+from search.const.FileConst import FileConst
+from search.service.FileService import FileService
 
 
 class SearchDir(QMainWindow):
@@ -19,7 +20,7 @@ class SearchDir(QMainWindow):
     # 定义全局变量
     fileList = []
     searchWord = ""
-    rootPath = "G:\\emby\\emby-rename"
+    rootPath = ""
     # fileTypes = [FileConst.JPG, FileConst.GIF, FileConst.MP4, FileConst.TXT, FileConst.WMV, FileConst.XLSX]
     fileTypes = []
 
