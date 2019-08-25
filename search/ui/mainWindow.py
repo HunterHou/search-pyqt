@@ -57,7 +57,8 @@ class SearchDir(QMainWindow):
         # if replay == QMessageBox.Yes:
         self.search(self.searchWord)
         self.initUI()
-        self.statusBar().showMessage('执行完毕！！！')
+        message = '总数:' + str(len(self.fileList)) + '   执行完毕！！！'
+        self.statusBar().showMessage(message)
 
     # 载入数据
     dataGrid = ""
@@ -66,6 +67,7 @@ class SearchDir(QMainWindow):
         if self.dataGrid == "":
             self.dataGrid = QTableWidget()
         data = self.dataGrid
+        data.clear()
         data.setRowCount(0)
         data.setColumnCount(0)
         if len(self.fileList) == 0:
