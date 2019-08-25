@@ -180,7 +180,7 @@ class SearchDir(QMainWindow):
             QMessageBox().about(self, "提示", "打开文件失败，可能是文件内型错误")
         else:
             self.dirName.setText(fname)
-            QMessageBox().about(self, "提示", fname)
+            # QMessageBox().about(self, "提示", fname)
         self.clickSearchButton()
 
     def initUI(self):
