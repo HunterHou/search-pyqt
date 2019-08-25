@@ -32,31 +32,30 @@ class SearchDir(QMainWindow):
         self.fileList = walk.getFiles()
 
     # 点击事件
+    command = ""
 
     def clickPicture(self, event):
-        item = self.dataGrid.currentItem()
         col = self.dataGrid.currentColumn()
         index = self.dataGrid.currentRow()
-
         if col == 1:
-            filepath = self.fileList[index].getPath()
-            # url = filepath.replace(".jpg", ".mp4")
-            url = filepath
-            cmd = '''start "" "''' + url + "\""
+            filepath = self.fileList[index].path
+            self.command = '''start "" "''' + filepath + "\""
         if col == 2:
-            url = self.fileList[index].getDirPath()
-            cmd = '''start "" "''' + url + "\""
-
-        os.system(cmd)
+            dirPath = self.fileList[index].dirPath
+            self.command = '''start "" "''' + dirPath + "\""
+        if self.command != "":
+            os.system(self.command)
+            self.command = ""
 
     def clickSearchButton(self):
         self.searchWord = self.dirName.text()
         self.statusBar().showMessage('执行中')
-        replay = QMessageBox.question(self, '提示',
-                                      self.searchWord, QMessageBox.Yes)
-        if replay == QMessageBox.Yes:
-            self.search(self.searchWord)
-            self.initUI()
+        # 提示框测试
+        # replay = QMessageBox.question(self, '提示',
+        #                               self.searchWord, QMessageBox.Yes)
+        # if replay == QMessageBox.Yes:
+        self.search(self.searchWord)
+        self.initUI()
         self.statusBar().showMessage('执行完毕！！！')
 
     # 载入数据
@@ -70,13 +69,13 @@ class SearchDir(QMainWindow):
         data.setColumnCount(0)
         if len(self.fileList) == 0:
             self.search(self.rootPath)
-        data.setColumnCount(3)
+        data.setColumnCount(6)
         data.setRowCount(len(self.fileList))
         # 自适应列宽度
         # data.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        data.setHorizontalHeaderLabels(['图片', '名称', "路径"])
+        data.setHorizontalHeaderLabels(['图片', '名称', "路径", "大小", "创建时间", "修改时间"])
         data.itemClicked.connect(self.clickPicture)
-        data.setColumnWidth(0, 500)
+        data.setColumnWidth(0, 200)
         data.setColumnWidth(1, 130)
         data.setColumnWidth(2, 100)
         for index in range(len(self.fileList)):
@@ -84,23 +83,23 @@ class SearchDir(QMainWindow):
             file = self.fileList[index]
             row_id = index
             row_name = QLabel()
-            path = file.getPath().replace(".mp4", ".png")
-            path = path.replace(".mp4", ".png")
+            path = file.path.replace(".mp4", ".png")
+            path = path.replace(".wmv", ".png")
             if not QPixmap(path).isNull():
-                pic = QPixmap(path).scaled(500, 300)
+                pic = QPixmap(path).scaled(200, 300)
                 row_name.setPixmap(pic)
-            file_name = QTableWidgetItem(file.getName())
-            file_path = QTableWidgetItem(file.getPath())
-            # file_type = QTableWidgetItem(file.getFileType())
             data.setCellWidget(row_id, 0, row_name)
-            data.setItem(row_id, 1, file_name)
-            data.setItem(row_id, 2, file_path)
+            data.setItem(row_id, 1, QTableWidgetItem(file.name))
+            data.setItem(row_id, 2, QTableWidgetItem(file.path))
+            data.setItem(row_id, 3, QTableWidgetItem(file.size))
+            data.setItem(row_id, 4, QTableWidgetItem(file.createTime))
+            data.setItem(row_id, 5, QTableWidgetItem(file.modifyTime))
 
         return data
 
-    imageToggle = 1
+    imageToggle = 0
     videoToggle = 1
-    docsToggle = 1
+    docsToggle = 0
 
     def imageChoose(self, state):
         if state == Qt.Checked:
