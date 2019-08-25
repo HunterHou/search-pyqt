@@ -10,6 +10,9 @@ from PyQt5.QtWidgets import QApplication
 
 from search.ui.mainWindow import SearchDir
 
-app = QApplication(sys.argv)
-sd = SearchDir()
-sys.exit(app.exec_())
+try:
+    app = QApplication(sys.argv)
+    sd = SearchDir()
+    sys.exit(app.exec_())
+except Exception as err:
+    print(err)

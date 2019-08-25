@@ -24,8 +24,7 @@ class FileService:
                 nameSplit = filename.split(".")
                 fileType = nameSplit[len(nameSplit) - 1]
                 if len(self.fileTypes) > 0 and fileType in self.fileTypes:
-                    filepath = dirpath + "\\" + filename
-                    file = File(filename, filepath, fileType, dirpath)
+                    file = File(filename, fileType, dirpath)
                     self.files.append(file)
 
         return self.files

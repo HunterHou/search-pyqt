@@ -1,7 +1,40 @@
 #!/usr/bin/python3
 
-import datetime
+from search.utils.FileUtil import *
 import os
+
+
+def getCode(fileName):
+    code = ""
+    rights = fileName.split("[")
+    if len(rights) <= 1:
+        return code
+    for index in range(len(rights)):
+        if index == 0:
+            continue
+        right = rights[index]
+        lefts = right.split("]")
+        for left in lefts:
+            if left.find("-") > 0:
+                return left
+    return code
+
+
+def getActress(fileName):
+    actress = ""
+    rights = fileName.split("[")
+    if len(rights) <= 1:
+        return actress
+    for index in range(len(rights)):
+        if index == 0:
+            continue
+        right = rights[index]
+        lefts = right.split("]")
+        for left in lefts:
+            if left.find("-") == 0:
+                return left
+    return actress
+
 
 class File:
     # 名称
@@ -20,28 +53,14 @@ class File:
     createTime = ""
     modifyTime = ""
 
-    def __init__(self, filename, path, type, dirpath):
+    def __init__(self, filename, type, dirpath):
         self.name = filename
+        self.code = getCode(filename)
+        self.actress = getActress(filename)
         self.fileType = type
         self.dirPath = dirpath
-
-        self.path = dirpath + "\\" + filename
-        fileSize = os.path.getsize(path)
-        # self.size = os.path.getsize(path)
-        # self.createTime = getFormatTime(os.path.getctime(path))
-        # self.modifyTime = getFormatTime(os.path.getmtime(path))
-
-    def getSizeStr(self, fileSize):
-        result = ""
-        if fileSize <= 1024:
-            result = str(int(fileSize))
-        elif fileSize <= 1024 * 1024:
-            result = str(int(fileSize / 1024)) + " k"
-        elif fileSize <= 1024 * 1024 * 1024:
-            result = str(int(fileSize / (1024 * 1024))) + " M"
-        else:
-            result = str(fileSize / (1024 * 1024)) + " M"
-        return result
-
-    def getFormatTime(self, longTime):
-        return datetime.datetime.fromtimestamp(longTime)
+        path = dirpath + "\\" + filename
+        self.path = path
+        self.size = getSizeStr(path)
+        self.createTime = getCreateTime(path)
+        self.modifyTime = getModifyTime(path)

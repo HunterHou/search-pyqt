@@ -8,3 +8,5 @@ class FileConst:
     TXT = "txt"
     MP4 = "mp4"
     WMV = "wmv"
+    MKV = "mkv"
+    AVI = "avi"
