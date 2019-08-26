@@ -68,7 +68,7 @@ class SearchDir(QMainWindow):
         headGrid.addWidget(video, 0, 5)
         headGrid.addWidget(docs, 0, 6)
         # loading
-        headGrid.addWidget(self.loadData(), 1, 0, 2, 3)
+        headGrid.addWidget(self.loadData(), 1, 0, 2, 7)
         # 创建窗口挂件
         head_widget = QWidget()
         head_widget.setLayout(headGrid)
