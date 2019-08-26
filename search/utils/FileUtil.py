@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import os
 
-from search.utils.TimeUtil import getFormatTime
+from search.utils.TimeUtil import thisFormatTime
 
 
 def getSizeStr(path):
@@ -32,7 +32,7 @@ def getCreateTime(path):
     creatTime = ""
     try:
         creatTime = os.path.getctime(path)
-        creatTime = getFormatTime(creatTime)
+        creatTime = thisFormatTime(creatTime)
     except IOError as ioError:
         print("读取失败：" + ioError)
     finally:
@@ -43,7 +43,7 @@ def getModifyTime(path):
     modifyTime = "0"
     try:
         modifyTime = os.path.getmtime(path)
-        modifyTime = getFormatTime(modifyTime)
+        modifyTime = thisFormatTime(modifyTime)
     except IOError as ioError:
         print("读取失败：" + ioError)
     finally:

@@ -1,0 +1,9 @@
+# Created by .ignore support plugin (hsz.mobi)
+.gitignore
+__pycache__/
+bin/
+docs/
+search/__pycache__/
+search/build/
+search/dist/
+search/main.spec
