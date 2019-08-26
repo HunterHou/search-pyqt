@@ -8,11 +8,11 @@ if hasattr(sys, 'frozen'):
 
 from PyQt5.QtWidgets import QApplication
 
-from search.ui.mainWindow import SearchDir
+from search.ui.mainUI import MainUI
 
 try:
     app = QApplication(sys.argv)
-    sd = SearchDir()
+    sd = MainUI()
     sys.exit(app.exec_())
 except Exception as err:
     print(err)

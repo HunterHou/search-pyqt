@@ -26,7 +26,8 @@ class FileService:
         self.files = []
         self.dirs = []
 
-    def walkFiles(self):
+    # 累加上次查询结果
+    def osWalkFiles(self):
         for dirpath, dirnames, filenames in os.walk(self.rootPath):
             for filename in filenames:
                 file = getFileFromFileName(dirpath, filename)
@@ -35,18 +36,16 @@ class FileService:
 
         return self.files
 
-    def getFiles(self, path):
-        self.rootPath = path
-        return self.getFiles()
-
     def getFiles(self):
-        return self.walk(self.rootPath, self.dirs, self.files)
+        return self.fileWalk(self.rootPath, self.dirs, self.files)
 
-    def walk(self, path, dirs, files):
+    # 查询结果
+    def fileWalk(self, path, dirs, files):
         if not path:
             return self.files
         listFolder = os.listdir(path)
         for folder in listFolder:
+
             folerpath = path + "\\" + folder
 
             try:
@@ -54,7 +53,7 @@ class FileService:
                     continue
                 if os.path.isdir(folerpath):
                     dirs.append(folerpath)
-                    self.walk(folerpath, dirs, files)
+                    self.fileWalk(folerpath, dirs, files)
                 else:
                     dirname = os.path.dirname(folerpath)
                     file = getFileFromFileName(self.fileTypes, dirname, folder)
@@ -65,8 +64,3 @@ class FileService:
                 print(ioError)
         return files
 
-# fileList = FileService("E:\\", ["jpg"]).getFiles()
-#
-# print("文件：")
-# for file in fileList:
-#     print(file.dirPath, ":", file.name)

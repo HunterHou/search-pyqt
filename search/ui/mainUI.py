@@ -8,10 +8,10 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 from search.const.FileConst import FileConst
-from search.service.FileService import FileService
+from search.service.fileService import FileService
 
 
-class SearchDir(QMainWindow):
+class MainUI(QMainWindow):
     # 初始化 loadUI
     def __init__(self):
         super().__init__()
