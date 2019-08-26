@@ -87,13 +87,14 @@ class SearchDir(QMainWindow):
         file.triggered[QAction].connect(self.fileMenuProcess)
         self.show()
 
-        # 填充数据
+    # 填充数据
 
     def search(self, path):
         walk = FileService(path, self.fileTypes)
         self.dataList = []
         self.dataList = walk.getFiles()
 
+    # 菜单按钮处理
     def fileMenuProcess(self, action):
         print(action.text())
         if action.text() == "退出":
@@ -114,6 +115,7 @@ class SearchDir(QMainWindow):
             os.system(self.command)
             self.command = ""
 
+    # 点击搜索
     def clickSearchButton(self):
         self.statusBar().showMessage('执行中')
         # 提示框测试
@@ -125,6 +127,7 @@ class SearchDir(QMainWindow):
         message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
         self.statusBar().showMessage(message)
 
+    # 选择框
     def showFileDialog(self):
         fname = QFileDialog.getExistingDirectory(self, "选择文件夹", "/")
         if not fname:
@@ -134,6 +137,7 @@ class SearchDir(QMainWindow):
             # QMessageBox().about(self, "提示", fname)
         self.clickSearchButton()
 
+    # 载入数据
     def loadData(self):
         if self.dataGrid == "":
             self.dataGrid = QTableWidget()
@@ -188,6 +192,7 @@ class SearchDir(QMainWindow):
 
         return data
 
+    # 点击图片box
     def imageChoose(self, state):
         if state == Qt.Checked:
             self.imageToggle = 1
@@ -202,6 +207,7 @@ class SearchDir(QMainWindow):
             if FileConst.GIF in self.fileTypes:
                 self.fileTypes.remove(FileConst.GIF)
 
+    # 点击视频box
     def videoChoose(self, state):
         if state == Qt.Checked:
             self.videoToggle = 1
@@ -225,7 +231,9 @@ class SearchDir(QMainWindow):
             if FileConst.AVI in self.fileTypes:
                 self.fileTypes.remove(FileConst.AVI)
 
+    # 点击文档box
     def docsChoose(self, state):
+
         if state == Qt.Checked:
             self.docsToggle = 1
             if FileConst.XLSX not in self.fileTypes:
