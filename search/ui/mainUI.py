@@ -122,7 +122,6 @@ class MainUI(QMainWindow):
     def loadGridData(self):
 
         gridData = self.gridData
-        gridData.setEnabled(True)
         gridLayout = QGridLayout()
         gridLayout.addWidget(QLabel("玩个布局"))
         return gridData
