@@ -1,2 +1,4 @@
+PIL
+beautifulsoup4
 PyQt5
 Python35

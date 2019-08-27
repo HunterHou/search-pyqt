@@ -3,7 +3,7 @@
 
 import os
 
-from search.clazz.file import File
+from search.model.file import File
 
 
 def getFileFromFileName(filetypes, dirname, dirpath):

@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 from search.utils.FileUtil import *
-import os
 
 
 def getCode(fileName):
