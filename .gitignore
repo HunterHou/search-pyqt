@@ -7,3 +7,4 @@ search/__pycache__/
 search/build/
 search/dist/
 search/main.spec
+.idea/
