@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import os
 
-from search.utils.TimeUtil import thisFormatTime
+from search.utils.timeUtil import thisFormatTime
 
 
 def getSizeStr(path):

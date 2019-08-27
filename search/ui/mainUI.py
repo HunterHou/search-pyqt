@@ -59,22 +59,36 @@ class MainUI(QMainWindow):
             video.toggle()
         if self.docsToggle == 1:
             docs.toggle()
-        # 创建栅格布局
-        headGrid = QGridLayout()
-        headGrid.addWidget(openfile, 0, 1)
-        headGrid.addWidget(self.dirName, 0, 2)
-        headGrid.addWidget(okButton, 0, 3)
-        headGrid.addWidget(image, 0, 4)
-        headGrid.addWidget(video, 0, 5)
-        headGrid.addWidget(docs, 0, 6)
+        # 创建左侧组件
+        left_widget = QWidget()
+        left_layout = QGridLayout()
+
+        left_layout.addWidget(image, 0, 0)
+        left_layout.addWidget(video, 0, 1)
+        left_layout.addWidget(docs, 0, 2)
+
+        left_layout.addWidget(openfile, 1, 0, 1, 1)
+        left_layout.addWidget(self.dirName, 1, 1, 1, 2)
+        left_layout.addWidget(okButton, 2, 0, 1, 3)
+        left_layout.addWidget(QLabel(""), 3, 0, 1, 10)
+
+        # 创建右侧组件
+        right_widget = QWidget()
+        right_layout = QGridLayout()
+        right_layout.addWidget(self.loadData())
+
         # loading
-        headGrid.addWidget(self.loadData(), 1, 0, 2, 7)
-        # 创建窗口挂件
-        head_widget = QWidget()
-        head_widget.setLayout(headGrid)
-        # scroll = QScrollArea()
-        # scroll.setWidget(headWidget)
-        self.setCentralWidget(head_widget)
+
+        # 创建主窗口组件 挂载布局
+        main_widget = QWidget()
+        main_layout = QGridLayout()
+        left_widget.setLayout(left_layout)
+        main_layout.addWidget(left_widget, 0, 0, 1, 1)
+        right_widget.setLayout(right_layout)
+        main_layout.addWidget(right_widget, 0, 1, 1, 16)
+        main_widget.setLayout(main_layout)
+
+        self.setCentralWidget(main_widget)
         bar = self.menuBar()
         file = bar.addMenu("文件")
         file.setShortcutEnabled(1)
@@ -88,7 +102,6 @@ class MainUI(QMainWindow):
         self.show()
 
     # 填充数据
-
     def search(self, path):
         walk = FileService(path, self.fileTypes)
         self.dataList = []
@@ -101,7 +114,6 @@ class MainUI(QMainWindow):
             self.close()
 
     # 点击事件
-
     def clickLine(self, event):
         col = self.dataGrid.currentColumn()
         index = self.dataGrid.currentRow()
@@ -123,7 +135,8 @@ class MainUI(QMainWindow):
         #                               self.dirName.text(), QMessageBox.Yes)
         # if replay == QMessageBox.Yes:
         self.search(self.dirName.text())
-        self.initUI()
+        # self.initUI()
+        self.loadData()
         message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
         self.statusBar().showMessage(message)
 
