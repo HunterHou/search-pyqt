@@ -26,8 +26,8 @@ class MainUI(QMainWindow):
         super().__init__()
         self.tableData = QTableWidget()
         self.gridData = QWidget()
-        self.infoData = QWidget()
         self.infoLayout = QHBoxLayout()
+        self.gridLayout = QGridLayout()
         self.initUI()
 
     # 定义全局变量
@@ -41,8 +41,7 @@ class MainUI(QMainWindow):
     isTableData = 0
     isGridData = 1
     gridData = ""
-    infoData = ""
-    infoLayout = ""
+    gridLayout = None
     curFile = None
     # 默认勾选
     imageToggle = 0
@@ -154,8 +153,9 @@ class MainUI(QMainWindow):
 
         gridData = self.gridData
         if len(self.dataList) == 0:
-            self.search("G:/emby/emby-rename")
-        gridLayout = QGridLayout()
+            # self.search("G:/emby/emby-rename")
+            return gridData
+        gridLayout = self.gridLayout
         for index in range(len(self.dataList)):
             data = self.dataList[index]
             item = QToolButton()
@@ -171,7 +171,7 @@ class MainUI(QMainWindow):
             title.setMaximumHeight(40)
             gridLayout.addWidget(item, row * 2, cols)
             gridLayout.addWidget(title, row * 2 + 1, cols)
-        gridData.setLayout(gridLayout)
+        gridData.setLayout(self.gridLayout)
         return gridData
 
     # 填充数据
