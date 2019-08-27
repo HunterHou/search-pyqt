@@ -15,7 +15,11 @@ class MainUI(QMainWindow):
     # 初始化 loadUI
     def __init__(self):
         super().__init__()
+        self.tableData = QTableWidget()
+        self.gridData = QWidget()
         self.initUI()
+        self.isGridData = 0
+        self.isTableData = 1
 
     # 定义全局变量
     dataList = []
@@ -24,7 +28,10 @@ class MainUI(QMainWindow):
     # 执行命令
     command = ""
     # 载入数据
-    dataGrid = ""
+    tableData = ""
+    isTableData = 1
+    isGridData = 0
+    gridData = ""
     # 默认勾选
     imageToggle = 0
     videoToggle = 1
@@ -40,12 +47,21 @@ class MainUI(QMainWindow):
         # 创建搜索按钮
         if self.dirName == "":
             self.dirName = QLineEdit()
-        title = QLabel('请选择')
+        # title = QLabel('请选择')
+        # 按钮
         openfile = QPushButton("点我")
         openfile.clicked[bool].connect(self.showFileDialog)
-
         okButton = QPushButton("搜索")
         okButton.clicked[bool].connect(self.clickSearchButton)
+        # 单选框
+        grid_layout = QRadioButton("网格", )
+        if self.isGridData == 1:
+            grid_layout.toggle()
+        table_layout = QRadioButton("表格")
+        if self.isTableData == 1:
+            table_layout.toggle()
+        grid_layout.clicked[bool].connect(self.chooseLayout)
+        table_layout.clicked[bool].connect(self.chooseLayout)
         # 复选框
         image = QCheckBox("图片", self)
         image.stateChanged.connect(self.imageChoose)
@@ -62,25 +78,29 @@ class MainUI(QMainWindow):
         # 创建左侧组件
         left_widget = QWidget()
         left_layout = QGridLayout()
+        left_layout.addWidget(grid_layout, 0, 0)
+        left_layout.addWidget(table_layout, 0, 1)
+        left_layout.addWidget(image, 1, 0)
+        left_layout.addWidget(video, 1, 1)
+        left_layout.addWidget(docs, 1, 2)
 
-        left_layout.addWidget(image, 0, 0)
-        left_layout.addWidget(video, 0, 1)
-        left_layout.addWidget(docs, 0, 2)
-
-        left_layout.addWidget(openfile, 1, 0, 1, 1)
-        left_layout.addWidget(self.dirName, 1, 1, 1, 2)
-        left_layout.addWidget(okButton, 2, 0, 1, 3)
-        left_layout.addWidget(QLabel(""), 3, 0, 1, 10)
+        left_layout.addWidget(openfile, 2, 0, 1, 1)
+        left_layout.addWidget(self.dirName, 2, 1, 1, 2)
+        left_layout.addWidget(okButton, 3, 0, 1, 3)
+        left_layout.addWidget(QLabel(""), 4, 0, 1, 10)
 
         # 创建右侧组件
         right_widget = QWidget()
         right_layout = QGridLayout()
-        right_layout.addWidget(self.loadData())
-
-        # loading
+        # loading 选择表格布局 还是 网格布局
+        if self.isTableData == 1:
+            right_layout.addWidget(self.tableData)
+        elif self.isGridData == 1:
+            right_layout.addWidget(self.gridData)
 
         # 创建主窗口组件 挂载布局
         main_widget = QWidget()
+
         main_layout = QGridLayout()
         left_widget.setLayout(left_layout)
         main_layout.addWidget(left_widget, 0, 0, 1, 1)
@@ -113,10 +133,23 @@ class MainUI(QMainWindow):
         if action.text() == "退出":
             self.close()
 
-    # 点击事件
+    # 选择布局
+    def chooseLayout(self, state):
+        button = self.sender().text()
+        if button == '表格':
+            self.isTableData = 1
+            self.isGridData = 0
+            self.loadTableData()
+        if button == '网格':
+            self.isTableData = 0
+            self.isGridData = 1
+        self.initUI()
+
+        # 点击事件
+
     def clickLine(self, event):
-        col = self.dataGrid.currentColumn()
-        index = self.dataGrid.currentRow()
+        col = self.tableData.currentColumn()
+        index = self.tableData.currentRow()
         if col == 1 or col == 0:
             filepath = self.dataList[index].path
             self.command = '''start "" "''' + filepath + "\""
@@ -136,7 +169,7 @@ class MainUI(QMainWindow):
         # if replay == QMessageBox.Yes:
         self.search(self.dirName.text())
         # self.initUI()
-        self.loadData()
+        self.loadTableData()
         message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
         self.statusBar().showMessage(message)
 
@@ -150,12 +183,18 @@ class MainUI(QMainWindow):
             # QMessageBox().about(self, "提示", fname)
         self.clickSearchButton()
 
-    # 载入数据
-    def loadData(self):
-        if self.dataGrid == "":
-            self.dataGrid = QTableWidget()
-        data = self.dataGrid
-        data.clear()
+    def loadGridData(self):
+
+        self.gridData = QWidget()
+        gridData = self.gridData
+        gridLayout = QGridLayout()
+        gridLayout.addWidget(QLabel("玩个布局"))
+        return gridData
+
+    # 载入数据 表格形式
+    def loadTableData(self):
+        self.tableData = QTableWidget()
+        data = self.tableData
         data.setRowCount(0)
         data.setColumnCount(0)
         if len(self.dataList) == 0:
