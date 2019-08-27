@@ -74,39 +74,39 @@ class MainUI(QMainWindow):
         if self.docsToggle == 1:
             docs.toggle()
         # 创建左侧组件
-        left_widget = QWidget()
-        left_layout = QGridLayout()
-        left_layout.addWidget(grid_layout, 0, 0)
-        left_layout.addWidget(table_layout, 0, 1)
-        left_layout.addWidget(image, 1, 0)
-        left_layout.addWidget(video, 1, 1)
-        left_layout.addWidget(docs, 1, 2)
+        self.left_widget = QWidget()
+        self.left_layout = QGridLayout()
+        self.left_layout.addWidget(grid_layout, 0, 0)
+        self.left_layout.addWidget(table_layout, 0, 1)
+        self.left_layout.addWidget(image, 1, 0)
+        self.left_layout.addWidget(video, 1, 1)
+        self.left_layout.addWidget(docs, 1, 2)
 
-        left_layout.addWidget(openfile, 2, 0, 1, 1)
-        left_layout.addWidget(self.dirName, 2, 1, 1, 2)
-        left_layout.addWidget(okButton, 3, 0, 1, 3)
-        left_layout.addWidget(QLabel(""), 4, 0, 1, 10)
+        self.left_layout.addWidget(openfile, 2, 0, 1, 1)
+        self.left_layout.addWidget(self.dirName, 2, 1, 1, 2)
+        self.left_layout.addWidget(okButton, 3, 0, 1, 3)
+        self.left_layout.addWidget(QLabel(""), 4, 0, 1, 10)
 
         # 创建右侧组件
-        right_widget = QWidget()
-        right_layout = QGridLayout()
+        self.right_widget = QWidget()
+        self.right_layout = QGridLayout()
         # loading 选择表格布局 还是 网格布局
         if self.isTableData == 1:
-            right_layout.addWidget(self.loadTableData())
+            self.right_layout.addWidget(self.loadTableData())
         elif self.isGridData == 1:
-            right_layout.addWidget(self.loadGridData())
+            self.right_layout.addWidget(self.loadGridData())
 
         # 创建主窗口组件 挂载布局
-        main_widget = QWidget()
+        self.main_widget = QWidget()
 
-        main_layout = QGridLayout()
-        left_widget.setLayout(left_layout)
-        main_layout.addWidget(left_widget, 0, 0, 1, 1)
-        right_widget.setLayout(right_layout)
-        main_layout.addWidget(right_widget, 0, 1, 1, 16)
-        main_widget.setLayout(main_layout)
+        self.main_layout = QGridLayout()
+        self.left_widget.setLayout(self.left_layout)
+        self.main_layout.addWidget(self.left_widget, 0, 0, 1, 1)
+        self.right_widget.setLayout(self.right_layout)
+        self.main_layout.addWidget(self.right_widget, 0, 1, 1, 16)
+        self.main_widget.setLayout(self.main_layout)
 
-        self.setCentralWidget(main_widget)
+        self.setCentralWidget(self.main_widget)
         bar = self.menuBar()
         file = bar.addMenu("文件")
         file.setShortcutEnabled(1)
@@ -130,7 +130,6 @@ class MainUI(QMainWindow):
     # 载入数据 表格形式
     def loadTableData(self):
         data = self.tableData
-        data.setEnabled(True)
         data.setRowCount(0)
         data.setColumnCount(0)
         if len(self.dataList) == 0:
