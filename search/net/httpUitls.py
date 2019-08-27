@@ -18,7 +18,11 @@ def download(url, pathname):
 
 
 def getResponse(url):
-    req = request.Request(url)
-    req.add_header('User-Agent', 'Mozilla/6.0')
-    response = request.urlopen(req)
-    return response
+    try:
+        req = request.Request(url)
+        req.add_header('User-Agent', 'Mozilla/6.0')
+        response = request.urlopen(req)
+        return response
+    except Exception as err:
+        print("Request 失败")
+        print(err)

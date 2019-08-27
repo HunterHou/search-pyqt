@@ -2,6 +2,7 @@
 
 
 import os
+import shutil
 
 from PIL import Image
 from PyQt5.QtCore import *
@@ -10,6 +11,7 @@ from PyQt5.QtWidgets import *
 
 from search.const.FileConst import FileConst
 from search.service.fileService import FileService
+from search.net.javTool import JavTool
 
 
 def getPng(filename, end):
@@ -32,15 +34,13 @@ class MainUI(QMainWindow):
 
     # 定义全局变量
     dataList = []
-    rootPath = ""
+    rootPath = "G:\\tomake"
     fileTypes = []
-    # 执行命令
-    command = ""
     # 载入数据
-    tableData = ""
-    isTableData = 0
-    isGridData = 1
-    gridData = ""
+    tableData = None
+    isTableData = 1
+    isGridData = 0
+    gridData = None
     gridLayout = None
     curFile = None
     # 默认勾选
@@ -49,17 +49,17 @@ class MainUI(QMainWindow):
     docsToggle = 0
 
     # 搜索文本框
-    dirName = ""
+    dirName = None
 
     # 载入UI窗口
     def initUI(self):
         self.setWindowTitle("文件目录")
         self.resize(1400, 900)
         # 创建搜索按钮
-        if self.dirName == "":
+        if self.dirName is None:
             self.dirName = QLineEdit()
-        openFoler = QPushButton("点我")
-        openFoler.clicked[bool].connect(self.openPath)
+        openFolder = QPushButton("点我")
+        openFolder.clicked[bool].connect(self.openPath)
         okButton = QPushButton("搜索")
         okButton.clicked[bool].connect(self.clickSearchButton)
 
@@ -67,6 +67,9 @@ class MainUI(QMainWindow):
         openFile.clicked[bool].connect(self.openFile)
         openDir = QPushButton("打开文件夹")
         openDir.clicked[bool].connect(self.openFile)
+
+        syncJav = QPushButton("数据同步")
+        syncJav.clicked[bool].connect(self.syncJav)
 
         # 单选框
         grid_layout = QRadioButton("网格", )
@@ -100,7 +103,7 @@ class MainUI(QMainWindow):
         left_layout.addWidget(docs, 1, 2)
 
         left_layout.addWidget(self.dirName, 2, 0, 1, 3)
-        left_layout.addWidget(openFoler, 3, 0, 1, 1)
+        left_layout.addWidget(openFolder, 3, 0, 1, 1)
         left_layout.addWidget(okButton, 3, 1, 1, 1)
         left_layout.addWidget(QLabel(""), 4, 0, 3, 3)
 
@@ -118,6 +121,7 @@ class MainUI(QMainWindow):
         left_layout.addWidget(self.curPic, 9, 0, 15, 3)
         left_layout.addWidget(openFile)
         left_layout.addWidget(openDir)
+        left_layout.addWidget(syncJav)
 
         # 创建右侧组件
         right_widget = QWidget()
@@ -148,6 +152,19 @@ class MainUI(QMainWindow):
         file.addAction(qu)
         file.triggered[QAction].connect(self.fileMenuProcess)
         self.show()
+
+    def syncJav(self):
+        tool = JavTool("https://www.cdnbus.in/")
+        code = self.curFile.name
+        code = code.split(".")[0]
+        movie = tool.getJavInfo(code)
+        tool.makeAcctress(self.curFile.dirPath, movie)
+        if tool.dirpath is not None and tool.fileName is not None:
+            arr = self.curFile.path.split(".")
+            end = "." + arr[len(arr) - 1]
+            os.rename(self.curFile.path, tool.dirpath + "\\" + tool.fileName + end)
+        # shutil.move(, )
+        QMessageBox().about(self, "提示", "同步成功!!!")
 
     def loadGridData(self):
 
@@ -213,7 +230,7 @@ class MainUI(QMainWindow):
         self.clickSearchButton()
 
     # 点击事件
-    def openFile(self, event):
+    def openFile(self):
         choose = self.sender().text()
         if choose == '打开文件':
             command = '''start "" "''' + self.curFile.path + "\""
@@ -223,7 +240,7 @@ class MainUI(QMainWindow):
             os.system(command)
 
     # 点击事件
-    def clickLine(self, event):
+    def clickLine(self):
         col = self.tableData.currentColumn()
         index = self.tableData.currentRow()
         self.curFile = self.dataList[index]
@@ -245,9 +262,13 @@ class MainUI(QMainWindow):
         self.curCode.setText(targetFile.code)
         self.curTitle.setText(targetFile.name)
         self.curActress.setText(targetFile.actress)
-        pic = Image.open(getPng(targetFile.path, '.png'))
-        pic = pic.resize((250, 400))
-        self.curPic.setPixmap(pic.toqpixmap())
+        try:
+            pic = Image.open(getPng(targetFile.path, '.png'))
+            pic = pic.resize((250, 400))
+            self.curPic.setPixmap(pic.toqpixmap())
+        except Exception as err:
+            print("文件打开失败")
+            print(err)
         # self.curPic.setMaximumWidth(250)
         # self.curPic.setMaximumHeight(400)
 
