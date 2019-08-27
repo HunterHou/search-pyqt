@@ -18,8 +18,6 @@ class MainUI(QMainWindow):
         self.tableData = QTableWidget()
         self.gridData = QWidget()
         self.initUI()
-        self.isGridData = 0
-        self.isTableData = 1
 
     # 定义全局变量
     dataList = []
@@ -29,8 +27,8 @@ class MainUI(QMainWindow):
     command = ""
     # 载入数据
     tableData = ""
-    isTableData = 1
-    isGridData = 0
+    isTableData = 0
+    isGridData = 1
     gridData = ""
     # 默认勾选
     imageToggle = 0
@@ -94,9 +92,9 @@ class MainUI(QMainWindow):
         right_layout = QGridLayout()
         # loading 选择表格布局 还是 网格布局
         if self.isTableData == 1:
-            right_layout.addWidget(self.tableData)
+            right_layout.addWidget(self.loadTableData())
         elif self.isGridData == 1:
-            right_layout.addWidget(self.gridData)
+            right_layout.addWidget(self.loadGridData())
 
         # 创建主窗口组件 挂载布局
         main_widget = QWidget()
@@ -121,80 +119,18 @@ class MainUI(QMainWindow):
         file.triggered[QAction].connect(self.fileMenuProcess)
         self.show()
 
-    # 填充数据
-    def search(self, path):
-        walk = FileService(path, self.fileTypes)
-        self.dataList = []
-        self.dataList = walk.getFiles()
-
-    # 菜单按钮处理
-    def fileMenuProcess(self, action):
-        print(action.text())
-        if action.text() == "退出":
-            self.close()
-
-    # 选择布局
-    def chooseLayout(self, state):
-        button = self.sender().text()
-        if button == '表格':
-            self.isTableData = 1
-            self.isGridData = 0
-            self.loadTableData()
-        if button == '网格':
-            self.isTableData = 0
-            self.isGridData = 1
-        self.initUI()
-
-        # 点击事件
-
-    def clickLine(self, event):
-        col = self.tableData.currentColumn()
-        index = self.tableData.currentRow()
-        if col == 1 or col == 0:
-            filepath = self.dataList[index].path
-            self.command = '''start "" "''' + filepath + "\""
-        if col == 3 or col == 2:
-            dirPath = self.dataList[index].dirPath
-            self.command = '''start "" "''' + dirPath + "\""
-        if self.command != "":
-            os.system(self.command)
-            self.command = ""
-
-    # 点击搜索
-    def clickSearchButton(self):
-        self.statusBar().showMessage('执行中')
-        # 提示框测试
-        # replay = QMessageBox.question(self, '提示',
-        #                               self.dirName.text(), QMessageBox.Yes)
-        # if replay == QMessageBox.Yes:
-        self.search(self.dirName.text())
-        # self.initUI()
-        self.loadTableData()
-        message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
-        self.statusBar().showMessage(message)
-
-    # 选择框
-    def showFileDialog(self):
-        fname = QFileDialog.getExistingDirectory(self, "选择文件夹", "/")
-        if not fname:
-            QMessageBox().about(self, "提示", "打开文件失败，可能是文件内型错误")
-        else:
-            self.dirName.setText(fname)
-            # QMessageBox().about(self, "提示", fname)
-        self.clickSearchButton()
-
     def loadGridData(self):
 
-        self.gridData = QWidget()
         gridData = self.gridData
+        gridData.setEnabled(True)
         gridLayout = QGridLayout()
         gridLayout.addWidget(QLabel("玩个布局"))
         return gridData
 
     # 载入数据 表格形式
     def loadTableData(self):
-        self.tableData = QTableWidget()
         data = self.tableData
+        data.setEnabled(True)
         data.setRowCount(0)
         data.setColumnCount(0)
         if len(self.dataList) == 0:
@@ -243,6 +179,68 @@ class MainUI(QMainWindow):
             data.setItem(row_id, 7, QTableWidgetItem(file.modifyTime))
 
         return data
+
+    # 填充数据
+    def search(self, path):
+        walk = FileService(path, self.fileTypes)
+        self.dataList = []
+        self.dataList = walk.getFiles()
+
+    # 菜单按钮处理
+    def fileMenuProcess(self, action):
+        print(action.text())
+        if action.text() == "退出":
+            self.close()
+
+    # 选择布局
+    def chooseLayout(self):
+        button = self.sender().text()
+        if button == '表格':
+            self.isTableData = 1
+            self.isGridData = 0
+            self.loadTableData()
+        if button == '网格':
+            self.isTableData = 0
+            self.isGridData = 1
+        self.initUI()
+
+        # 点击事件
+
+    def clickLine(self, event):
+        col = self.tableData.currentColumn()
+        index = self.tableData.currentRow()
+        if col == 1 or col == 0:
+            filepath = self.dataList[index].path
+            self.command = '''start "" "''' + filepath + "\""
+        if col == 3 or col == 2:
+            dirPath = self.dataList[index].dirPath
+            self.command = '''start "" "''' + dirPath + "\""
+        if self.command != "":
+            os.system(self.command)
+            self.command = ""
+
+    # 点击搜索
+    def clickSearchButton(self):
+        self.statusBar().showMessage('执行中')
+        # 提示框测试
+        # replay = QMessageBox.question(self, '提示',
+        #                               self.dirName.text(), QMessageBox.Yes)
+        # if replay == QMessageBox.Yes:
+        self.search(self.dirName.text())
+        # self.initUI()
+        self.loadTableData()
+        message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
+        self.statusBar().showMessage(message)
+
+    # 选择框
+    def showFileDialog(self):
+        fname = QFileDialog.getExistingDirectory(self, "选择文件夹", "/")
+        if not fname:
+            QMessageBox().about(self, "提示", "打开文件失败，可能是文件内型错误")
+        else:
+            self.dirName.setText(fname)
+            # QMessageBox().about(self, "提示", fname)
+        self.clickSearchButton()
 
     # 点击图片box
     def imageChoose(self, state):
