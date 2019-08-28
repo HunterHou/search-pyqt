@@ -8,4 +8,5 @@ search/build/
 search/dist/
 search/main.spec
 .idea/
+.idea/encodings.xml
 search/search.spec
