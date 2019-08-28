@@ -6,6 +6,8 @@ from search.utils.timeUtil import *
 
 
 def getPng(filename, end):
+    if filename is None or filename == '':
+        return filename
     filename = filename.replace(".mp4", end)
     filename = filename.replace(".wmv", end)
     filename = filename.replace(".mkv", end)
@@ -144,30 +146,43 @@ class File:
 class JavMovie:
     code = ""
     title = ""
-    image = ""
+    # cover
+    cover = ""
+    # 海报
+    poster = ""
+    # 演员
     actresses = ""
+    # 系列
     series = ""
+    # 制作商
     studio = ""
-    supplier = ""
+    # 发行商
+    maker = ""
+    # 时长
     length = ""
+    # 发行日期
     pdate = ""
 
     director = ""
 
+    dirPath = ""
+
     def __init__(self):
         pass
 
-    def build(self, code, title, image, actress, director, pdate, series, studio, supplier, length):
+    def build(self, code, title, cover, poster, actress, director, pdate, series, studio, maker, length, dirpath):
         self.code = code
         self.title = title
-        self.image = image
+        self.cover = cover
+        self.poster = poster
         self.actresses = actress
         self.director = director
         self.pdate = pdate
         self.series = series
         self.studio = studio
-        self.supplier = supplier
+        self.maker = maker
         self.length = length
+        self.dirPath = dirpath
         return self
 
     def getActress(self):

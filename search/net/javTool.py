@@ -58,8 +58,8 @@ class JavTool:
             studio = text_node[4].find_next("a").get_text()
             supplier = text_node[5].find_next("a").get_text()
             series = text_node[6].find_next("a").get_text()
-            return JavMovie().build(code, img_title, image, actresses, director, pdate, series, studio, supplier,
-                                    length)
+            return JavMovie().build(code, img_title, image, "", actresses, director, pdate, series, studio, supplier,
+                                    length,'')
         except Exception as err:
             print(avResponse)
             print("html解析失败")

@@ -11,7 +11,8 @@ from PyQt5.QtWidgets import *
 from search.const.FileConst import FileConst
 from search.model.file import *
 from search.net.javTool import JavTool, getResponse
-from search.service.fileService import FileService
+from search.service.fileService import FileService, nfoToJavMovie
+from search.ui.infoUI import InfoUI
 
 
 class MainUI(QMainWindow):
@@ -19,7 +20,7 @@ class MainUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.infoLayout = QHBoxLayout()
-        self.tableDatatableData = QTableWidget()
+        self.tableData = QTableWidget()
         self.codeInput = QLineEdit()
         self.titleInput = QTextEdit()
         self.actressInput = QLineEdit()
@@ -28,7 +29,8 @@ class MainUI(QMainWindow):
 
     # 定义全局变量
     dataList = []
-    rootPath = None
+    rootPath = 'E:\emby\高橋しょう子'
+    rootPath = 'E:\emby\高橋しょう子'
     fileTypes = []
     # 载入数据
     # 布局 0 栅格 1 表格 3 网页
@@ -73,6 +75,8 @@ class MainUI(QMainWindow):
         openDir.clicked[bool].connect(self.openFile)
         codeSearch = QPushButton("番号搜索")
         codeSearch.clicked[bool].connect(self.codeSearch)
+        infoButton = QPushButton("info")
+        infoButton.clicked[bool].connect(self.clickInfo)
 
         syncJav = QPushButton("数据同步")
         syncJav.clicked[bool].connect(self.syncJav)
@@ -138,6 +142,7 @@ class MainUI(QMainWindow):
         left_layout.addWidget(postButton, 3, 0, 1, 1)
         left_layout.addWidget(coverButton, 3, 1, 1, 1)
         left_layout.addWidget(okButton, 3, 2, 1, 1)
+        left_layout.addWidget(infoButton, 4, 0, 1, 1)
         left_layout.addWidget(codeSearch, 4, 2, 1, 1)
         left_layout.addWidget(QLabel("番号"), 5, 0, 1, 1)
         left_layout.addWidget(self.codeInput, 5, 1, 1, 2)
@@ -181,6 +186,14 @@ class MainUI(QMainWindow):
         file.triggered[QAction].connect(self.fileMenuProcess)
         self.show()
 
+    def clickInfo(self):
+        nfoPath = getPng(self.curFilePath, '.nfo')
+        if nfoPath is None or nfoPath == '':
+            return
+        javMovie = nfoToJavMovie(nfoPath)
+        info = InfoUI(javMovie)
+        self.addAloneTab(info, javMovie.code)
+
     # loading 数据
     def loadGridData(self):
         if len(self.dataList) == 0:
@@ -188,22 +201,19 @@ class MainUI(QMainWindow):
                 self.search(self.rootPath)
 
         scroll = QScrollArea()
-        gridData = QWidget()
-        gridLayout = QGridLayout()
-        # for index in range(self.gridLayout.count()):
-        #     self.gridLayout.itemAt(index).widget().deleteLater()
-        postCover = self.post_cover
-        each = 4 if postCover == 0 else 2
+        self.gridData = QWidget()
+        self.gridLayout = QGridLayout()
+        for index in range(self.gridLayout.count()):
+            self.gridLayout.itemAt(index).widget().deleteLater()
+        width = 200 if self.post_cover == 0 else 500
+        each = int(self.tab_widget.width() / width)
         for index in range(len(self.dataList)):
             data = self.dataList[index]
             item = QToolButton()
             item.setText(str(index))
-            iconPath = getPng(data.path, '.png' if postCover == 0 else '.jpg')
+            iconPath = getPng(data.path, '.png' if self.post_cover == 0 else '.jpg')
             item.setIcon(QIcon(iconPath))
-            if postCover == 0:
-                item.setIconSize(QSize(200, 300))
-            else:
-                item.setIconSize(QSize(500, 300))
+            item.setIconSize(QSize(width, 300))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(data.name)
             item.clicked[bool].connect(self.clickGrid)
@@ -211,14 +221,13 @@ class MainUI(QMainWindow):
             cols = index % each
             title = QTextEdit(data.name)
             title.setMaximumHeight(40)
-            gridLayout.addWidget(item, row * 2, cols)
-            gridLayout.addWidget(title, row * 2 + 1, cols)
-        gridData.setLayout(gridLayout)
-        gridData.autoFillBackground()
-        scroll.setWidget(gridData)
-        scroll.setAutoFillBackground()
-        # gridData = QLabel("ccaicaica")
-        return gridData
+            title.setMaximumWidth(200)
+            self.gridLayout.addWidget(item, row * 2, cols)
+            self.gridLayout.addWidget(title, row * 2 + 1, cols)
+        self.gridData.setLayout(self.gridLayout)
+        scroll.setWidget(self.gridData)
+        scroll.setAutoFillBackground(True)
+        return scroll
 
     # 点击搜索
 
@@ -229,9 +238,9 @@ class MainUI(QMainWindow):
         #                               self.dirName.text(), QMessageBox.Yes)
         # if replay == QMessageBox.Yes:
         title = self.dirName.text()
-        if title is None or title == "":
-            # QMessageBox.about(self, "提示", "搜索条件为空")
-            return
+        # if title is None or title == "":
+        # QMessageBox.about(self, "提示", "搜索条件为空")
+        # return
         self.search(title)
         message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
         self.statusBar().showMessage(message)
@@ -286,7 +295,7 @@ class MainUI(QMainWindow):
 
     # 填充数据
     def search(self, path):
-        walk = FileService(path, self.fileTypes)
+        walk = FileService().build(path, self.fileTypes)
         self.dataList = []
         self.dataList = walk.getFiles()
 
@@ -309,9 +318,13 @@ class MainUI(QMainWindow):
     def openFile(self):
         choose = self.sender().text()
         if choose == '打开文件':
+            if self.curFilePath is None or self.curFilePath == '':
+                return
             command = '''start "" "''' + self.curFilePath + "\""
             os.system(command)
         if choose == '打开文件夹':
+            if self.curDirPath is None or self.curDirPath == '':
+                return
             command = '''start "" "''' + self.curDirPath + "\""
             os.system(command)
 
@@ -325,9 +338,13 @@ class MainUI(QMainWindow):
         self.clickLine()
         col = self.tableData.currentColumn()
         if col == 1 or col == 0:
+            if self.curFilePath is None or self.curFilePath == '':
+                return
             command = '''start "" "''' + self.curFilePath + "\""
             os.system(command)
         if col == 3 or col == 2:
+            if self.curDirPath is None or self.curDirPath == '':
+                return
             command = '''start "" "''' + self.curDirPath + "\""
             os.system(command)
 
@@ -379,13 +396,15 @@ class MainUI(QMainWindow):
         tableData.setColumnCount(8)
         tableData.setRowCount(len(self.dataList))
         # 自适应列宽度
-        # data.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
         tableData.setHorizontalHeaderLabels(['图片', '名称', "番号", "路径", "优优", "大小", "创建时间", "修改时间"])
         tableData.doubleClicked.connect(self.clickLineDouble)
-        tableData.clicked.connect(self.clickLine)
+        tableData.itemClicked.connect(self.clickLine)
         tableData.setColumnWidth(0, 200)
-        tableData.setColumnWidth(1, 130)
-        tableData.setColumnWidth(2, 100)
+        tableData.setColumnWidth(1, 180)
+        tableData.setColumnWidth(2, 80)
+        tableData.setColumnWidth(3, 200)
+        # tableData.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         for index in range(len(self.dataList)):
             tableData.setRowHeight(index, 300)
             file = self.dataList[index]
@@ -430,7 +449,9 @@ class MainUI(QMainWindow):
     def syncJav(self):
         tool = JavTool(self.javUrl)
         code = self.codeInput.text()
-        # 获取影片信息
+        if code is None or code == '':
+            return
+            # 获取影片信息
         movie = tool.getJavInfo(code)
         if movie is None:
             QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
