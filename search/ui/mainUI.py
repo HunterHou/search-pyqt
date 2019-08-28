@@ -1,25 +1,15 @@
 #!/usr/bin/python3
 
 
-import os
-import shutil
-
 from PIL import Image
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 from search.const.FileConst import FileConst
+from search.model.file import *
+from search.net.javTool import JavTool, getResponse
 from search.service.fileService import FileService
-from search.net.javTool import JavTool
-
-
-def getPng(filename, end):
-    filename = filename.replace(".mp4", end)
-    filename = filename.replace(".wmv", end)
-    filename = filename.replace(".mkv", end)
-    filename = filename.replace(".avi", end)
-    return filename
 
 
 class MainUI(QMainWindow):
@@ -30,11 +20,14 @@ class MainUI(QMainWindow):
         self.gridData = QWidget()
         self.infoLayout = QHBoxLayout()
         self.gridLayout = QGridLayout()
+        self.codeInput = QLineEdit()
+        self.titleInput = QTextEdit()
+        self.actressInput = QLineEdit()
         self.initUI()
 
     # 定义全局变量
     dataList = []
-    rootPath = "G:\\tomake"
+    rootPath = "E:/"
     fileTypes = []
     # 载入数据
     tableData = None
@@ -42,7 +35,14 @@ class MainUI(QMainWindow):
     isGridData = 0
     gridData = None
     gridLayout = None
-    curFile = None
+    codeInput = None
+    titleInput = None
+    actressInput = None
+    curCode = None
+    curActress = None
+    curFilePath = None
+    curDirPath = None
+    curTitle = None
     # 默认勾选
     imageToggle = 0
     videoToggle = 1
@@ -67,6 +67,8 @@ class MainUI(QMainWindow):
         openFile.clicked[bool].connect(self.openFile)
         openDir = QPushButton("打开文件夹")
         openDir.clicked[bool].connect(self.openFile)
+        codeSearch = QPushButton("番号搜索")
+        codeSearch.clicked[bool].connect(self.codeSearch)
 
         syncJav = QPushButton("数据同步")
         syncJav.clicked[bool].connect(self.syncJav)
@@ -102,21 +104,21 @@ class MainUI(QMainWindow):
         left_layout.addWidget(video, 1, 1)
         left_layout.addWidget(docs, 1, 2)
 
-        left_layout.addWidget(self.dirName, 2, 0, 1, 3)
-        left_layout.addWidget(openFolder, 3, 0, 1, 1)
-        left_layout.addWidget(okButton, 3, 1, 1, 1)
-        left_layout.addWidget(QLabel(""), 4, 0, 3, 3)
+        left_layout.addWidget(openFolder, 2, 0, 1, 1)
+        left_layout.addWidget(self.dirName, 2, 1, 1, 2)
 
-        left_layout.addWidget(QLabel("演员"), 5, 0, 1, 1)
-        self.curActress = QLineEdit()
-        left_layout.addWidget(self.curActress, 5, 1, 1, 2)
-        left_layout.addWidget(QLabel("番号"), 6, 0, 1, 1)
-        self.curCode = QLineEdit()
-        left_layout.addWidget(self.curCode, 6, 1, 1, 2)
-        left_layout.addWidget(QLabel("标题"), 7, 0, 1, 3)
-        self.curTitle = QTextEdit()
-        self.curTitle.setMaximumHeight(40)
-        left_layout.addWidget(self.curTitle, 8, 0, 1, 3)
+        left_layout.addWidget(okButton, 3, 2, 1, 1)
+        # left_layout.addWidget(QLabel(""), 4, 0, 3, 3)
+        left_layout.addWidget(codeSearch, 4, 2, 1, 1)
+        left_layout.addWidget(QLabel("番号"), 5, 0, 1, 1)
+        left_layout.addWidget(self.codeInput, 5, 1, 1, 2)
+
+        left_layout.addWidget(QLabel("标题"), 6, 0, 1, 1)
+        self.titleInput.setMaximumHeight(60)
+        self.titleInput.setMaximumWidth(160)
+        left_layout.addWidget(self.titleInput, 6, 1, 2, 2)
+        left_layout.addWidget(QLabel("演员"), 8, 0, 1, 1)
+        left_layout.addWidget(self.actressInput, 8, 1, 1, 2)
         self.curPic = QLabel()
         left_layout.addWidget(self.curPic, 9, 0, 15, 3)
         left_layout.addWidget(openFile)
@@ -128,12 +130,17 @@ class MainUI(QMainWindow):
         right_layout = QGridLayout()
 
         # loading 选择表格布局 还是 网格布局
+        right_layout.addWidget(self.loadTableData(), 0, 0, 1, 1)
+        scroll = QScrollArea()
+        scroll.setWidget(self.loadGridData())
+        right_layout.addWidget(scroll, 1, 0, 1, 1)
         if self.isTableData == 1:
-            right_layout.addWidget(self.loadTableData(), 0, 0, 1, 1)
+            self.loadTableData().setMaximumHeight(900)
+            scroll.setMaximumHeight(0)
         elif self.isGridData == 1:
-            scroll = QScrollArea()
-            scroll.setWidget(self.loadGridData())
-            right_layout.addWidget(scroll, 0, 0, 1, 1)
+            self.loadTableData().setMaximumHeight(0)
+            scroll.setMaximumHeight(900)
+
         # 创建主窗口组件 挂载布局
         main_widget = QWidget()
         main_layout = QGridLayout()
@@ -155,16 +162,29 @@ class MainUI(QMainWindow):
 
     def syncJav(self):
         tool = JavTool("https://www.cdnbus.in/")
-        code = self.curFile.name
-        code = code.split(".")[0]
+        code = self.codeInput.text()
         movie = tool.getJavInfo(code)
-        tool.makeAcctress(self.curFile.dirPath, movie)
+        if movie is None:
+            QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
+        tool.makeAcctress(self.curDirPath, movie)
         if tool.dirpath is not None and tool.fileName is not None:
-            arr = self.curFile.path.split(".")
-            end = "." + arr[len(arr) - 1]
-            os.rename(self.curFile.path, tool.dirpath + "\\" + tool.fileName + end)
+            os.rename(self.curFilePath, tool.dirpath + "\\" + tool.fileName + getSuffix(self.curFilePath))
         # shutil.move(, )
         QMessageBox().about(self, "提示", "同步成功!!!")
+
+    def codeSearch(self):
+        tool = JavTool("https://www.cdnbus.in/")
+        code = self.codeInput.text()
+        movie = tool.getJavInfo(code)
+        if movie is None:
+            QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
+        else:
+            self.curCode = code
+            self.curActress = movie.getActress()
+            self.curFilePath = movie.image
+            # self.curDirPath = targetfile.dirPath
+            self.curTitle = movie.title
+            self.infoToLeft()
 
     def loadGridData(self):
 
@@ -173,6 +193,8 @@ class MainUI(QMainWindow):
             # self.search("G:/emby/emby-rename")
             return gridData
         gridLayout = self.gridLayout
+        for index in range(self.gridLayout.count()):
+            self.gridLayout.itemAt(index).widget().deleteLater()
         for index in range(len(self.dataList)):
             data = self.dataList[index]
             item = QToolButton()
@@ -233,39 +255,59 @@ class MainUI(QMainWindow):
     def openFile(self):
         choose = self.sender().text()
         if choose == '打开文件':
-            command = '''start "" "''' + self.curFile.path + "\""
+            command = '''start "" "''' + self.curFilePath + "\""
             os.system(command)
         if choose == '打开文件夹':
-            command = '''start "" "''' + self.curFile.dirPath + "\""
+            command = '''start "" "''' + self.curDirPath + "\""
             os.system(command)
 
     # 点击事件
     def clickLine(self):
         col = self.tableData.currentColumn()
         index = self.tableData.currentRow()
-        self.curFile = self.dataList[index]
+        self.setCurInfo(self.dataList[index])
         self.infoToLeft()
         if col == 1 or col == 0:
-            command = '''start "" "''' + self.curFile.path + "\""
+            command = '''start "" "''' + self.curFilePath + "\""
             os.system(command)
         if col == 3 or col == 2:
-            command = '''start "" "''' + self.curFile.dirPath + "\""
+            command = '''start "" "''' + self.curDirPath + "\""
             os.system(command)
+
+    def setCurInfo(self, targetfile):
+        self.curCode = targetfile.code
+        self.curActress = targetfile.actress
+        self.curFilePath = targetfile.path
+        self.curDirPath = targetfile.dirPath
+        self.curTitle = targetfile.name
 
     def clickGrid(self):
         text = self.sender().text()
-        self.curFile = self.dataList[int(text)]
+        self.setCurInfo(self.dataList[int(text)])
         self.infoToLeft()
 
     def infoToLeft(self):
-        targetFile = self.curFile
-        self.curCode.setText(targetFile.code)
-        self.curTitle.setText(targetFile.name)
-        self.curActress.setText(targetFile.actress)
+        if self.curCode is not None:
+            self.codeInput.setText(self.curCode)
+        else:
+            self.codeInput.setText(getTitle(self.curTitle))
+        self.titleInput.setText(self.curTitle)
+        self.actressInput.setText(self.curActress)
         try:
-            pic = Image.open(getPng(targetFile.path, '.png'))
-            pic = pic.resize((250, 400))
-            self.curPic.setPixmap(pic.toqpixmap())
+            path = self.curFilePath
+            if path.find("http") < 0:
+                path = getPng(path, '.png')
+                pic = Image.open(path)
+                pic = pic.resize((250, 400))
+                self.curPic.setPixmap(pic.toqpixmap())
+            else:
+                response = getResponse(path)
+                if response.status == 200:
+                    photo = QPixmap()
+                    photo.loadFromData(response.read())
+                    photo = photo.scaled(250, 400)
+                    self.curPic.setPixmap(photo)
+
         except Exception as err:
             print("文件打开失败")
             print(err)
