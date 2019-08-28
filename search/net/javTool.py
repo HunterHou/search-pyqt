@@ -5,7 +5,7 @@ import os
 from PIL import Image
 from bs4 import BeautifulSoup
 
-from search.model.javMovie import JavMovie
+from search.model.file import JavMovie
 from search.net.httpUitls import *
 
 
@@ -58,7 +58,8 @@ class JavTool:
             studio = text_node[4].find_next("a").get_text()
             supplier = text_node[5].find_next("a").get_text()
             series = text_node[6].find_next("a").get_text()
-            return JavMovie(code, img_title, image, actresses, director, pdate, series, studio, supplier, length)
+            return JavMovie().build(code, img_title, image, actresses, director, pdate, series, studio, supplier,
+                                    length)
         except Exception as err:
             print(avResponse)
             print("html解析失败")
@@ -99,6 +100,7 @@ class JavTool:
             cropped = img.crop((widthPos, 0, img.width, img.height))  # (left, upper, right, lower)
             croppedName = filepath.replace(".jpg", '.png')
             cropped.save(croppedName)
+
             self.dirpath = dirPath
             self.filepath = filepath
             self.fileName = fileName

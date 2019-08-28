@@ -10,7 +10,7 @@ def getFileFromFileName(filetypes, dirname, dirpath):
     nameSplit = dirpath.split(".")
     fileType = nameSplit[len(nameSplit) - 1]
     if len(filetypes) > 0 and fileType in filetypes:
-        return File(dirpath, fileType, dirname)
+        return File().build(dirpath, fileType, dirname)
     return 0
 
 

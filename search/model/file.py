@@ -124,7 +124,10 @@ class File:
     createTime = None
     modifyTime = None
 
-    def __init__(self, filename, type, dirpath):
+    def __init__(self):
+        pass
+
+    def build(self, filename, type, dirpath):
         self.name = filename
         self.code = getCode(filename)
         self.actress = getActress(filename)
@@ -135,3 +138,38 @@ class File:
         self.size = getSizeStr(path)
         self.createTime = getCreateTime(path)
         self.modifyTime = getModifyTime(path)
+        return self
+
+
+class JavMovie:
+    code = ""
+    title = ""
+    image = ""
+    actresses = ""
+    series = ""
+    studio = ""
+    supplier = ""
+    length = ""
+    pdate = ""
+
+    director = ""
+
+    def __init__(self):
+        pass
+
+    def build(self, code, title, image, actress, director, pdate, series, studio, supplier, length):
+        self.code = code
+        self.title = title
+        self.image = image
+        self.actresses = actress
+        self.director = director
+        self.pdate = pdate
+        self.series = series
+        self.studio = studio
+        self.supplier = supplier
+        self.length = length
+        return self
+
+    def getActress(self):
+        actress = ','.join(self.actresses)
+        return actress
