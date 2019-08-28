@@ -19,8 +19,7 @@ class MainUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.infoLayout = QHBoxLayout()
-        self.gridLayout = QGridLayout()
-        self.tableData = QTableWidget()
+        self.tableDatatableData = QTableWidget()
         self.codeInput = QLineEdit()
         self.titleInput = QTextEdit()
         self.actressInput = QLineEdit()
@@ -32,11 +31,11 @@ class MainUI(QMainWindow):
     rootPath = None
     fileTypes = []
     # 载入数据
-    isTableData = 1
-    isGridData = 0
+    # 布局 0 栅格 1 表格 3 网页
+    layoutType = 0
     # 0 海报模式 还是 1 封面模式
-    post_cover = 1
-    isWebData = 0
+    post_cover = 0
+
     tableData = None
     codeInput = None
     titleInput = None
@@ -78,36 +77,36 @@ class MainUI(QMainWindow):
         syncJav = QPushButton("数据同步")
         syncJav.clicked[bool].connect(self.syncJav)
 
-        # 单选框
-        grid_layout = QRadioButton("网格", )
-        if self.isGridData == 1:
-            grid_layout.toggle()
-        table_layout = QRadioButton("表格")
-        if self.isTableData == 1:
-            table_layout.toggle()
+        # 布局 0 栅格 1 表格 3 网页
+        grid_layout = QRadioButton("网格")
         web_layout = QRadioButton("网页")
-        if self.isWebData == 1:
+        table_layout = QRadioButton("表格")
+        if self.layoutType == 0:
+            grid_layout.toggle()
+        elif self.layoutType == 1:
+            table_layout.toggle()
+        elif self.layoutType == 2:
             web_layout.toggle()
         grid_layout.clicked[bool].connect(self.chooseLayout)
         table_layout.clicked[bool].connect(self.chooseLayout)
         web_layout.clicked[bool].connect(self.chooseLayout)
-        # layoutGroup = QButtonGroup()
-        # layoutGroup.addButton(grid_layout, 1)
-        # layoutGroup.addButton(table_layout, 1)
-        # layoutGroup.addButton(web_layout, 1)
+        self.layoutGroup = QButtonGroup()
+        self.layoutGroup.addButton(grid_layout, 0)
+        self.layoutGroup.addButton(table_layout, 1)
+        self.layoutGroup.addButton(web_layout, 2)
         # layoutGroup.buttonClicked[int].connect(self.chooseLayout)
 
         postButton = QRadioButton("海报")
         coverButton = QRadioButton("封面")
         if self.post_cover == 0:
             postButton.toggle()
-        else:
+        elif self.post_cover == 1:
             coverButton.toggle()
         postButton.clicked[bool].connect(self.choosePostCover)
         coverButton.clicked[bool].connect(self.choosePostCover)
-        # displayGroup = QButtonGroup()
-        # displayGroup.addButton(postButton, 2)
-        # displayGroup.addButton(coverButton, 2)
+        self.displayGroup = QButtonGroup()
+        self.displayGroup.addButton(postButton, 0)
+        self.displayGroup.addButton(coverButton, 1)
         # displayGroup.buttonClicked[int].connect(self.choosePostCover)
 
         # 复选框
@@ -126,7 +125,6 @@ class MainUI(QMainWindow):
         # 创建左侧组件
         left_widget = QWidget()
         left_layout = QGridLayout()
-        # left_layout.addWidget(layoutGroup, 0, 0)
         left_layout.addWidget(grid_layout, 0, 0)
         left_layout.addWidget(table_layout, 0, 1)
         left_layout.addWidget(web_layout, 0, 2)
@@ -137,11 +135,9 @@ class MainUI(QMainWindow):
         left_layout.addWidget(openFolder, 2, 0, 1, 1)
         left_layout.addWidget(self.dirName, 2, 1, 1, 2)
 
-        # left_layout.addWidget(displayGroup, 3, 0, 1, 2)
         left_layout.addWidget(postButton, 3, 0, 1, 1)
         left_layout.addWidget(coverButton, 3, 1, 1, 1)
         left_layout.addWidget(okButton, 3, 2, 1, 1)
-        # left_layout.addWidget(QLabel(""), 4, 0, 3, 3)
         left_layout.addWidget(codeSearch, 4, 2, 1, 1)
         left_layout.addWidget(QLabel("番号"), 5, 0, 1, 1)
         left_layout.addWidget(self.codeInput, 5, 1, 1, 2)
@@ -185,108 +181,17 @@ class MainUI(QMainWindow):
         file.triggered[QAction].connect(self.fileMenuProcess)
         self.show()
 
-    # 点击搜索
-
-    def clickSearchButton(self):
-        self.statusBar().showMessage('执行中')
-        # 提示框测试
-        # replay = QMessageBox.question(self, '提示',
-        #                               self.dirName.text(), QMessageBox.Yes)
-        # if replay == QMessageBox.Yes:
-        title = self.dirName.text()
-        if title is None or title == "":
-            # QMessageBox.about(self, "提示", "搜索条件为空")
-            return
-        self.search(title)
-        message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
-        self.statusBar().showMessage(message)
-        self.loadContext()
-
-    def loadContext(self):
-        title = self.dirName.text()
-        if self.isGridData == 1:
-            self.addAloneTab(self.loadGridData(), title)
-        if self.isTableData == 1:
-            self.addAloneTab(self.loadTableData(), title)
-        if self.isWebData == 1:
-            # 打开浏览器
-            webbrowser.open(self.javUrl)
-            # self.webview = WebEngineView(self)  # self必须要有，是将主窗口作为参数，传给浏览器
-            # self.webview.load(QUrl("http://www.baidu.com"))
-            # self.addAloneTab(self.loadGridData(), "网格")
-
-    def choosePostCover(self):
-        button = self.sender().text()
-        if button == '海报':
-            self.post_cover = 0
-        if button == '封面':
-            self.post_cover = 1
-        self.loadContext()
-
-    # 选择布局
-    def chooseLayout(self):
-        button = self.sender().text()
-        if button == '网页':
-            self.isTableData = 0
-            self.isGridData = 0
-            self.isWebData = 1
-        if button == '表格':
-            self.isTableData = 1
-            self.isGridData = 0
-            self.isWebData = 0
-            return
-        if button == '网格':
-            self.isTableData = 0
-            self.isGridData = 1
-            self.isWebData = 0
-        self.loadContext()
-
-    def addAloneTab(self, widget, title):
-        for index in range(self.tab_widget.count()):
-            self.tab_widget.removeTab(index)
-        self.tab_widget.addTab(widget, title)
-        self.tab_widget.setCurrentWidget(widget)
-
-    def syncJav(self):
-        tool = JavTool(self.javUrl)
-        code = self.codeInput.text()
-        # 获取影片信息
-        movie = tool.getJavInfo(code)
-        if movie is None:
-            QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
-            return
-        # 生成目录下载图片并切图png
-        tool.makeAcctress(self.curDirPath, movie)
-        # 移动源文件到目标目录 并重命名
-        if tool.dirpath is not None and tool.fileName is not None:
-            os.rename(self.curFilePath, tool.dirpath + "\\" + tool.fileName + "." + getSuffix(self.curFilePath))
-        # shutil.move(, )
-        QMessageBox().about(self, "提示", "同步成功!!!")
-
-    # 搜饭
-    def codeSearch(self):
-        tool = JavTool(self.javUrl)
-        code = self.codeInput.text()
-        movie = tool.getJavInfo(code)
-        if movie is None:
-            QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
-        else:
-            self.curCode = code
-            self.curActress = movie.getActress()
-            self.curFilePath = movie.image
-            # self.curDirPath = targetfile.dirPath
-            self.curTitle = movie.title
-            self.infoToLeft()
-
+    # loading 数据
     def loadGridData(self):
         if len(self.dataList) == 0:
-            self.search(self.rootPath)
+            if len(self.dataList) == 0:
+                self.search(self.rootPath)
 
         scroll = QScrollArea()
         gridData = QWidget()
-        gridLayout = self.gridLayout
-        for index in range(self.gridLayout.count()):
-            self.gridLayout.itemAt(index).widget().deleteLater()
+        gridLayout = QGridLayout()
+        # for index in range(self.gridLayout.count()):
+        #     self.gridLayout.itemAt(index).widget().deleteLater()
         postCover = self.post_cover
         each = 4 if postCover == 0 else 2
         for index in range(len(self.dataList)):
@@ -308,9 +213,76 @@ class MainUI(QMainWindow):
             title.setMaximumHeight(40)
             gridLayout.addWidget(item, row * 2, cols)
             gridLayout.addWidget(title, row * 2 + 1, cols)
-        gridData.setLayout(self.gridLayout)
+        gridData.setLayout(gridLayout)
+        gridData.autoFillBackground()
         scroll.setWidget(gridData)
-        return scroll
+        scroll.setAutoFillBackground()
+        # gridData = QLabel("ccaicaica")
+        return gridData
+
+    # 点击搜索
+
+    def clickSearchButton(self):
+        self.statusBar().showMessage('执行中')
+        # 提示框测试
+        # replay = QMessageBox.question(self, '提示',
+        #                               self.dirName.text(), QMessageBox.Yes)
+        # if replay == QMessageBox.Yes:
+        title = self.dirName.text()
+        if title is None or title == "":
+            # QMessageBox.about(self, "提示", "搜索条件为空")
+            return
+        self.search(title)
+        message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
+        self.statusBar().showMessage(message)
+        self.loadContext()
+
+    def choosePostCover(self):
+        checkId = self.displayGroup.checkedId()
+        #  0 海报 1 封面
+        self.post_cover = checkId
+        self.loadContext()
+
+    # 选择布局
+    def chooseLayout(self):
+        checkId = self.layoutGroup.checkedId()
+        # 布局 0 栅格 1 表格 3 网页
+        self.layoutType = checkId
+        self.loadContext()
+
+    def loadContext(self):
+        title = self.dirName.text()
+        if self.layoutType == 0:
+            self.addAloneTab(self.loadGridData(), title)
+        elif self.layoutType == 1:
+            self.addAloneTab(self.loadTableData(), title)
+        elif self.layoutType == 2:
+            # 打开浏览器
+            webbrowser.open(self.javUrl)
+            # self.webview = WebEngineView(self)  # self必须要有，是将主窗口作为参数，传给浏览器
+            # self.webview.load(QUrl("http://www.baidu.com"))
+            # self.addAloneTab(self.loadGridData(), "网格")
+
+    def addAloneTab(self, widget, title):
+        # for index in range(self.tab_widget.count()):
+        #     self.tab_widget.removeTab(index)
+        self.tab_widget.addTab(widget, title)
+        self.tab_widget.setCurrentWidget(widget)
+
+    # 搜饭
+    def codeSearch(self):
+        tool = JavTool(self.javUrl)
+        code = self.codeInput.text()
+        movie = tool.getJavInfo(code)
+        if movie is None:
+            QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
+        else:
+            self.curCode = code
+            self.curActress = movie.getActress()
+            self.curFilePath = movie.image
+            # self.curDirPath = targetfile.dirPath
+            self.curTitle = movie.title
+            self.infoToLeft()
 
     # 填充数据
     def search(self, path):
@@ -345,10 +317,13 @@ class MainUI(QMainWindow):
 
     # 点击事件
     def clickLine(self):
-        col = self.tableData.currentColumn()
         index = self.tableData.currentRow()
         self.setCurInfo(self.dataList[index])
         self.infoToLeft()
+
+    def clickLineDouble(self):
+        self.clickLine()
+        col = self.tableData.currentColumn()
         if col == 1 or col == 0:
             command = '''start "" "''' + self.curFilePath + "\""
             os.system(command)
@@ -406,7 +381,8 @@ class MainUI(QMainWindow):
         # 自适应列宽度
         # data.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         tableData.setHorizontalHeaderLabels(['图片', '名称', "番号", "路径", "优优", "大小", "创建时间", "修改时间"])
-        tableData.doubleClicked.connect(self.clickLine)
+        tableData.doubleClicked.connect(self.clickLineDouble)
+        tableData.clicked.connect(self.clickLine)
         tableData.setColumnWidth(0, 200)
         tableData.setColumnWidth(1, 130)
         tableData.setColumnWidth(2, 100)
@@ -449,6 +425,23 @@ class MainUI(QMainWindow):
         else:
             self.tab_widget.removeTab(0)
             # self.close()
+
+    # 同步数据
+    def syncJav(self):
+        tool = JavTool(self.javUrl)
+        code = self.codeInput.text()
+        # 获取影片信息
+        movie = tool.getJavInfo(code)
+        if movie is None:
+            QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
+            return
+        # 生成目录下载图片并切图png
+        tool.makeAcctress(self.curDirPath, movie)
+        # 移动源文件到目标目录 并重命名
+        if tool.dirpath is not None and tool.fileName is not None:
+            os.rename(self.curFilePath, tool.dirpath + "\\" + tool.fileName + "." + getSuffix(self.curFilePath))
+        # shutil.move(, )
+        QMessageBox().about(self, "提示", "同步成功!!!")
 
     # 点击图片box
 
