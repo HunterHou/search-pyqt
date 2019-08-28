@@ -27,7 +27,7 @@ class MainUI(QMainWindow):
 
     # 定义全局变量
     dataList = []
-    rootPath = "E:/"
+    rootPath = None
     fileTypes = []
     # 载入数据
     tableData = None
@@ -130,9 +130,9 @@ class MainUI(QMainWindow):
         right_layout = QGridLayout()
 
         # loading 选择表格布局 还是 网格布局
-        right_layout.addWidget(self.loadTableData(), 0, 0, 1, 1)
+        right_layout.addWidget(self.tableData, 0, 0, 1, 1)
         scroll = QScrollArea()
-        scroll.setWidget(self.loadGridData())
+        scroll.setWidget(self.gridData)
         right_layout.addWidget(scroll, 1, 0, 1, 1)
         if self.isTableData == 1:
             self.loadTableData().setMaximumHeight(900)
@@ -166,9 +166,10 @@ class MainUI(QMainWindow):
         movie = tool.getJavInfo(code)
         if movie is None:
             QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
+            return
         tool.makeAcctress(self.curDirPath, movie)
         if tool.dirpath is not None and tool.fileName is not None:
-            os.rename(self.curFilePath, tool.dirpath + "\\" + tool.fileName + getSuffix(self.curFilePath))
+            os.rename(self.curFilePath, tool.dirpath + "\\" + tool.fileName + "." + getSuffix(self.curFilePath))
         # shutil.move(, )
         QMessageBox().about(self, "提示", "同步成功!!!")
 
@@ -187,11 +188,8 @@ class MainUI(QMainWindow):
             self.infoToLeft()
 
     def loadGridData(self):
-
-        gridData = self.gridData
         if len(self.dataList) == 0:
-            # self.search("G:/emby/emby-rename")
-            return gridData
+            self.search(self.rootPath)
         gridLayout = self.gridLayout
         for index in range(self.gridLayout.count()):
             self.gridLayout.itemAt(index).widget().deleteLater()
@@ -210,8 +208,9 @@ class MainUI(QMainWindow):
             title.setMaximumHeight(40)
             gridLayout.addWidget(item, row * 2, cols)
             gridLayout.addWidget(title, row * 2 + 1, cols)
-        gridData.setLayout(self.gridLayout)
-        return gridData
+        self.gridData.setLayout(self.gridLayout)
+        self.gridData.show()
+        return self.gridData
 
     # 填充数据
     def search(self, path):
@@ -240,7 +239,7 @@ class MainUI(QMainWindow):
             self.loadGridData()
         if self.isTableData == 1:
             self.loadTableData()
-        self.initUI()
+        # self.initUI()
 
     # 选择框
     def openPath(self):
