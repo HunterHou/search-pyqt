@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 
+import webbrowser
+
 from PIL import Image
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -16,25 +18,24 @@ class MainUI(QMainWindow):
     # 初始化 loadUI
     def __init__(self):
         super().__init__()
-        self.tableData = QTableWidget()
-        self.gridData = QWidget()
         self.infoLayout = QHBoxLayout()
         self.gridLayout = QGridLayout()
+        self.tableData = QTableWidget()
         self.codeInput = QLineEdit()
         self.titleInput = QTextEdit()
         self.actressInput = QLineEdit()
         self.initUI()
+        self.clickSearchButton()
 
     # 定义全局变量
     dataList = []
     rootPath = None
     fileTypes = []
     # 载入数据
-    tableData = None
     isTableData = 1
     isGridData = 0
-    gridData = None
-    gridLayout = None
+    isWebData = 0
+    tableData = None
     codeInput = None
     titleInput = None
     actressInput = None
@@ -47,6 +48,8 @@ class MainUI(QMainWindow):
     imageToggle = 0
     videoToggle = 1
     docsToggle = 0
+
+    javUrl = "https://www.cdnbus.in/"
 
     # 搜索文本框
     dirName = None
@@ -80,8 +83,12 @@ class MainUI(QMainWindow):
         table_layout = QRadioButton("表格")
         if self.isTableData == 1:
             table_layout.toggle()
+        web_layout = QRadioButton("网页")
+        if self.isWebData == 1:
+            web_layout.toggle()
         grid_layout.clicked[bool].connect(self.chooseLayout)
         table_layout.clicked[bool].connect(self.chooseLayout)
+        web_layout.clicked[bool].connect(self.chooseLayout)
         # 复选框
         image = QCheckBox("图片", self)
         image.stateChanged.connect(self.imageChoose)
@@ -100,6 +107,7 @@ class MainUI(QMainWindow):
         left_layout = QGridLayout()
         left_layout.addWidget(grid_layout, 0, 0)
         left_layout.addWidget(table_layout, 0, 1)
+        left_layout.addWidget(web_layout, 0, 2)
         left_layout.addWidget(image, 1, 0)
         left_layout.addWidget(video, 1, 1)
         left_layout.addWidget(docs, 1, 2)
@@ -126,28 +134,29 @@ class MainUI(QMainWindow):
         left_layout.addWidget(syncJav)
 
         # 创建右侧组件
-        right_widget = QWidget()
-        right_layout = QGridLayout()
+        self.tab_widget = QTabWidget
+        self.tab_widget = QTabWidget()
+        self.tab_widget.setTabShape(QTabWidget.Triangular)
+        self.tab_widget.setDocumentMode(True)
+        self.tab_widget.setMovable(True)
+        self.tab_widget.setTabsClosable(True)
+        self.tab_widget.tabCloseRequested.connect(self.close_Tab)
 
         # loading 选择表格布局 还是 网格布局
-        right_layout.addWidget(self.tableData, 0, 0, 1, 1)
-        scroll = QScrollArea()
-        scroll.setWidget(self.gridData)
-        right_layout.addWidget(scroll, 1, 0, 1, 1)
-        if self.isTableData == 1:
-            self.loadTableData().setMaximumHeight(900)
-            scroll.setMaximumHeight(0)
-        elif self.isGridData == 1:
-            self.loadTableData().setMaximumHeight(0)
-            scroll.setMaximumHeight(900)
+
+        # if self.isTableData == 1:
+        #     self.loadTableData().setMaximumHeight(900)
+        #     scroll.setMaximumHeight(0)
+        # elif self.isGridData == 1:
+        #     self.loadTableData().setMaximumHeight(0)
+        #     scroll.setMaximumHeight(900)
 
         # 创建主窗口组件 挂载布局
         main_widget = QWidget()
         main_layout = QGridLayout()
         left_widget.setLayout(left_layout)
         main_layout.addWidget(left_widget, 0, 1, 1, 16)
-        right_widget.setLayout(right_layout)
-        main_layout.addWidget(right_widget, 0, 0, 1, 1)
+        main_layout.addWidget(self.tab_widget, 0, 0, 1, 1)
         main_widget.setLayout(main_layout)
 
         self.setCentralWidget(main_widget)
@@ -160,8 +169,51 @@ class MainUI(QMainWindow):
         file.triggered[QAction].connect(self.fileMenuProcess)
         self.show()
 
+    # 点击搜索
+
+    def clickSearchButton(self):
+        self.statusBar().showMessage('执行中')
+        # 提示框测试
+        # replay = QMessageBox.question(self, '提示',
+        #                               self.dirName.text(), QMessageBox.Yes)
+        # if replay == QMessageBox.Yes:
+        self.search(self.dirName.text())
+        message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
+        self.statusBar().showMessage(message)
+
+        if self.isGridData == 1:
+            self.addAloneTab(self.loadGridData(), "网格")
+        if self.isTableData == 1:
+            self.addAloneTab(self.loadTableData(), "表格")
+
+    # 选择布局
+    def chooseLayout(self):
+        button = self.sender().text()
+        if button == '网页':
+            self.isTableData = 0
+            self.isGridData = 0
+            self.isWebData = 1
+            webbrowser.open(self.javUrl)
+            return
+
+        if button == '表格':
+            self.isTableData = 1
+            self.isGridData = 0
+            self.addAloneTab(self.loadTableData(), "表格")
+            return
+        if button == '网格':
+            self.isTableData = 0
+            self.isGridData = 1
+            self.addAloneTab(self.loadGridData(), "网格")
+            return
+
+    def addAloneTab(self, widget, title):
+        for index in range(self.tab_widget.count()):
+            self.tab_widget.removeTab(index)
+        self.tab_widget.addTab(widget, title)
+
     def syncJav(self):
-        tool = JavTool("https://www.cdnbus.in/")
+        tool = JavTool()
         code = self.codeInput.text()
         movie = tool.getJavInfo(code)
         if movie is None:
@@ -174,7 +226,7 @@ class MainUI(QMainWindow):
         QMessageBox().about(self, "提示", "同步成功!!!")
 
     def codeSearch(self):
-        tool = JavTool("https://www.cdnbus.in/")
+        tool = JavTool(self.javUrl)
         code = self.codeInput.text()
         movie = tool.getJavInfo(code)
         if movie is None:
@@ -190,6 +242,9 @@ class MainUI(QMainWindow):
     def loadGridData(self):
         if len(self.dataList) == 0:
             self.search(self.rootPath)
+
+        scroll = QScrollArea()
+        gridData = QWidget()
         gridLayout = self.gridLayout
         for index in range(self.gridLayout.count()):
             self.gridLayout.itemAt(index).widget().deleteLater()
@@ -208,9 +263,9 @@ class MainUI(QMainWindow):
             title.setMaximumHeight(40)
             gridLayout.addWidget(item, row * 2, cols)
             gridLayout.addWidget(title, row * 2 + 1, cols)
-        self.gridData.setLayout(self.gridLayout)
-        self.gridData.show()
-        return self.gridData
+        gridData.setLayout(self.gridLayout)
+        scroll.setWidget(gridData)
+        return scroll
 
     # 填充数据
     def search(self, path):
@@ -223,23 +278,6 @@ class MainUI(QMainWindow):
         print(action.text())
         if action.text() == "退出":
             self.close()
-
-    # 点击搜索
-    def clickSearchButton(self):
-        self.statusBar().showMessage('执行中')
-        # 提示框测试
-        # replay = QMessageBox.question(self, '提示',
-        #                               self.dirName.text(), QMessageBox.Yes)
-        # if replay == QMessageBox.Yes:
-        self.search(self.dirName.text())
-        message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
-        self.statusBar().showMessage(message)
-
-        if self.isGridData == 1:
-            self.loadGridData()
-        if self.isTableData == 1:
-            self.loadTableData()
-        # self.initUI()
 
     # 选择框
     def openPath(self):
@@ -310,27 +348,25 @@ class MainUI(QMainWindow):
         except Exception as err:
             print("文件打开失败")
             print(err)
-        # self.curPic.setMaximumWidth(250)
-        # self.curPic.setMaximumHeight(400)
 
     # 载入数据 表格形式
     def loadTableData(self):
-        data = self.tableData
-        data.setRowCount(0)
-        data.setColumnCount(0)
+        tableData = self.tableData
+        tableData.setRowCount(0)
+        tableData.setColumnCount(0)
         if len(self.dataList) == 0:
             self.search(self.rootPath)
-        data.setColumnCount(8)
-        data.setRowCount(len(self.dataList))
+        tableData.setColumnCount(8)
+        tableData.setRowCount(len(self.dataList))
         # 自适应列宽度
         # data.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        data.setHorizontalHeaderLabels(['图片', '名称', "番号", "路径", "优优", "大小", "创建时间", "修改时间"])
-        data.itemClicked.connect(self.clickLine)
-        data.setColumnWidth(0, 200)
-        data.setColumnWidth(1, 130)
-        data.setColumnWidth(2, 100)
+        tableData.setHorizontalHeaderLabels(['图片', '名称', "番号", "路径", "优优", "大小", "创建时间", "修改时间"])
+        tableData.itemClicked.connect(self.clickLine)
+        tableData.setColumnWidth(0, 200)
+        tableData.setColumnWidth(1, 130)
+        tableData.setColumnWidth(2, 100)
         for index in range(len(self.dataList)):
-            data.setRowHeight(index, 300)
+            tableData.setRowHeight(index, 300)
             file = self.dataList[index]
             row_id = index
             row_name = QLabel()
@@ -351,30 +387,25 @@ class MainUI(QMainWindow):
             if not QPixmap(path).isNull():
                 pic = QPixmap(path).scaled(200, 300)
                 row_name.setPixmap(pic)
-            data.setCellWidget(row_id, 0, row_name)
-            data.setItem(row_id, 1, QTableWidgetItem(file.name))
-            data.setItem(row_id, 2, QTableWidgetItem(file.code))
-            data.setItem(row_id, 3, QTableWidgetItem(file.path))
-            data.setItem(row_id, 4, QTableWidgetItem(file.actress))
-            data.setItem(row_id, 5, QTableWidgetItem(file.size))
-            data.setItem(row_id, 6, QTableWidgetItem(file.createTime))
-            data.setItem(row_id, 7, QTableWidgetItem(file.modifyTime))
+            tableData.setCellWidget(row_id, 0, row_name)
+            tableData.setItem(row_id, 1, QTableWidgetItem(file.name))
+            tableData.setItem(row_id, 2, QTableWidgetItem(file.code))
+            tableData.setItem(row_id, 3, QTableWidgetItem(file.path))
+            tableData.setItem(row_id, 4, QTableWidgetItem(file.actress))
+            tableData.setItem(row_id, 5, QTableWidgetItem(file.size))
+            tableData.setItem(row_id, 6, QTableWidgetItem(file.createTime))
+            tableData.setItem(row_id, 7, QTableWidgetItem(file.modifyTime))
 
-        return data
+        return tableData
 
-    # 选择布局
-    def chooseLayout(self):
-        button = self.sender().text()
-        if button == '表格':
-            self.isTableData = 1
-            self.isGridData = 0
-            self.loadTableData()
-        if button == '网格':
-            self.isTableData = 0
-            self.isGridData = 1
-        self.initUI()
+    def close_Tab(self, index):
+        if self.tab_widget.count() > 1:
+            self.tab_widget.removeTab(index)
+        else:
+            self.close()
 
     # 点击图片box
+
     def imageChoose(self, state):
         if state == Qt.Checked:
             self.imageToggle = 1
