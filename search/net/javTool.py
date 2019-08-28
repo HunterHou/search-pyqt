@@ -11,6 +11,9 @@ from search.net.httpUitls import *
 
 class JavTool:
     webRoot = "https://www.cdnbus.in/"
+    fileName = None
+    dirpath = None
+    filepath = None
 
     def __init__(self, root):
         self.webRoot = root
@@ -51,42 +54,44 @@ class JavTool:
         series = text_node[6].find_next("a").get_text()
         return JavMovie(code, img_title, image, actresses, director, pdate, series, studio, supplier, length)
 
-
-def makeAcctress(rootpath, jv):
-    os.chdir(rootpath)
-    # 创建演员
-    if os.path.exists(os.curdir + "\\" + jv.getActress()):
-        pass
-    else:
-        os.mkdir(jv.getActress())
-    os.chdir(jv.getActress())
-    # 创建发行商
-    if os.path.exists(os.curdir + "\\" + jv.supplier):
-        pass
-    else:
-        os.mkdir(jv.supplier)
-    os.chdir(jv.supplier)
-    # 创建相片
-    fileName = "[" + jv.getActress() + "]" + " [" + jv.code + "]" + jv.title
-    if os.path.exists(os.curdir + "\\" + fileName):
-        pass
-    else:
-        os.mkdir(fileName)
-    os.chdir(fileName)
-    # 下载图片
-    pic_end = ".jpg"
-    filepath = os.curdir + "\\" + fileName + pic_end
-    download(jv.image, filepath)
-    # 图片切割成 png
-    img = Image.open(fileName)
-    cropped = img.crop((img.width / 2, 0, img.width, img.height))  # (left, upper, right, lower)
-    croppedName = fileName.replace(".jpg", '.png')
-    cropped.save(croppedName)
-
-
-# tool = JavTool("https://www.cdnbus.in/")
-# jv = tool.getJavInfo("JUY-951")
-# rootpath = "e:\\"
-# makeAcctress(rootpath, jv)
-
-filename = "E:\友田真希\Madonna\[友田真希] [JUY-951]僕が隣の痴女奥さんに様々な方法で射精管理され続けた一週間 友田真希\[友田真希] [JUY-951]僕が隣の痴女奥さんに様々な方法で射精管理され続けた一週間 友田真希.jpg"
+    def makeAcctress(self, rootpath, movie):
+        try:
+            os.chdir(rootpath)
+            dirPath = rootpath + "\\" + movie.getActress()
+            # 创建演员
+            if os.path.exists(dirPath):
+                pass
+            else:
+                os.mkdir(movie.getActress())
+            os.chdir(movie.getActress())
+            # 创建发行商
+            dirPath = dirPath + "\\" + movie.supplier
+            if os.path.exists(dirPath):
+                pass
+            else:
+                os.mkdir(movie.supplier)
+            os.chdir(movie.supplier)
+            # 创建相片
+            fileName = "[" + movie.getActress() + "]" + " [" + movie.code + "]" + movie.title
+            dirPath = dirPath + "\\" + fileName
+            if os.path.exists(dirPath):
+                pass
+            else:
+                os.mkdir(fileName)
+            os.chdir(fileName)
+            # 下载图片
+            pic_end = ".jpg"
+            filepath = dirPath + "\\" + fileName + pic_end
+            download(movie.image, filepath)
+            # 图片切割成 png
+            img = Image.open(filepath)
+            widthPos = int((img.width / 80) * 42)
+            cropped = img.crop((widthPos, 0, img.width, img.height))  # (left, upper, right, lower)
+            croppedName = filepath.replace(".jpg", '.png')
+            cropped.save(croppedName)
+            self.dirpath = dirPath
+            self.filepath = filepath
+            self.fileName = fileName
+        except Exception as err:
+            print("生成失败")
+            print(err)
