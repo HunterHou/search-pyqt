@@ -35,7 +35,7 @@ class MainUI(QMainWindow):
     isTableData = 1
     isGridData = 0
     # 0 海报模式 还是 1 封面模式
-    post_cover = 0
+    post_cover = 1
     isWebData = 0
     tableData = None
     codeInput = None
@@ -88,14 +88,14 @@ class MainUI(QMainWindow):
         web_layout = QRadioButton("网页")
         if self.isWebData == 1:
             web_layout.toggle()
-        # grid_layout.clicked[bool].connect(self.chooseLayout)
-        # table_layout.clicked[bool].connect(self.chooseLayout)
-        # web_layout.clicked[bool].connect(self.chooseLayout)
-        layoutGroup = QButtonGroup()
-        layoutGroup.addButton(grid_layout, 1)
-        layoutGroup.addButton(table_layout, 1)
-        layoutGroup.addButton(web_layout, 1)
-        layoutGroup.buttonClicked[int].connect(self.chooseLayout)
+        grid_layout.clicked[bool].connect(self.chooseLayout)
+        table_layout.clicked[bool].connect(self.chooseLayout)
+        web_layout.clicked[bool].connect(self.chooseLayout)
+        # layoutGroup = QButtonGroup()
+        # layoutGroup.addButton(grid_layout, 1)
+        # layoutGroup.addButton(table_layout, 1)
+        # layoutGroup.addButton(web_layout, 1)
+        # layoutGroup.buttonClicked[int].connect(self.chooseLayout)
 
         postButton = QRadioButton("海报")
         coverButton = QRadioButton("封面")
@@ -103,12 +103,12 @@ class MainUI(QMainWindow):
             postButton.toggle()
         else:
             coverButton.toggle()
-        # postButton.clicked[bool].connect(self.choosePostCover)
-        # coverButton.clicked[bool].connect(self.choosePostCover)
-        displayGroup = QButtonGroup()
-        displayGroup.addButton(postButton, 2)
-        displayGroup.addButton(coverButton, 2)
-        displayGroup.buttonClicked[int].connect(self.choosePostCover)
+        postButton.clicked[bool].connect(self.choosePostCover)
+        coverButton.clicked[bool].connect(self.choosePostCover)
+        # displayGroup = QButtonGroup()
+        # displayGroup.addButton(postButton, 2)
+        # displayGroup.addButton(coverButton, 2)
+        # displayGroup.buttonClicked[int].connect(self.choosePostCover)
 
         # 复选框
         image = QCheckBox("图片", self)
@@ -215,7 +215,7 @@ class MainUI(QMainWindow):
             # self.webview.load(QUrl("http://www.baidu.com"))
             # self.addAloneTab(self.loadGridData(), "网格")
 
-    def choosePostCover(self, id):
+    def choosePostCover(self):
         button = self.sender().text()
         if button == '海报':
             self.post_cover = 0
@@ -224,7 +224,7 @@ class MainUI(QMainWindow):
         self.loadContext()
 
     # 选择布局
-    def chooseLayout(self, id):
+    def chooseLayout(self):
         button = self.sender().text()
         if button == '网页':
             self.isTableData = 0
@@ -242,8 +242,8 @@ class MainUI(QMainWindow):
         self.loadContext()
 
     def addAloneTab(self, widget, title):
-        # for index in range(self.tab_widget.count()):
-        #     self.tab_widget.removeTab(index)
+        for index in range(self.tab_widget.count()):
+            self.tab_widget.removeTab(index)
         self.tab_widget.addTab(widget, title)
         self.tab_widget.setCurrentWidget(widget)
 
@@ -289,14 +289,16 @@ class MainUI(QMainWindow):
             self.gridLayout.itemAt(index).widget().deleteLater()
         postCover = self.post_cover
         each = 4 if postCover == 0 else 2
-        size = (200, 300) if postCover == 0 else (500, 300)
         for index in range(len(self.dataList)):
             data = self.dataList[index]
             item = QToolButton()
             item.setText(str(index))
             iconPath = getPng(data.path, '.png' if postCover == 0 else '.jpg')
             item.setIcon(QIcon(iconPath))
-            item.setIconSize(QSize(size))
+            if postCover == 0:
+                item.setIconSize(QSize(200, 300))
+            else:
+                item.setIconSize(QSize(500, 300))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(data.name)
             item.clicked[bool].connect(self.clickGrid)
@@ -404,7 +406,7 @@ class MainUI(QMainWindow):
         # 自适应列宽度
         # data.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         tableData.setHorizontalHeaderLabels(['图片', '名称', "番号", "路径", "优优", "大小", "创建时间", "修改时间"])
-        tableData.itemClicked.connect(self.clickLine)
+        tableData.doubleClicked.connect(self.clickLine)
         tableData.setColumnWidth(0, 200)
         tableData.setColumnWidth(1, 130)
         tableData.setColumnWidth(2, 100)
