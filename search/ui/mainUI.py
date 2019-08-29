@@ -29,8 +29,7 @@ class MainUI(QMainWindow):
 
     # 定义全局变量
     dataList = []
-    rootPath = 'E:\emby\高橋しょう子'
-    rootPath = 'E:\emby\高橋しょう子'
+    rootPath = ''
     fileTypes = []
     # 载入数据
     # 布局 0 栅格 1 表格 3 网页
@@ -98,7 +97,6 @@ class MainUI(QMainWindow):
         self.layoutGroup.addButton(grid_layout, 0)
         self.layoutGroup.addButton(table_layout, 1)
         self.layoutGroup.addButton(web_layout, 2)
-        # layoutGroup.buttonClicked[int].connect(self.chooseLayout)
 
         postButton = QRadioButton("海报")
         coverButton = QRadioButton("封面")
@@ -111,7 +109,6 @@ class MainUI(QMainWindow):
         self.displayGroup = QButtonGroup()
         self.displayGroup.addButton(postButton, 0)
         self.displayGroup.addButton(coverButton, 1)
-        # displayGroup.buttonClicked[int].connect(self.choosePostCover)
 
         # 复选框
         image = QCheckBox("图片", self)
@@ -181,10 +178,24 @@ class MainUI(QMainWindow):
         file = bar.addMenu("文件")
         file.setShortcutEnabled(1)
         qu = QAction("退出", self)
-        qu.setShortcut("q")
+        qu.setShortcut("ctrl+q")
         file.addAction(qu)
+
+        setting = QAction("设置", self)
+        setting.setShortcut("ctrl+s")
+        file.addAction(setting)
+
         file.triggered[QAction].connect(self.fileMenuProcess)
         self.show()
+
+    # 菜单按钮处理
+
+    def fileMenuProcess(self, action):
+        print(action.text())
+        if action.text() == "退出":
+            self.close()
+        if action.text() == "设置":
+            self.close()
 
     def clickInfo(self):
         nfoPath = getPng(self.curFilePath, '.nfo')
@@ -238,9 +249,6 @@ class MainUI(QMainWindow):
         #                               self.dirName.text(), QMessageBox.Yes)
         # if replay == QMessageBox.Yes:
         title = self.dirName.text()
-        # if title is None or title == "":
-        # QMessageBox.about(self, "提示", "搜索条件为空")
-        # return
         self.search(title)
         message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
         self.statusBar().showMessage(message)
@@ -289,7 +297,6 @@ class MainUI(QMainWindow):
             self.curCode = code
             self.curActress = movie.getActress()
             self.curFilePath = movie.image
-            # self.curDirPath = targetfile.dirPath
             self.curTitle = movie.title
             self.infoToLeft()
 
@@ -298,12 +305,6 @@ class MainUI(QMainWindow):
         walk = FileService().build(path, self.fileTypes)
         self.dataList = []
         self.dataList = walk.getFiles()
-
-    # 菜单按钮处理
-    def fileMenuProcess(self, action):
-        print(action.text())
-        if action.text() == "退出":
-            self.close()
 
     # 选择框
     def openPath(self):
