@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-
-
 import webbrowser
 
 from PIL import Image
@@ -296,7 +294,19 @@ class MainUI(QMainWindow):
         self.layoutType = checkId
         self.loadContext()
 
+    def printaa(self):
+        print("111")
+
     def loadContext(self):
+        self.loadContextThread()
+        # if __name__ == 'search.ui.mainUI':
+        #     freeze_support()
+        #     pool = Pool(processes=1)
+        #     pool.map_async(, [])
+        #     pool.close()
+        #     pool.join()
+
+    def loadContextThread(self):
         title = self.dirName.text()
         if self.layoutType == 0:
             self.addAloneTab(self.loadGridData(), title)

@@ -89,7 +89,7 @@ class FileService:
 
 
 def nfoToJavMovie(path):
-    if path is None or path == '':
+    if path is None or path or not os.path.exists(path):
         return None
     arr = path.split("\\")
     dirpath = path.replace(arr[len(arr) - 1], "")
