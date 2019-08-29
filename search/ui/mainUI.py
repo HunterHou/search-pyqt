@@ -51,7 +51,7 @@ class MainUI(QMainWindow):
     videoToggle = 1
     docsToggle = 0
 
-    javUrl = "https://www.cdnbus.in/"
+    webUrl = "https://www.cdnbus.in/"
 
     # 搜索文本框
     dirName = None
@@ -64,8 +64,10 @@ class MainUI(QMainWindow):
         if self.dirName is None:
             self.dirName = QLineEdit()
         openFolder = QPushButton("点我")
+        # openFolder.setShortcut(QKeySequence.Open)
         openFolder.clicked[bool].connect(self.openPath)
         okButton = QPushButton("搜索")
+        okButton.setShortcut(QKeySequence(str("Return")))
         okButton.clicked[bool].connect(self.clickSearchButton)
 
         openFile = QPushButton("打开文件")
@@ -156,6 +158,10 @@ class MainUI(QMainWindow):
         left_layout.addWidget(openDir)
         left_layout.addWidget(syncJav)
 
+        left_layout.addWidget(QLabel("数据源:"))
+        self.webUrlLable = QLabel(self.webUrl)
+        left_layout.addWidget(self.webUrlLable)
+
         # 创建右侧组件
         self.tab_widget = QTabWidget
         self.tab_widget = QTabWidget()
@@ -174,36 +180,58 @@ class MainUI(QMainWindow):
         main_widget.setLayout(main_layout)
 
         self.setCentralWidget(main_widget)
-        bar = self.menuBar()
-        file = bar.addMenu("文件")
-        file.setShortcutEnabled(1)
-        qu = QAction("退出", self)
-        qu.setShortcut("ctrl+q")
-        file.addAction(qu)
 
-        setting = QAction("设置", self)
-        setting.setShortcut("ctrl+s")
-        file.addAction(setting)
+        self.addMenu()
 
-        file.triggered[QAction].connect(self.fileMenuProcess)
         self.show()
 
-    # 菜单按钮处理
+    # 添加菜单按钮
+    def addMenu(self):
+        bar = self.menuBar()
+        # 文件
+        file = bar.addMenu("文件")
+        file.setShortcutEnabled(1)
+        openAction = QAction("打开", self)
+        openAction.setShortcut(QKeySequence.Open)
+        file.addAction(openAction)
+        quitAction = QAction("退出", self)
+        quitAction.setShortcut(QKeySequence(str("ctrl+Q")))
+        file.addAction(quitAction)
 
+        file.triggered[QAction].connect(self.fileMenuProcess)
+        # 设置
+        setting = bar.addMenu("设置")
+        setting.setShortcutEnabled(1)
+        changeUrlAction = QAction("切换数据源", self)
+        changeUrlAction.setShortcut(QKeySequence.Save)
+        setting.addAction(changeUrlAction)
+        setting.triggered[QAction].connect(self.fileMenuProcess)
+
+    # 菜单按钮处理
     def fileMenuProcess(self, action):
         print(action.text())
+        if action.text() == "打开":
+            self.openPath()
         if action.text() == "退出":
             self.close()
-        if action.text() == "设置":
-            self.close()
+        if action.text() == "切换数据源":
+            text, ok = QInputDialog.getText(self, "设置数据源", "网址:", )
+            if ok:
+                self.webUrl = text
+                self.webUrlLable.setText(text)
 
     def clickInfo(self):
+
+        javMovie = None
         nfoPath = getPng(self.curFilePath, '.nfo')
-        if nfoPath is None or nfoPath == '':
-            return
-        javMovie = nfoToJavMovie(nfoPath)
-        info = InfoUI(javMovie)
-        self.addAloneTab(info, javMovie.code)
+        if nfoPath is not None and nfoPath != '':
+            javMovie = nfoToJavMovie(nfoPath)
+        if self.codeInput.text() is not None and self.codeInput.text() != '':
+            tool = JavTool(self.webUrl)
+            javMovie = tool.getJavInfo(self.codeInput.text())
+        if javMovie is not None:
+            info = InfoUI(javMovie)
+            self.addAloneTab(info, javMovie.code)
 
     # loading 数据
     def loadGridData(self):
@@ -258,6 +286,7 @@ class MainUI(QMainWindow):
         checkId = self.displayGroup.checkedId()
         #  0 海报 1 封面
         self.post_cover = checkId
+        self.tab_widget.removeTab(self.tab_widget.count() - 1)
         self.loadContext()
 
     # 选择布局
@@ -275,7 +304,7 @@ class MainUI(QMainWindow):
             self.addAloneTab(self.loadTableData(), title)
         elif self.layoutType == 2:
             # 打开浏览器
-            webbrowser.open(self.javUrl)
+            webbrowser.open(self.webUrl)
             # self.webview = WebEngineView(self)  # self必须要有，是将主窗口作为参数，传给浏览器
             # self.webview.load(QUrl("http://www.baidu.com"))
             # self.addAloneTab(self.loadGridData(), "网格")
@@ -288,7 +317,7 @@ class MainUI(QMainWindow):
 
     # 搜饭
     def codeSearch(self):
-        tool = JavTool(self.javUrl)
+        tool = JavTool(self.webUrl)
         code = self.codeInput.text()
         movie = tool.getJavInfo(code)
         if movie is None:
@@ -296,7 +325,7 @@ class MainUI(QMainWindow):
         else:
             self.curCode = code
             self.curActress = movie.getActress()
-            self.curFilePath = movie.image
+            self.curFilePath = movie.cover
             self.curTitle = movie.title
             self.infoToLeft()
 
@@ -308,11 +337,11 @@ class MainUI(QMainWindow):
 
     # 选择框
     def openPath(self):
-        fname = QFileDialog.getExistingDirectory(self, "选择文件夹", "E:\\")
-        if not fname:
-            QMessageBox().about(self, "提示", "打开文件失败，可能是文件内型错误")
-        else:
-            self.dirName.setText(fname)
+        pathname = QFileDialog.getExistingDirectory(self, "选择文件夹", "E:\\")
+        # if not pathname:
+        #     QMessageBox().about(self, "提示", "打开文件失败，可能是文件内型错误")
+        # else:
+        self.dirName.setText(pathname)
         self.clickSearchButton()
 
     # 点击事件
@@ -448,7 +477,7 @@ class MainUI(QMainWindow):
 
     # 同步数据
     def syncJav(self):
-        tool = JavTool(self.javUrl)
+        tool = JavTool(self.webUrl)
         code = self.codeInput.text()
         if code is None or code == '':
             return

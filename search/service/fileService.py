@@ -134,6 +134,5 @@ def nfoToJavMovie(path):
     # return JavMovie().build(code, title, cover, poster, actresses, director, pdate, series, studio, maker,
     #                         length)
 
-
-info = 'E:\emby\高橋しょう子\Moodyz\[MIDE-670] 【元年キャンペーン】彼女が四日間、旅行で留守の間、彼女のグラドルお姉さんとハメまくったドエロ純愛記録。 [高橋しょう子]\\[MIDE-670] 【元年キャンペーン】彼女が四日間、旅行で留守の間、彼女のグラドルお姉さんとハメまくったドエロ純愛記録。 [高橋しょう子].nfo'
-print(nfoToJavMovie(info))
+# info = 'E:\emby\高橋しょう子\Moodyz\[MIDE-670] 【元年キャンペーン】彼女が四日間、旅行で留守の間、彼女のグラドルお姉さんとハメまくったドエロ純愛記録。 [高橋しょう子]\\[MIDE-670] 【元年キャンペーン】彼女が四日間、旅行で留守の間、彼女のグラドルお姉さんとハメまくったドエロ純愛記録。 [高橋しょう子].nfo'
+# print(nfoToJavMovie(info))

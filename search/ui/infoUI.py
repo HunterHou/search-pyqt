@@ -4,6 +4,8 @@
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from search.net.httpUitls import *
+
 
 class InfoUI(QWidget):
     javMovie = None
@@ -30,15 +32,18 @@ class InfoUI(QWidget):
         layout.addWidget(QLabel(), 5, 0, 25, 4)
         cover = QLabel()
         try:
-            imgPath = javMovie.dirPath + javMovie.cover
-            # coverImg = Image.open(imgPath)
-            photo = QPixmap(imgPath)
-            photo = photo.scaled(600, 400)
-            cover.setPixmap(photo)
-            # moviePath = imgPath.replace('.jpg', '.mp4')
-            # movie = QMovie(moviePath)
-            # movie.start()
-            # cover.setMovie(movie)
+            if javMovie.cover.find('http') >= 0:
+                response = getResponse(javMovie.cover)
+                if response.status == 200:
+                    photo = QPixmap()
+                    photo.loadFromData(response.read())
+                    photo = photo.scaled(600, 400)
+                    cover.setPixmap(photo)
+            else:
+                imgPath = javMovie.dirPath + javMovie.cover
+                photo = QPixmap(imgPath)
+                photo = photo.scaled(600, 400)
+                cover.setPixmap(photo)
         except Exception as err:
             print(err)
         layout.addWidget(cover, 0, 3, 15, 4)
