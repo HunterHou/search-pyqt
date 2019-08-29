@@ -76,12 +76,12 @@ class JavTool:
                 os.mkdir(movie.getActress())
             os.chdir(movie.getActress())
             # 创建发行商
-            dirPath = dirPath + "\\" + movie.supplier
+            dirPath = dirPath + "\\" + movie.maker
             if os.path.exists(dirPath):
                 pass
             else:
-                os.mkdir(movie.supplier)
-            os.chdir(movie.supplier)
+                os.mkdir(movie.maker)
+            os.chdir(movie.maker)
             # 创建相片
             fileName = "[" + movie.getActress() + "]" + " [" + movie.code + "]" + movie.title
             dirPath = dirPath + "\\" + fileName
@@ -93,7 +93,7 @@ class JavTool:
             # 下载图片
             pic_end = ".jpg"
             filepath = dirPath + "\\" + fileName + pic_end
-            download(movie.image, filepath)
+            download(movie.cover, filepath)
             # 图片切割成 png
             img = Image.open(filepath)
             widthPos = int((img.width / 80) * 42)

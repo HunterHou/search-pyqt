@@ -224,7 +224,7 @@ class MainUI(QMainWindow):
         nfoPath = getPng(self.curFilePath, '.nfo')
         if nfoPath is not None and nfoPath != '':
             javMovie = nfoToJavMovie(nfoPath)
-        if self.codeInput.text() is not None and self.codeInput.text() != '':
+        elif self.codeInput.text() is not None and self.codeInput.text() != '':
             tool = JavTool(self.webUrl)
             javMovie = tool.getJavInfo(self.codeInput.text())
         if javMovie is not None:
