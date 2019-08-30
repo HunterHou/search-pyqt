@@ -111,20 +111,20 @@ def getActress(fileName):
 
 class File:
     # 名称
-    name = None
+    name = ''
     # 文件路径
-    path = None
+    path = ''
     # 番号
-    code = None
+    code = ''
     # 演员
-    actress = None
+    actress = ''
     # 类型
-    fileType = None
+    fileType = ''
     # 文件夹路径
-    dirPath = None
-    size = None
-    createTime = None
-    modifyTime = None
+    dirPath = ''
+    size = ''
+    createTime = ''
+    modifyTime = ''
 
     def __init__(self):
         pass

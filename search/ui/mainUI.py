@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import operator
 import webbrowser
 
 from PIL import Image
@@ -32,9 +33,9 @@ class MainUI(QMainWindow):
     fileTypes = []
     # 载入数据
     # 布局 0 栅格 1 表格 3 网页
-    layoutType = 0
+    layoutType = '栅格'
     # 0 海报模式 还是 1 封面模式
-    post_cover = 0
+    post_cover = '海报'
 
     tableData = None
     codeInput = None
@@ -45,6 +46,8 @@ class MainUI(QMainWindow):
     curFilePath = None
     curDirPath = None
     curTitle = None
+    sortType = '倒序'
+    sortField = '修改时间'
     # 默认勾选
     imageToggle = 0
     videoToggle = 1
@@ -82,14 +85,14 @@ class MainUI(QMainWindow):
         syncJav.clicked[bool].connect(self.syncJav)
 
         # 布局 0 栅格 1 表格 3 网页
-        grid_layout = QRadioButton("网格")
+        grid_layout = QRadioButton("栅格")
         web_layout = QRadioButton("网页")
         table_layout = QRadioButton("表格")
-        if self.layoutType == 0:
+        if self.layoutType == "栅格":
             grid_layout.toggle()
-        elif self.layoutType == 1:
+        elif self.layoutType == "表格":
             table_layout.toggle()
-        elif self.layoutType == 2:
+        elif self.layoutType == "网页":
             web_layout.toggle()
         grid_layout.clicked[bool].connect(self.chooseLayout)
         table_layout.clicked[bool].connect(self.chooseLayout)
@@ -101,15 +104,43 @@ class MainUI(QMainWindow):
 
         postButton = QRadioButton("海报")
         coverButton = QRadioButton("封面")
-        if self.post_cover == 0:
+        if self.post_cover == '海报':
             postButton.toggle()
-        elif self.post_cover == 1:
+        elif self.post_cover == '封面':
             coverButton.toggle()
         postButton.clicked[bool].connect(self.choosePostCover)
         coverButton.clicked[bool].connect(self.choosePostCover)
         self.displayGroup = QButtonGroup()
         self.displayGroup.addButton(postButton, 0)
         self.displayGroup.addButton(coverButton, 1)
+
+        asc = QRadioButton('正序')
+        desc = QRadioButton('倒序')
+        if self.sortType == '正序':
+            asc.toggle()
+        elif self.sortType == '倒序':
+            desc.toggle()
+        asc.clicked[bool].connect(self.sortTypeChange)
+        desc.clicked[bool].connect(self.sortTypeChange)
+        self.sortTypeGroup = QButtonGroup()
+        self.sortTypeGroup.addButton(asc, 0)
+        self.sortTypeGroup.addButton(desc, 1)
+        name = QRadioButton('名称')
+        size = QRadioButton('大小')
+        mtime = QRadioButton('修改时间')
+        if self.sortField == '名称':
+            name.toggle()
+        elif self.sortField == '大小':
+            size.toggle()
+        elif self.sortField == '修改时间':
+            mtime.toggle()
+        name.clicked[bool].connect(self.sortFieldChange)
+        size.clicked[bool].connect(self.sortFieldChange)
+        mtime.clicked[bool].connect(self.sortFieldChange)
+        self.sortFieldGroup = QButtonGroup()
+        self.sortFieldGroup.addButton(name, 0)
+        self.sortFieldGroup.addButton(size, 1)
+        self.sortFieldGroup.addButton(mtime, 2)
 
         # 复选框
         image = QCheckBox("图片", self)
@@ -142,17 +173,29 @@ class MainUI(QMainWindow):
         left_layout.addWidget(okButton, 3, 2, 1, 1)
         left_layout.addWidget(infoButton, 4, 0, 1, 1)
         left_layout.addWidget(codeSearch, 4, 2, 1, 1)
-        left_layout.addWidget(QLabel("番号"), 5, 0, 1, 1)
-        left_layout.addWidget(self.codeInput, 5, 1, 1, 2)
 
-        left_layout.addWidget(QLabel("标题"), 6, 0, 1, 1)
+        left_layout.addWidget(QLabel(""), 5, 0, 1, 3)
+
+        left_layout.addWidget(QLabel('排序类型'), 6, 0, 1, 1)
+        left_layout.addWidget(asc, 6, 1, 1, 1)
+        left_layout.addWidget(desc, 6, 2, 1, 1)
+        left_layout.addWidget(name, 7, 0, 1, 1)
+        left_layout.addWidget(size, 7, 1, 1, 1)
+        left_layout.addWidget(mtime, 7, 2, 1, 1)
+
+        left_layout.addWidget(QLabel(""), 8, 0, 1, 3)
+
+        left_layout.addWidget(QLabel("番号"), 10, 0, 1, 1)
+        left_layout.addWidget(self.codeInput, 10, 1, 1, 2)
+
+        left_layout.addWidget(QLabel("标题"), 11, 0, 1, 1)
         self.titleInput.setMaximumHeight(60)
         self.titleInput.setMaximumWidth(160)
-        left_layout.addWidget(self.titleInput, 6, 1, 2, 2)
-        left_layout.addWidget(QLabel("演员"), 8, 0, 1, 1)
-        left_layout.addWidget(self.actressInput, 8, 1, 1, 2)
+        left_layout.addWidget(self.titleInput, 12, 1, 2, 2)
+        left_layout.addWidget(QLabel("演员"), 14, 0, 1, 1)
+        left_layout.addWidget(self.actressInput, 14, 1, 1, 2)
         self.curPic = QLabel()
-        left_layout.addWidget(self.curPic, 9, 0, 15, 3)
+        left_layout.addWidget(self.curPic, 15, 0, 15, 3)
         left_layout.addWidget(openFile)
         left_layout.addWidget(openDir)
         left_layout.addWidget(syncJav)
@@ -198,37 +241,6 @@ class MainUI(QMainWindow):
             info = InfoUI(javMovie)
             self.addAloneTab(info, javMovie.code)
 
-    # loading 数据
-    def loadGridData(self):
-        scroll = QScrollArea()
-        self.gridData = QWidget()
-        self.gridLayout = QGridLayout()
-        for index in range(self.gridLayout.count()):
-            self.gridLayout.itemAt(index).widget().deleteLater()
-        width = 200 if self.post_cover == 0 else 500
-        each = int(self.tab_widget.width() / width)
-        for index in range(len(self.dataList)):
-            data = self.dataList[index]
-            item = QToolButton()
-            item.setText(str(index))
-            iconPath = getPng(data.path, '.png' if self.post_cover == 0 else '.jpg')
-            item.setIcon(QIcon(iconPath))
-            item.setIconSize(QSize(width, 300))
-            item.setToolButtonStyle(Qt.ToolButtonIconOnly)
-            item.setToolTip(data.name)
-            item.clicked[bool].connect(self.clickGrid)
-            row = int(index / each)
-            cols = index % each
-            title = QTextEdit(data.name)
-            title.setMaximumHeight(40)
-            title.setMaximumWidth(200)
-            self.gridLayout.addWidget(item, row * 2, cols)
-            self.gridLayout.addWidget(title, row * 2 + 1, cols)
-        self.gridData.setLayout(self.gridLayout)
-        scroll.setWidget(self.gridData)
-        scroll.setAutoFillBackground(True)
-        return scroll
-
     # 点击搜索
 
     def clickSearchButton(self):
@@ -238,27 +250,42 @@ class MainUI(QMainWindow):
         #                               self.dirName.text(), QMessageBox.Yes)
         # if replay == QMessageBox.Yes:
         title = self.dirName.text()
+        if title is None or title == '':
+            return
         self.search(title)
         message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
         self.statusBar().showMessage(message)
-        self.loadContext()
+        self.reloadContext()
 
     def choosePostCover(self):
-        checkId = self.displayGroup.checkedId()
         #  0 海报 1 封面
-        self.post_cover = checkId
-        self.tab_widget.removeTab(self.tab_widget.count() - 1)
-        self.loadContext()
+        self.post_cover = self.displayGroup.checkedId()
+        # index = self.tab_widget.currentIndex()
+        # self.tab_widget.removeTab(self.tab_widget.count() - 1)
+        self.reloadContext()
+
+    def sortTypeChange(self):
+        print(self.sortTypeGroup.checkedButton().text())
+        self.sortType = self.sortTypeGroup.checkedButton().text()
+        self.reloadContext()
+
+    def sortFieldChange(self):
+        print(self.sortFieldGroup.checkedButton().text())
+        self.sortField = self.sortFieldGroup.checkedButton().text()
+        self.reloadContext()
 
     # 选择布局
     def chooseLayout(self):
-        checkId = self.layoutGroup.checkedId()
         # 布局 0 栅格 1 表格 3 网页
-        self.layoutType = checkId
-        self.loadContext()
+        self.layoutType = self.layoutGroup.checkedId()
+        self.reloadContext()
 
-    def loadContext(self):
-        self.loadContextThread()
+    def reloadContext(self):
+        try:
+            self.sortFiles()
+            self.loadContextThread()
+        except Exception as err:
+            print(err)
         # if __name__ == 'search.ui.mainUI':
         #     freeze_support()
         #     pool = Pool(processes=1)
@@ -268,16 +295,18 @@ class MainUI(QMainWindow):
 
     def loadContextThread(self):
         title = self.dirName.text()
-        if self.layoutType == 0:
-            self.addAloneTab(self.loadGridData(), title)
-        elif self.layoutType == 1:
-            self.addAloneTab(self.loadTableData(), title)
-        elif self.layoutType == 2:
-            # 打开浏览器
-            webbrowser.open(self.webUrl)
-            # self.webview = WebEngineView(self)  # self必须要有，是将主窗口作为参数，传给浏览器
-            # self.webview.load(QUrl("http://www.baidu.com"))
-            # self.addAloneTab(self.loadGridData(), "网格")
+        if title is None or title == '':
+            if self.layoutType == '网页':
+                # 打开浏览器
+                webbrowser.open(self.webUrl)
+                # self.webview = WebEngineView(self)  # self必须要有，是将主窗口作为参数，传给浏览器
+                # self.webview.load(QUrl("http://www.baidu.com"))
+                # self.addAloneTab(self.loadGridData(), "栅格")
+        else:
+            if self.layoutType == '栅格':
+                self.addAloneTab(self.loadGridData(), title)
+            elif self.layoutType == '表格':
+                self.addAloneTab(self.loadTableData(), title)
 
     def addAloneTab(self, widget, title):
         # # 单页应用 添加前删除所有Tab页
@@ -303,10 +332,30 @@ class MainUI(QMainWindow):
 
     # 填充数据
     def search(self, path):
+
         walk = FileService().build(path, self.fileTypes)
         self.dataList = []
         self.dataList = walk.getFiles()
         self.tabDataList.append(self.dataList)
+
+    def sortFiles(self):
+        if len(self.dataList) > 0:
+            print('排序：' + self.sortField + ' ' + self.sortType)
+            self.dataList.sort(key=self.getSortKey(), reverse=self.getReverse())
+
+    def getReverse(self):
+        if self.sortType == '正序':
+            return False
+        elif self.sortType == '倒序':
+            return True
+
+    def getSortKey(self):
+        if self.sortField == '名称':
+            return operator.attrgetter("name", 'size', 'modifyTime')
+        elif self.sortField == '大小':
+            return operator.attrgetter('size', "name", 'modifyTime')
+        elif self.sortField == '修改时间':
+            return operator.attrgetter('modifyTime', "name", 'size')
 
     def close_Tab_item(self, index):
         self.tab_widget.removeTab(index)
@@ -318,7 +367,6 @@ class MainUI(QMainWindow):
         self.dataList = self.tabDataList[index]
 
     def change_Tab(self, index):
-        print(index)
         self.dataList = self.tabDataList[index]
 
     # 选择框
@@ -401,6 +449,37 @@ class MainUI(QMainWindow):
         except Exception as err:
             print("文件打开失败")
             print(err)
+
+    # loading 数据
+    def loadGridData(self):
+        scroll = QScrollArea()
+        self.gridData = QWidget()
+        self.gridLayout = QGridLayout()
+        for index in range(self.gridLayout.count()):
+            self.gridLayout.itemAt(index).widget().deleteLater()
+        width = 200 if self.post_cover == '海报' else 500
+        each = int(self.tab_widget.width() / width)
+        for index in range(len(self.dataList)):
+            data = self.dataList[index]
+            item = QToolButton()
+            item.setText(str(index))
+            iconPath = getPng(data.path, '.png' if self.post_cover == '海报' else '.jpg')
+            item.setIcon(QIcon(iconPath))
+            item.setIconSize(QSize(width, 300))
+            item.setToolButtonStyle(Qt.ToolButtonIconOnly)
+            item.setToolTip(data.name)
+            item.clicked[bool].connect(self.clickGrid)
+            row = int(index / each)
+            cols = index % each
+            title = QTextEdit(data.name)
+            title.setMaximumHeight(40)
+            title.setMaximumWidth(200)
+            self.gridLayout.addWidget(item, row * 2, cols)
+            self.gridLayout.addWidget(title, row * 2 + 1, cols)
+        self.gridData.setLayout(self.gridLayout)
+        scroll.setWidget(self.gridData)
+        scroll.setAutoFillBackground(True)
+        return scroll
 
     # 载入数据 表格形式
     def loadTableData(self):
@@ -497,7 +576,6 @@ class MainUI(QMainWindow):
 
     # 菜单按钮处理
     def fileMenuProcess(self, action):
-        print(action.text())
         if action.text() == "打开":
             self.openPath()
         if action.text() == "退出":
