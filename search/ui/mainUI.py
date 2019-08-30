@@ -228,18 +228,7 @@ class MainUI(QMainWindow):
 
         self.show()
 
-    def clickInfo(self):
 
-        javMovie = None
-        nfoPath = getPng(self.curFilePath, '.nfo')
-        if nfoPath is not None and nfoPath != '':
-            javMovie = nfoToJavMovie(nfoPath)
-        elif self.codeInput.text() is not None and self.codeInput.text() != '':
-            tool = JavTool(self.webUrl)
-            javMovie = tool.getJavInfo(self.codeInput.text())
-        if javMovie is not None:
-            info = InfoUI(javMovie)
-            self.addAloneTab(info, javMovie.code)
 
     # 点击搜索
 
@@ -259,7 +248,7 @@ class MainUI(QMainWindow):
 
     def choosePostCover(self):
         #  0 海报 1 封面
-        self.post_cover = self.displayGroup.checkedId()
+        self.post_cover = self.displayGroup.checkedButton().text()
         # index = self.tab_widget.currentIndex()
         # self.tab_widget.removeTab(self.tab_widget.count() - 1)
         self.reloadContext()
@@ -277,7 +266,7 @@ class MainUI(QMainWindow):
     # 选择布局
     def chooseLayout(self):
         # 布局 0 栅格 1 表格 3 网页
-        self.layoutType = self.layoutGroup.checkedId()
+        self.layoutType = self.layoutGroup.checkedButton().text()
         self.reloadContext()
 
     def reloadContext(self):
@@ -551,6 +540,19 @@ class MainUI(QMainWindow):
             os.rename(self.curFilePath, tool.dirpath + "\\" + tool.fileName + "." + getSuffix(self.curFilePath))
         # shutil.move(, )
         QMessageBox().about(self, "提示", "同步成功!!!")
+
+    def clickInfo(self):
+
+        javMovie = None
+        nfoPath = getPng(self.curFilePath, '.nfo')
+        if nfoPath is not None and nfoPath != '':
+            javMovie = nfoToJavMovie(nfoPath)
+        elif self.codeInput.text() is not None and self.codeInput.text() != '':
+            tool = JavTool(self.webUrl)
+            javMovie = tool.getJavInfo(self.codeInput.text())
+        if javMovie is not None:
+            info = InfoUI(javMovie)
+            self.addAloneTab(info, javMovie.code)
 
     # 添加菜单按钮
     def addMenu(self):
