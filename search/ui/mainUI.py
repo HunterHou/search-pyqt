@@ -26,6 +26,7 @@ class MainUI(QMainWindow):
         self.clickSearchButton()
 
     # 定义全局变量
+    tabDataList = []
     dataList = []
     rootPath = ''
     fileTypes = []
@@ -168,6 +169,7 @@ class MainUI(QMainWindow):
         self.tab_widget.setMovable(True)
         self.tab_widget.setTabsClosable(True)
         self.tab_widget.tabCloseRequested.connect(self.close_Tab)
+        self.tab_widget.currentChanged.connect(self.change_Tab)
 
         # 创建主窗口组件 挂载布局
         main_widget = QWidget()
@@ -182,41 +184,6 @@ class MainUI(QMainWindow):
         self.addMenu()
 
         self.show()
-
-    # 添加菜单按钮
-    def addMenu(self):
-        bar = self.menuBar()
-        # 文件
-        file = bar.addMenu("文件")
-        file.setShortcutEnabled(1)
-        openAction = QAction("打开", self)
-        openAction.setShortcut(QKeySequence.Open)
-        file.addAction(openAction)
-        quitAction = QAction("退出", self)
-        quitAction.setShortcut(QKeySequence(str("ctrl+Q")))
-        file.addAction(quitAction)
-
-        file.triggered[QAction].connect(self.fileMenuProcess)
-        # 设置
-        setting = bar.addMenu("设置")
-        setting.setShortcutEnabled(1)
-        changeUrlAction = QAction("切换数据源", self)
-        changeUrlAction.setShortcut(QKeySequence.Save)
-        setting.addAction(changeUrlAction)
-        setting.triggered[QAction].connect(self.fileMenuProcess)
-
-    # 菜单按钮处理
-    def fileMenuProcess(self, action):
-        print(action.text())
-        if action.text() == "打开":
-            self.openPath()
-        if action.text() == "退出":
-            self.close()
-        if action.text() == "切换数据源":
-            text, ok = QInputDialog.getText(self, "设置数据源", "网址:", )
-            if ok:
-                self.webUrl = text
-                self.webUrlLable.setText(text)
 
     def clickInfo(self):
 
@@ -233,10 +200,6 @@ class MainUI(QMainWindow):
 
     # loading 数据
     def loadGridData(self):
-        if len(self.dataList) == 0:
-            if len(self.dataList) == 0:
-                self.search(self.rootPath)
-
         scroll = QScrollArea()
         self.gridData = QWidget()
         self.gridLayout = QGridLayout()
@@ -294,9 +257,6 @@ class MainUI(QMainWindow):
         self.layoutType = checkId
         self.loadContext()
 
-    def printaa(self):
-        print("111")
-
     def loadContext(self):
         self.loadContextThread()
         # if __name__ == 'search.ui.mainUI':
@@ -320,8 +280,10 @@ class MainUI(QMainWindow):
             # self.addAloneTab(self.loadGridData(), "网格")
 
     def addAloneTab(self, widget, title):
+        # # 单页应用 添加前删除所有Tab页
         # for index in range(self.tab_widget.count()):
-        #     self.tab_widget.removeTab(index)
+        #     # 删除Tab页时 同步删除当前Tab页对应的数据
+        #     self.close_Tab_item(index)
         self.tab_widget.addTab(widget, title)
         self.tab_widget.setCurrentWidget(widget)
 
@@ -344,6 +306,20 @@ class MainUI(QMainWindow):
         walk = FileService().build(path, self.fileTypes)
         self.dataList = []
         self.dataList = walk.getFiles()
+        self.tabDataList.append(self.dataList)
+
+    def close_Tab_item(self, index):
+        self.tab_widget.removeTab(index)
+        del self.tabDataList[index]
+
+    def close_Tab(self, index):
+        self.close_Tab_item(index)
+        index = self.tab_widget.currentIndex()
+        self.dataList = self.tabDataList[index]
+
+    def change_Tab(self, index):
+        print(index)
+        self.dataList = self.tabDataList[index]
 
     # 选择框
     def openPath(self):
@@ -478,13 +454,6 @@ class MainUI(QMainWindow):
 
         return tableData
 
-    def close_Tab(self, index):
-        if self.tab_widget.count() > 1:
-            self.tab_widget.removeTab(index)
-        else:
-            self.tab_widget.removeTab(0)
-            # self.close()
-
     # 同步数据
     def syncJav(self):
         tool = JavTool(self.webUrl)
@@ -503,6 +472,41 @@ class MainUI(QMainWindow):
             os.rename(self.curFilePath, tool.dirpath + "\\" + tool.fileName + "." + getSuffix(self.curFilePath))
         # shutil.move(, )
         QMessageBox().about(self, "提示", "同步成功!!!")
+
+    # 添加菜单按钮
+    def addMenu(self):
+        bar = self.menuBar()
+        # 文件
+        file = bar.addMenu("文件")
+        file.setShortcutEnabled(1)
+        openAction = QAction("打开", self)
+        openAction.setShortcut(QKeySequence.Open)
+        file.addAction(openAction)
+        quitAction = QAction("退出", self)
+        quitAction.setShortcut(QKeySequence(str("ctrl+Q")))
+        file.addAction(quitAction)
+
+        file.triggered[QAction].connect(self.fileMenuProcess)
+        # 设置
+        setting = bar.addMenu("设置")
+        setting.setShortcutEnabled(1)
+        changeUrlAction = QAction("切换数据源", self)
+        changeUrlAction.setShortcut(QKeySequence.Save)
+        setting.addAction(changeUrlAction)
+        setting.triggered[QAction].connect(self.fileMenuProcess)
+
+    # 菜单按钮处理
+    def fileMenuProcess(self, action):
+        print(action.text())
+        if action.text() == "打开":
+            self.openPath()
+        if action.text() == "退出":
+            self.close()
+        if action.text() == "切换数据源":
+            text, ok = QInputDialog.getText(self, "设置数据源", "网址:", )
+            if ok:
+                self.webUrl = text
+                self.webUrlLable.setText(text)
 
     # 点击图片box
 
