@@ -4,7 +4,11 @@ from urllib import request
 
 
 def download(url, pathname):
+    """ 用http请求多媒体 ， 并下载到本地 """
     fileResponse = getResponse(url)
+    if fileResponse is None:
+        return
+
     if fileResponse.status == 200:
         try:
             with open(pathname, 'wb') as f:
@@ -18,11 +22,14 @@ def download(url, pathname):
 
 
 def getResponse(url):
+    """发送http请求"""
     try:
         req = request.Request(url)
         req.add_header('User-Agent', 'Mozilla/6.0')
         response = request.urlopen(req)
         return response
     except Exception as err:
-        print("Request 失败")
+        print("Request 失败:" + url)
         print(err)
+    finally:
+        return None

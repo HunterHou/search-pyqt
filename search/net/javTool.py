@@ -19,7 +19,7 @@ class JavTool:
         self.webRoot = root
 
     def getJavInfo(self, code):
-
+        """   http请求，  刮蹭 movie相关信息  """
         url = self.webRoot + code
         avResponse = getResponse(url)
         if avResponse is None:
@@ -59,30 +59,34 @@ class JavTool:
             supplier = text_node[5].find_next("a").get_text()
             series = text_node[6].find_next("a").get_text()
             return JavMovie().build(code, img_title, image, "", actresses, director, pdate, series, studio, supplier,
-                                    length,'')
+                                    length, '')
         except Exception as err:
             print(avResponse)
             print("html解析失败")
             print(err)
 
-    def makeAcctress(self, rootpath, movie):
+    def makeActress(self, rootpath, movie):
+        """
+        1、 根据刮蹭的信息 创建目录结构
+        2、 下载封面 jpg，制作海报切图png
+         """
         try:
             os.chdir(rootpath)
             dirPath = rootpath + "\\" + movie.getActress()
-            # 创建演员
+            # 创建目录结构：演员
             if os.path.exists(dirPath):
                 pass
             else:
                 os.mkdir(movie.getActress())
             os.chdir(movie.getActress())
-            # 创建发行商
+            # 创建目录结构：发行商
             dirPath = dirPath + "\\" + movie.maker
             if os.path.exists(dirPath):
                 pass
             else:
                 os.mkdir(movie.maker)
             os.chdir(movie.maker)
-            # 创建相片
+            # 创建目录结构：电影信息
             fileName = "[" + movie.getActress() + "]" + " [" + movie.code + "]" + movie.title
             dirPath = dirPath + "\\" + fileName
             if os.path.exists(dirPath):
@@ -100,10 +104,10 @@ class JavTool:
             cropped = img.crop((widthPos, 0, img.width, img.height))  # (left, upper, right, lower)
             croppedName = filepath.replace(".jpg", '.png')
             cropped.save(croppedName)
-
+            # 返回信息
             self.dirpath = dirPath
             self.filepath = filepath
             self.fileName = fileName
         except Exception as err:
-            print("生成失败")
+            print("生成目录信息")
             print(err)

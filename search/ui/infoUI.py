@@ -8,11 +8,11 @@ from search.net.httpUitls import *
 
 
 class InfoUI(QWidget):
-    javMovie = None
+    jav_movie = None
 
     def __init__(self, javMovie):
         super().__init__()
-        self.javMovie = javMovie
+        self.jav_movie = javMovie
         self.resize(800, 900)
         self.setWindowTitle("详情")
         layout = QGridLayout()
@@ -32,18 +32,22 @@ class InfoUI(QWidget):
         layout.addWidget(QLabel(), 5, 0, 25, 4)
         cover = QLabel()
         try:
-            if javMovie.cover.find('http') >= 0:
-                response = getResponse(javMovie.cover)
+            path = javMovie.cover
+            if path.find('http') >= 0:
+                # 读取网络图片
+                response = getResponse(path)
                 if response.status == 200:
                     photo = QPixmap()
                     photo.loadFromData(response.read())
                     photo = photo.scaled(600, 400)
                     cover.setPixmap(photo)
             else:
-                imgPath = javMovie.dirPath + javMovie.cover
+                # 读取本地图片
+                imgPath = javMovie.dirPath + path
                 photo = QPixmap(imgPath)
                 photo = photo.scaled(600, 400)
                 cover.setPixmap(photo)
         except Exception as err:
+            print("读取图片失败:" + path)
             print(err)
         layout.addWidget(cover, 0, 3, 15, 4)

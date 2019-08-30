@@ -10,24 +10,23 @@ from search.model.file import File, JavMovie
 def readInfo(path):
     context = ""
     try:
-        file = open(path, 'r', encoding='utf-8')
-
-        while True:
-            string = file.readline()
-            context += string
-            if len(string) == 0:
-                break
-
-        file.close()
+        with open(path, 'r', encoding='utf-8') as file:
+            # file = open(path, 'r', encoding='utf-8')
+            while True:
+                string = file.readline()
+                context += string
+                if len(string) == 0:
+                    break
+        # file.close()
         return context
     except Exception as err:
         print(err)
         return context
 
 
-def getFileFromFileName(filetypes, dirname, dirpath):
-    nameSplit = dirpath.split(".")
-    fileType = nameSplit[len(nameSplit) - 1]
+def buildFileFromFilename(filetypes, dirname, dirpath):
+    name_array = dirpath.split(".")
+    fileType = name_array[-1]
     if len(filetypes) > 0 and fileType in filetypes:
         return File().build(dirpath, fileType, dirname)
     return 0
@@ -49,18 +48,19 @@ class FileService:
         self.dirs = []
         return self
 
-    # 累加上次查询结果
+    def getFiles(self):
+        '''获取文件列表，前提必须先 build '''
+        return self.fileWalk(self.rootPath, self.dirs, self.files)
+
     def osWalkFiles(self):
+        '''累加上次查询结果'''
         for dirpath, dirnames, filenames in os.walk(self.rootPath):
             for filename in filenames:
-                file = getFileFromFileName(dirpath, filename)
+                file = buildFileFromFilename(dirpath, filename)
                 if file != 0:
                     self.files.append(file)
 
         return self.files
-
-    def getFiles(self):
-        return self.fileWalk(self.rootPath, self.dirs, self.files)
 
     # 查询结果
     def fileWalk(self, path, dirs, files):
@@ -79,7 +79,7 @@ class FileService:
                     self.fileWalk(folerpath, dirs, files)
                 else:
                     dirname = os.path.dirname(folerpath)
-                    file = getFileFromFileName(self.fileTypes, dirname, folder)
+                    file = buildFileFromFilename(self.fileTypes, dirname, folder)
                     if file != 0:
                         files.append(file)
             except IOError as  ioError:
@@ -89,7 +89,7 @@ class FileService:
 
 
 def nfoToJavMovie(path):
-    if path is None or path=='' or not os.path.exists(path):
+    if path is None or path == '' or not os.path.exists(path):
         return None
     arr = path.split("\\")
     dirpath = path.replace(arr[len(arr) - 1], "")

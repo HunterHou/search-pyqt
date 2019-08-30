@@ -1,38 +1,100 @@
 #!/usr/bin/python3
 
+import operator
 import os
 
+from PyQt5.QtGui import QPixmap
+
+from search.const.const import *
+from search.net.httpUitls import getResponse
 from search.utils.timeUtil import *
 
 
-def getPng(filename, end):
+def getPixMapFromNet(path, width, height):
+    response = getResponse(path)
+    photo = None
+    if response.status == 200:
+        photo = QPixmap()
+        photo.loadFromData(response.read())
+        photo = photo.scaled(width, height)
+    return photo
+
+
+def getPixMap(path, width, height):
+    path = replaceSuffix(path, PNG)
+    image = QPixmap(path)
+    if image.isNull():
+        path = path.replace(PNG, JPG)
+        image = QPixmap(path)
+    if image.isNull():
+        imageArray = path.split(".")
+        path = ""
+        for index in range(len(imageArray)):
+            if index == len(imageArray) - 1:
+                path += "-poster.jpg"
+            elif index == len(imageArray) - 2:
+                path += imageArray[index]
+            else:
+                path += imageArray[index] + "."
+        path = path.replace(PNG, JPG)
+        image = QPixmap(path)
+    if image.isNull():
+        return None
+    if width != '' and height != '':
+        image = QPixmap(path).scaled(width, height)
+    return image
+
+
+def getReverse(sort):
+    if sort == ASC:
+        return False
+    elif sort == DESC:
+        return True
+
+
+def getSortField(key):
+    if key == NAME:
+        return operator.attrgetter("name", 'size', 'modify_time')
+    elif key == SIZE:
+        return operator.attrgetter('size', "name", 'modify_time')
+    elif key == MODIFY_TIME:
+        return operator.attrgetter('modify_time', "name", 'size')
+
+
+def replaceSuffix(filename, suffix):
+    """修改文件类型，特指修改后缀"""
     if filename is None or filename == '':
         return filename
-    filename = filename.replace(".mp4", end)
-    filename = filename.replace(".wmv", end)
-    filename = filename.replace(".mkv", end)
-    filename = filename.replace(".avi", end)
+    arr = filename.split(".")
+    if len(arr) > 1:
+        last_suffix = arr[-1]
+        filename = filename.replace(last_suffix, suffix)
     return filename
 
 
 def getSuffix(filename):
+    """获取文件后缀"""
     if filename is None:
         return ""
     arr = filename.split(".")
     if len(arr) <= 1:
         return arr[0]
-    return arr[len(arr) - 1]
+    return arr[-1]
 
 
 def getTitle(filename):
+    """获取文件名"""
     if filename is None:
         return ""
     arr = filename.split(".")
-    return arr[0]
+    if len(arr) > 1:
+        last_suffix = '.' + arr[-1]
+        filename = filename.replace(last_suffix, '')
+    return filename
 
 
 def getSizeStr(path):
-    result = ""
+    """获取文件大小 可视化"""
     fileSize = getSize(path)
     if fileSize <= 1024:
         result = str(int(fileSize))
@@ -46,6 +108,7 @@ def getSizeStr(path):
 
 
 def getSize(path):
+    """获取文件大小 单位 b"""
     size = 0
     try:
         size = os.path.getsize(path)
@@ -56,6 +119,7 @@ def getSize(path):
 
 
 def getCreateTime(path):
+    """创建时间"""
     creatTime = ""
     try:
         creatTime = os.path.getctime(path)
@@ -67,17 +131,19 @@ def getCreateTime(path):
 
 
 def getModifyTime(path):
-    modifyTime = "0"
+    """修改时间"""
+    modify_time = "0"
     try:
-        modifyTime = os.path.getmtime(path)
-        modifyTime = thisFormatTime(modifyTime)
+        modify_time = os.path.getmtime(path)
+        modify_time = thisFormatTime(modify_time)
     except IOError as ioError:
         print("读取失败：" + ioError)
     finally:
-        return modifyTime
+        return modify_time
 
 
 def getCode(fileName):
+    """根据 文件名称  分析番号 [] 中包含 '-'符号    """
     code = None
     rights = fileName.split("[")
     if len(rights) <= 1:
@@ -93,9 +159,10 @@ def getCode(fileName):
     return code
 
 
-def getActress(fileName):
+def getActress(filename):
+    """根据 文件名称  分析演员 [] 中不包含 '-'符号    """
     actress = ""
-    rights = fileName.split("[")
+    rights = filename.split("[")
     if len(rights) <= 1:
         return actress
     for index in range(len(rights)):
@@ -122,9 +189,12 @@ class File:
     fileType = ''
     # 文件夹路径
     dirPath = ''
+    # 大小
     size = ''
-    createTime = ''
-    modifyTime = ''
+    # 创建时间
+    create_time = ''
+    # 修改时间
+    modify_time = ''
 
     def __init__(self):
         pass
@@ -138,8 +208,8 @@ class File:
         path = dirpath + "\\" + filename
         self.path = path
         self.size = getSizeStr(path)
-        self.createTime = getCreateTime(path)
-        self.modifyTime = getModifyTime(path)
+        self.create_time = getCreateTime(path)
+        self.modify_time = getModifyTime(path)
         return self
 
 
