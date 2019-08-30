@@ -246,7 +246,8 @@ class MainUI(QMainWindow):
         self.post_cover = self.displayGroup.checkedButton().text()
         # index = self.tab_widget.currentIndex()
         # self.tab_widget.removeTab(self.tab_widget.count() - 1)
-        self._load_context()
+        if self.layoutType == GRID:
+            self._load_context()
 
     def _sort_type_change(self):
         print(self.sortTypeGroup.checkedButton().text())
@@ -264,10 +265,10 @@ class MainUI(QMainWindow):
         self.layoutType = self.layoutGroup.checkedButton().text()
         self._load_context()
 
-    def _load_context(self):
+    def _load_context(self, isNew=True):
         try:
             self._sort_files_list()
-            self._load_context_thread()
+            self._load_context_thread(isNew)
         except Exception as err:
             print(err)
         # if __name__ == 'search.ui.mainUI':
@@ -277,7 +278,7 @@ class MainUI(QMainWindow):
         #     pool.close()
         #     pool.join()
 
-    def _load_context_thread(self):
+    def _load_context_thread(self, isNew):
         title = self.dirName.text()
         if title is None or title == '':
             if self.layoutType == WEB:
@@ -288,20 +289,15 @@ class MainUI(QMainWindow):
                 # self.addAloneTab(self.loadGridData(), "栅格")
         else:
             if self.layoutType == '栅格':
-                self._tab_add(self._load_grid_data(), title)
+                if isNew:
+                    self._tab_add(self._load_grid_data(), title)
+                else:
+                    self.tab_widget.setCurrentWidget(self._load_grid_data())
             elif self.layoutType == '表格':
-                self._tab_add(self._load_table_data(), title)
-
-    def _tab_add(self, widget, title):
-        # # 单页应用 添加前删除所有Tab页
-        # for index in range(self.tab_widget.count()):
-        #     # 删除Tab页时 同步删除当前Tab页对应的数据
-        #     self.close_Tab_item(index)
-        try:
-            self.tab_widget.addTab(widget, title)
-            self.tab_widget.setCurrentWidget(widget)
-        except Exception as err:
-            print(err)
+                if isNew:
+                    self._tab_add(self._load_table_data(), title)
+                else:
+                    self.tab_widget.setCurrentWidget(self._load_table_data())
 
     # 搜饭
     def _search_code(self):
@@ -323,7 +319,6 @@ class MainUI(QMainWindow):
         walk = FileService().build(path, self.fileTypes)
         self.dataList = []
         self.dataList = walk.getFiles()
-        self.tabDataList.append(self.dataList)
 
     def _sort_files_list(self):
         if len(self.dataList) > 0:
@@ -331,6 +326,7 @@ class MainUI(QMainWindow):
             self.dataList.sort(key=getSortField(self.sortField), reverse=getReverse(self.sortType))
 
     def _tab_item_close(self, index):
+        # self.tab_widget.removeTab(index)
         self.tab_widget.removeTab(index)
         del self.tabDataList[index]
 
@@ -341,6 +337,18 @@ class MainUI(QMainWindow):
 
     def _tab_change(self, index):
         self.dataList = self.tabDataList[index]
+
+    def _tab_add(self, widget, title):
+        """ # 单页应用 添加前删除所有Tab页"""
+        # for index in range(self.tab_widget.count()):
+        #     # 删除Tab页时 同步删除当前Tab页对应的数据
+        #     self.close_Tab_item(index)
+        try:
+            self.tabDataList.append(self.dataList)
+            self.tab_widget.addTab(widget, title)
+            self.tab_widget.setCurrentWidget(widget)
+        except Exception as err:
+            print(err)
 
     # 选择框
     def _open_path(self):
@@ -386,11 +394,20 @@ class MainUI(QMainWindow):
             os.system(command)
 
     def _set_curinfo(self, targetfile):
-        self.curCode = targetfile.code
-        self.curActress = targetfile.actress
-        self.curFilePath = targetfile.path
-        self.curDirPath = targetfile.dirPath
-        self.curTitle = targetfile.name
+        nfopath = replaceSuffix(targetfile.path, "nfo")
+        movieInfo = nfoToJavMovie(nfopath)
+        if movieInfo is not None:
+            self.curCode = movieInfo.code
+            self.curActress = movieInfo.getActress()
+            self.curFilePath = targetfile.path
+            self.curDirPath = movieInfo.dirPath
+            self.curTitle = movieInfo.title
+        else:
+            self.curCode = targetfile.code
+            self.curActress = targetfile.actress
+            self.curFilePath = targetfile.path
+            self.curDirPath = targetfile.dirPath
+            self.curTitle = targetfile.name
 
     def _grid_click(self):
         text = self.sender().text()
@@ -447,7 +464,7 @@ class MainUI(QMainWindow):
             cols = index % each
             title = QTextEdit(data.name)
             title.setMaximumHeight(40)
-            title.setMaximumWidth(200)
+            title.setMaximumWidth(width)
             self.gridLayout.addWidget(item, row * 2, cols)
             self.gridLayout.addWidget(title, row * 2 + 1, cols)
         self.gridData.setLayout(self.gridLayout)
