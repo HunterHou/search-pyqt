@@ -235,6 +235,7 @@ class MainUI(QMainWindow):
         # if replay == QMessageBox.Yes:
         title = self.dirName.text()
         if title is None or title == '':
+            self.statusBar().showMessage('等待执行...')
             return
         self._search(title)
         message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
@@ -333,7 +334,8 @@ class MainUI(QMainWindow):
     def _tab_close(self, index):
         self._tab_item_close(index)
         index = self.tab_widget.currentIndex()
-        self.dataList = self.tabDataList[index]
+        if index >0:
+            self.dataList = self.tabDataList[index]
 
     def _tab_change(self, index):
         self.dataList = self.tabDataList[index]
