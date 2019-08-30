@@ -12,6 +12,38 @@ from search.ui.infoUI import InfoUI
 
 
 class MainUI(QMainWindow):
+    # 定义全局变量
+    # 载入数据
+    tabDataList = []
+    dataList = []
+    rootPath = ''
+    fileTypes = []
+    tableData = None
+    # 搜索文本框
+    dirName = None
+    # 布局 0 栅格 1 表格 3 网页
+    layoutType = '栅格'
+    # 0 海报模式 还是 1 封面模式
+    post_cover = POSTER
+
+    # 缓存信息
+    codeInput = None
+    titleInput = None
+    actressInput = None
+    curCode = None
+    curActress = None
+    curFilePath = None
+    curDirPath = None
+    curTitle = None
+
+    # 默认勾选
+    imageToggle = 0
+    videoToggle = 1
+    docsToggle = 0
+    sortType = DESC
+    sortField = MODIFY_TIME
+    webUrl = "https://www.cdnbus.in/"
+
     # 初始化 loadUI
     def __init__(self):
         super().__init__()
@@ -21,39 +53,7 @@ class MainUI(QMainWindow):
         self.titleInput = QTextEdit()
         self.actressInput = QLineEdit()
         self._initUI()
-        self._click_search_button()
-
-    # 定义全局变量
-    tabDataList = []
-    dataList = []
-    rootPath = ''
-    fileTypes = []
-    # 载入数据
-    # 布局 0 栅格 1 表格 3 网页
-    layoutType = '栅格'
-    # 0 海报模式 还是 1 封面模式
-    post_cover = POSTER
-
-    tableData = None
-    codeInput = None
-    titleInput = None
-    actressInput = None
-    curCode = None
-    curActress = None
-    curFilePath = None
-    curDirPath = None
-    curTitle = None
-    sortType = DESC
-    sortField = MODIFY_TIME
-    # 默认勾选
-    imageToggle = 0
-    videoToggle = 1
-    docsToggle = 0
-
-    webUrl = "https://www.cdnbus.in/"
-
-    # 搜索文本框
-    dirName = None
+        self._search_button_click()
 
     # 载入UI窗口
     def _initUI(self):
@@ -67,14 +67,14 @@ class MainUI(QMainWindow):
         openFolder.clicked[bool].connect(self._open_path)
         okButton = QPushButton("搜索")
         okButton.setShortcut(QKeySequence(str("Return")))
-        okButton.clicked[bool].connect(self._click_search_button)
+        okButton.clicked[bool].connect(self._search_button_click)
 
         openFile = QPushButton("打开文件")
         openFile.clicked[bool].connect(self._open_file)
         openDir = QPushButton("打开文件夹")
         openDir.clicked[bool].connect(self._open_file)
         codeSearch = QPushButton("番号搜索")
-        codeSearch.clicked[bool].connect(self._code_search)
+        codeSearch.clicked[bool].connect(self._search_code)
         infoButton = QPushButton("info")
         infoButton.clicked[bool].connect(self._click_info)
 
@@ -82,14 +82,14 @@ class MainUI(QMainWindow):
         syncJav.clicked[bool].connect(self._sync_javmovie_info)
 
         # 布局 0 栅格 1 表格 3 网页
-        grid_layout = QRadioButton("栅格")
-        web_layout = QRadioButton("网页")
-        table_layout = QRadioButton("表格")
-        if self.layoutType == "栅格":
+        grid_layout = QRadioButton(GRID)
+        web_layout = QRadioButton(WEB)
+        table_layout = QRadioButton(TABLE)
+        if self.layoutType == GRID:
             grid_layout.toggle()
-        elif self.layoutType == "表格":
+        elif self.layoutType == TABLE:
             table_layout.toggle()
-        elif self.layoutType == "网页":
+        elif self.layoutType == WEB:
             web_layout.toggle()
         grid_layout.clicked[bool].connect(self._choose_layout)
         table_layout.clicked[bool].connect(self._choose_layout)
@@ -99,11 +99,11 @@ class MainUI(QMainWindow):
         self.layoutGroup.addButton(table_layout, 1)
         self.layoutGroup.addButton(web_layout, 2)
 
-        postButton = QRadioButton("海报")
-        coverButton = QRadioButton("封面")
+        postButton = QRadioButton(POSTER)
+        coverButton = QRadioButton(COVER)
         if self.post_cover == POSTER:
             postButton.toggle()
-        elif self.post_cover == '封面':
+        elif self.post_cover == COVER:
             coverButton.toggle()
         postButton.clicked[bool].connect(self._choose_post_cover)
         coverButton.clicked[bool].connect(self._choose_post_cover)
@@ -141,11 +141,11 @@ class MainUI(QMainWindow):
 
         # 复选框
         image = QCheckBox("图片", self)
-        image.stateChanged.connect(self._image_choose)
+        image.stateChanged.connect(self._choose_image)
         video = QCheckBox("视频", self)
-        video.stateChanged.connect(self._video_choose)
+        video.stateChanged.connect(self._choose_video)
         docs = QCheckBox("文档", self)
-        docs.stateChanged.connect(self._docs_choose)
+        docs.stateChanged.connect(self._choose_docs)
         if self.imageToggle == 1:
             image.toggle()
         if self.videoToggle == 1:
@@ -208,8 +208,8 @@ class MainUI(QMainWindow):
         self.tab_widget.setDocumentMode(True)
         self.tab_widget.setMovable(True)
         self.tab_widget.setTabsClosable(True)
-        self.tab_widget.tabCloseRequested.connect(self._close_tab)
-        self.tab_widget.currentChanged.connect(self._change_tab)
+        self.tab_widget.tabCloseRequested.connect(self._tab_close)
+        self.tab_widget.currentChanged.connect(self._tab_change)
 
         # 创建主窗口组件 挂载布局
         main_widget = QWidget()
@@ -221,13 +221,13 @@ class MainUI(QMainWindow):
 
         self.setCentralWidget(main_widget)
 
-        self._add_menu_button()
+        self._menu_button_add()
 
         self.show()
 
     # 点击搜索
 
-    def _click_search_button(self):
+    def _search_button_click(self):
         self.statusBar().showMessage('执行中')
         # 提示框测试
         # replay = QMessageBox.question(self, '提示',
@@ -239,32 +239,32 @@ class MainUI(QMainWindow):
         self._search(title)
         message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
         self.statusBar().showMessage(message)
-        self._reload_context()
+        self._load_context()
 
     def _choose_post_cover(self):
         #  0 海报 1 封面
         self.post_cover = self.displayGroup.checkedButton().text()
         # index = self.tab_widget.currentIndex()
         # self.tab_widget.removeTab(self.tab_widget.count() - 1)
-        self._reload_context()
+        self._load_context()
 
     def _sort_type_change(self):
         print(self.sortTypeGroup.checkedButton().text())
         self.sortType = self.sortTypeGroup.checkedButton().text()
-        self._reload_context()
+        self._load_context()
 
     def _sort_field_change(self):
         print(self.sortFieldGroup.checkedButton().text())
         self.sortField = self.sortFieldGroup.checkedButton().text()
-        self._reload_context()
+        self._load_context()
 
     # 选择布局
     def _choose_layout(self):
         # 布局 0 栅格 1 表格 3 网页
         self.layoutType = self.layoutGroup.checkedButton().text()
-        self._reload_context()
+        self._load_context()
 
-    def _reload_context(self):
+    def _load_context(self):
         try:
             self._sort_files_list()
             self._load_context_thread()
@@ -288,20 +288,23 @@ class MainUI(QMainWindow):
                 # self.addAloneTab(self.loadGridData(), "栅格")
         else:
             if self.layoutType == '栅格':
-                self._this_add_tab(self._load_grid_data(), title)
+                self._tab_add(self._load_grid_data(), title)
             elif self.layoutType == '表格':
-                self._this_add_tab(self._load_table_data(), title)
+                self._tab_add(self._load_table_data(), title)
 
-    def _this_add_tab(self, widget, title):
+    def _tab_add(self, widget, title):
         # # 单页应用 添加前删除所有Tab页
         # for index in range(self.tab_widget.count()):
         #     # 删除Tab页时 同步删除当前Tab页对应的数据
         #     self.close_Tab_item(index)
-        self.tab_widget.addTab(widget, title)
-        self.tab_widget.setCurrentWidget(widget)
+        try:
+            self.tab_widget.addTab(widget, title)
+            self.tab_widget.setCurrentWidget(widget)
+        except Exception as err:
+            print(err)
 
     # 搜饭
-    def _code_search(self):
+    def _search_code(self):
         tool = JavTool(self.webUrl)
         code = self.codeInput.text()
         movie = tool.getJavInfo(code)
@@ -327,16 +330,16 @@ class MainUI(QMainWindow):
             print('排序：' + self.sortField + ' ' + self.sortType)
             self.dataList.sort(key=getSortField(self.sortField), reverse=getReverse(self.sortType))
 
-    def _close_tab_item(self, index):
+    def _tab_item_close(self, index):
         self.tab_widget.removeTab(index)
         del self.tabDataList[index]
 
-    def _close_tab(self, index):
-        self._close_tab_item(index)
+    def _tab_close(self, index):
+        self._tab_item_close(index)
         index = self.tab_widget.currentIndex()
         self.dataList = self.tabDataList[index]
 
-    def _change_tab(self, index):
+    def _tab_change(self, index):
         self.dataList = self.tabDataList[index]
 
     # 选择框
@@ -346,7 +349,7 @@ class MainUI(QMainWindow):
         #     QMessageBox().about(self, "提示", "打开文件失败，可能是文件内型错误")
         # else:
         self.dirName.setText(pathname)
-        self._click_search_button()
+        self._search_button_click()
 
     # 点击事件
     def _open_file(self):
@@ -363,13 +366,13 @@ class MainUI(QMainWindow):
             os.system(command)
 
     # 点击事件
-    def _click_table_line(self):
+    def _table_line_click(self):
         index = self.tableData.currentRow()
         self._set_curinfo(self.dataList[index])
         self._load_info_to_left()
 
-    def _click_table_line_double(self):
-        self._click_table_line()
+    def _table_line_double_click(self):
+        self._table_line_click()
         col = self.tableData.currentColumn()
         if col == 1 or col == 0:
             if self.curFilePath is None or self.curFilePath == '':
@@ -389,7 +392,7 @@ class MainUI(QMainWindow):
         self.curDirPath = targetfile.dirPath
         self.curTitle = targetfile.name
 
-    def _click_grid(self):
+    def _grid_click(self):
         text = self.sender().text()
         self._set_curinfo(self.dataList[int(text)])
         self._load_info_to_left()
@@ -406,11 +409,11 @@ class MainUI(QMainWindow):
             path = self.curFilePath
             if path.find("http") < 0:
                 pic = getPixMap(path, 250, 400)
-                if not pic.isNull():
+                if pic is not None and not pic.isNull():
                     self.curPic.setPixmap(pic)
             else:
                 pic = getPixMapFromNet(path, 250, 400)
-                if not pic.isNull():
+                if pic is not None and not pic.isNull():
                     self.curPic.setPixmap(pic)
         except Exception as err:
             print("文件打开失败")
@@ -430,13 +433,16 @@ class MainUI(QMainWindow):
             item = QToolButton()
             item.setText(str(index))
             iconPath = replaceSuffix(data.path, PNG if self.post_cover == POSTER else JPG)
-            icon = QIcon(iconPath)
-            if not icon.isNull():
-                item.setIcon(icon)
+            try:
+                icon = QIcon(iconPath)
+                if icon is not None and not icon.isNull():
+                    item.setIcon(icon)
+            except Exception as err:
+                print(err)
             item.setIconSize(QSize(width, 300))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(data.name)
-            item.clicked[bool].connect(self._click_grid)
+            item.clicked[bool].connect(self._grid_click)
             row = int(index / each)
             cols = index % each
             title = QTextEdit(data.name)
@@ -461,8 +467,8 @@ class MainUI(QMainWindow):
         # 自适应列宽度
 
         tableData.setHorizontalHeaderLabels(['图片', NAME, "番号", "路径", "优优", "大小", "创建时间", "修改时间"])
-        tableData.doubleClicked.connect(self._click_table_line_double)
-        tableData.itemClicked.connect(self._click_table_line)
+        tableData.doubleClicked.connect(self._table_line_double_click)
+        tableData.itemClicked.connect(self._table_line_click)
         tableData.setColumnWidth(0, 200)
         tableData.setColumnWidth(1, 180)
         tableData.setColumnWidth(2, 80)
@@ -517,10 +523,10 @@ class MainUI(QMainWindow):
             javMovie = tool.getJavInfo(self.codeInput.text())
         if javMovie is not None:
             info = InfoUI(javMovie)
-            self._this_add_tab(info, javMovie.code)
+            self._tab_add(info, javMovie.code)
 
     # 添加菜单按钮
-    def _add_menu_button(self):
+    def _menu_button_add(self):
         bar = self.menuBar()
         # 文件
         file = bar.addMenu("文件")
@@ -532,17 +538,17 @@ class MainUI(QMainWindow):
         quitAction.setShortcut(QKeySequence(str("ctrl+Q")))
         file.addAction(quitAction)
 
-        file.triggered[QAction].connect(self._file_menu_process)
+        file.triggered[QAction].connect(self._menu_process_file)
         # 设置
         setting = bar.addMenu("设置")
         setting.setShortcutEnabled(1)
         changeUrlAction = QAction("切换数据源", self)
         changeUrlAction.setShortcut(QKeySequence.Save)
         setting.addAction(changeUrlAction)
-        setting.triggered[QAction].connect(self._file_menu_process)
+        setting.triggered[QAction].connect(self._menu_process_file)
 
     # 菜单按钮处理
-    def _file_menu_process(self, action):
+    def _menu_process_file(self, action):
         if action.text() == "打开":
             self._open_path()
         if action.text() == "退出":
@@ -555,7 +561,7 @@ class MainUI(QMainWindow):
 
     # 点击图片box
 
-    def _image_choose(self, state):
+    def _choose_image(self, state):
 
         if state == Qt.Checked:
             self.imageToggle = 1
@@ -569,7 +575,7 @@ class MainUI(QMainWindow):
                         self.fileTypes.remove(image)
 
     # 点击视频box
-    def _video_choose(self, state):
+    def _choose_video(self, state):
 
         if state == Qt.Checked:
             self.videoToggle = 1
@@ -582,7 +588,7 @@ class MainUI(QMainWindow):
                     self.fileTypes.remove(video)
 
     # 点击文档box
-    def _docs_choose(self, state):
+    def _choose_docs(self, state):
 
         if state == Qt.Checked:
             self.docsToggle = 1
