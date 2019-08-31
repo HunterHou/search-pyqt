@@ -10,3 +10,4 @@ search/main.spec
 .idea/
 .idea/encodings.xml
 search/search.spec
+/search/.main.spec
