@@ -48,6 +48,6 @@ class InfoUI(QWidget):
                 photo = photo.scaled(600, 400)
                 cover.setPixmap(photo)
         except Exception as err:
-            print("读取图片失败:" + path)
+            print(" InfoUI 读取图片失败:" + path)
             print(err)
         layout.addWidget(cover, 0, 3, 15, 4)

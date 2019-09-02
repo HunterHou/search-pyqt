@@ -40,10 +40,13 @@ class JavTool:
             image = a_img_node.get("href")
             # actress
             actresses = []
+            actresses_urls = []
             actress_divs = soup.find_all('div', class_='star-name')
             for div in actress_divs:
                 actress_link = div.find('a')
                 actresses.append(actress_link.get_text())
+                actresses_url = actress_link.get('href')
+                actresses_urls.append(actresses_url)
             text_node = soup.find_all('span', class_='header')
             code = text_node[0].find_next('span').get_text()
             pdate_span = text_node[1]
@@ -58,7 +61,9 @@ class JavTool:
             studio = text_node[4].find_next("a").get_text()
             supplier = text_node[5].find_next("a").get_text()
             series = text_node[6].find_next("a").get_text()
-            return JavMovie().build(code, img_title, image, "", actresses, director, pdate, series, studio, supplier,
+            return JavMovie().build(code, img_title, image, "", actresses, actresses_urls, director, pdate, series,
+                                    studio,
+                                    supplier,
                                     length, '')
         except Exception as err:
             print(avResponse)

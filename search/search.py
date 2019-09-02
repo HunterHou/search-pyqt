@@ -15,4 +15,5 @@ try:
     sd = MainUI()
     sys.exit(app.exec_())
 except Exception as err:
+    print("主线程错误")
     print(err)

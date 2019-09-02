@@ -1,0 +1,1 @@
+path=E:\emby\one,E:\emby2\one

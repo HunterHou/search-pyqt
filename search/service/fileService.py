@@ -20,6 +20,7 @@ def readInfo(path):
         # file.close()
         return context
     except Exception as err:
+        print("readInfo")
         print(err)
         return context
 
@@ -111,7 +112,7 @@ def nfoToJavMovie(path):
     for actor in actors:
         actress = actor.childNodes[0].data
         actresses.append(actress)
-    return JavMovie().build(code, title, cover, poster, actresses, director, pdate, series, studio, maker,
+    return JavMovie().build(code, title, cover, poster, actresses, "", director, pdate, series, studio, maker,
                             length, dirpath)
     # BeautifulSoup 模式 读取xml 但是要求安装 pip install lxml
     # nfoXML = readInfo(path)

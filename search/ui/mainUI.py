@@ -9,6 +9,7 @@ from search.model.file import *
 from search.net.javTool import JavTool
 from search.service.fileService import FileService, nfoToJavMovie
 from search.ui.infoUI import InfoUI
+from search.utils.textUtil import getPath
 
 
 class MainUI(QMainWindow):
@@ -16,6 +17,7 @@ class MainUI(QMainWindow):
     # 载入数据
     tabDataList = []
     dataList = []
+    dataLib = []
     rootPath = ''
     fileTypes = []
     tableData = None
@@ -37,9 +39,9 @@ class MainUI(QMainWindow):
     curTitle = None
 
     # 默认勾选
-    imageToggle = 0
+    imageToggle = 1
     videoToggle = 1
-    docsToggle = 0
+    docsToggle = 1
     sortType = DESC
     sortField = MODIFY_TIME
     webUrl = "https://www.cdnbus.in/"
@@ -47,13 +49,14 @@ class MainUI(QMainWindow):
     # 初始化 loadUI
     def __init__(self):
         super().__init__()
+        self.rootPath = getPath()
         self.infoLayout = QHBoxLayout()
         self.tableData = QTableWidget()
         self.codeInput = QLineEdit()
         self.titleInput = QTextEdit()
         self.actressInput = QLineEdit()
         self._initUI()
-        self._search_button_click()
+        self._search_from_disk()
 
     # 载入UI窗口
     def _initUI(self):
@@ -234,10 +237,10 @@ class MainUI(QMainWindow):
         #                               self.dirName.text(), QMessageBox.Yes)
         # if replay == QMessageBox.Yes:
         title = self.dirName.text()
-        if title is None or title == '':
-            self.statusBar().showMessage('等待执行...')
-            return
-        self._search(title)
+        # if title is None or title == '':
+        #     self.statusBar().showMessage('等待执行...')
+        #     return
+        self._search_from_result(title)
         message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
         self.statusBar().showMessage(message)
         self._load_context()
@@ -271,6 +274,7 @@ class MainUI(QMainWindow):
             self._sort_files_list()
             self._load_context_thread(isNew)
         except Exception as err:
+            print("_load_context")
             print(err)
         # if __name__ == 'search.ui.mainUI':
         #     freeze_support()
@@ -281,24 +285,25 @@ class MainUI(QMainWindow):
 
     def _load_context_thread(self, isNew):
         title = self.dirName.text()
-        if title is None or title == '':
-            if self.layoutType == WEB:
-                # 打开浏览器
-                webbrowser.open(self.webUrl)
-                # self.webview = WebEngineView(self)  # self必须要有，是将主窗口作为参数，传给浏览器
-                # self.webview.load(QUrl("http://www.baidu.com"))
-                # self.addAloneTab(self.loadGridData(), "栅格")
-        else:
-            if self.layoutType == '栅格':
-                if isNew:
-                    self._tab_add(self._load_grid_data(), title)
-                else:
-                    self.tab_widget.setCurrentWidget(self._load_grid_data())
-            elif self.layoutType == '表格':
-                if isNew:
-                    self._tab_add(self._load_table_data(), title)
-                else:
-                    self.tab_widget.setCurrentWidget(self._load_table_data())
+        if self.layoutType == WEB:
+            # 打开浏览器
+            webbrowser.open(self.webUrl)
+            # self.webview = WebEngineView(self)  # self必须要有，是将主窗口作为参数，传给浏览器
+            # self.webview.load(QUrl("http://www.baidu.com"))
+            # self.addAloneTab(self.loadGridData(), "栅格")
+            return
+        if self.layoutType == '栅格':
+            gridData = self._load_grid_data()
+            if isNew:
+                self._tab_add(gridData, title)
+            else:
+                self.tab_widget.setCurrentWidget(gridData)
+        elif self.layoutType == '表格':
+            tableData = self._load_table_data()
+            if isNew:
+                self._tab_add(tableData, title)
+            else:
+                self.tab_widget.setCurrentWidget(tableData)
 
     # 搜饭
     def _search_code(self):
@@ -315,11 +320,23 @@ class MainUI(QMainWindow):
             self._load_info_to_left()
 
     # 填充数据
-    def _search(self, path):
+    def _search_from_result(self, word):
+        result = []
+        for files in self.dataLib:
+            if files.name.find(word) >= 0 or files.code.find(word) >= 0 or files.actress.find(
+                    word) >= 0 or word == '' or word is None:
+                result.append(files)
+        self.dataList = result
 
-        walk = FileService().build(path, self.fileTypes)
-        self.dataList = []
-        self.dataList = walk.getFiles()
+    # 填充数据
+    def _search_from_disk(self):
+        self.dataLib = []
+        for path in self.rootPath.split(","):
+            if os.path.exists(path):
+                walk = FileService().build(path, self.fileTypes)
+                curList = walk.getFiles()
+                self.dataLib.extend(curList)
+        self.dataList = self.dataLib
 
     def _sort_files_list(self):
         if len(self.dataList) > 0:
@@ -350,6 +367,7 @@ class MainUI(QMainWindow):
             self.tab_widget.addTab(widget, title)
             self.tab_widget.setCurrentWidget(widget)
         except Exception as err:
+            print("_tab_add")
             print(err)
 
     # 选择框
@@ -435,6 +453,7 @@ class MainUI(QMainWindow):
                 if pic is not None and not pic.isNull():
                     self.curPic.setPixmap(pic)
         except Exception as err:
+            print("_load_info_to_left")
             print("文件打开失败")
             print(err)
 
@@ -464,6 +483,7 @@ class MainUI(QMainWindow):
                 if icon is not None and not icon.isNull():
                     item.setIcon(icon)
             except Exception as err:
+                print("_load_grid_data")
                 print(err)
             item.setIconSize(QSize(width, 300))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
@@ -486,8 +506,6 @@ class MainUI(QMainWindow):
         tableData = self.tableData
         tableData.setRowCount(0)
         tableData.setColumnCount(0)
-        if len(self.dataList) == 0:
-            self._search(self.rootPath)
         tableData.setColumnCount(8)
         tableData.setRowCount(len(self.dataList))
         # 自适应列宽度
@@ -542,7 +560,7 @@ class MainUI(QMainWindow):
 
         javMovie = None
         nfoPath = replaceSuffix(self.curFilePath, 'nfo')
-        if nfoPath is not None and nfoPath != '':
+        if nfoPath is not None and nfoPath != '' and os.path.exists(nfoPath):
             javMovie = nfoToJavMovie(nfoPath)
         elif self.codeInput.text() is not None and self.codeInput.text() != '':
             tool = JavTool(self.webUrl)

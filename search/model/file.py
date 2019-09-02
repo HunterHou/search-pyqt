@@ -222,6 +222,7 @@ class JavMovie:
     poster = ""
     # 演员
     actresses = ""
+    actressesUrl = ""
     # 系列
     series = ""
     # 制作商
@@ -240,12 +241,14 @@ class JavMovie:
     def __init__(self):
         pass
 
-    def build(self, code, title, cover, poster, actress, director, pdate, series, studio, maker, length, dirpath):
+    def build(self, code, title, cover, poster, actress, actressurl, director, pdate, series, studio, maker, length,
+              dirpath):
         self.code = code
         self.title = title
         self.cover = cover
         self.poster = poster
         self.actresses = actress
+        self.actressesUrl = actressurl
         self.director = director
         self.pdate = pdate
         self.series = series

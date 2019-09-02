@@ -15,6 +15,7 @@ def download(url, pathname):
                 f.write(fileResponse.read())
             print("下载完毕")
         except Exception as excep:
+            print("download")
             print("下载失败" + url)
             print(excep)
     else:
@@ -26,10 +27,9 @@ def getResponse(url):
     try:
         req = request.Request(url)
         req.add_header('User-Agent', 'Mozilla/6.0')
-        response = request.urlopen(req)
+        response = request.urlopen(req, timeout=10)
         return response
     except Exception as err:
-        print("Request 失败:" + url)
+        print("getResponse 失败:" + url)
         print(err)
-    finally:
         return None
