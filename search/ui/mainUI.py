@@ -334,7 +334,7 @@ class MainUI(QMainWindow):
     def _tab_close(self, index):
         self._tab_item_close(index)
         index = self.tab_widget.currentIndex()
-        if index >0:
+        if index > 0:
             self.dataList = self.tabDataList[index]
 
     def _tab_change(self, index):
@@ -451,8 +451,15 @@ class MainUI(QMainWindow):
             data = self.dataList[index]
             item = QToolButton()
             item.setText(str(index))
-            iconPath = replaceSuffix(data.path, PNG if self.post_cover == POSTER else JPG)
             try:
+                if self.post_cover == POSTER:
+                    iconPath = replaceSuffix(data.path, PNG)
+                    if os.path.exists(iconPath):
+                        pass
+                    else:
+                        iconPath = replaceSuffix(data.path, JPG)
+                else:
+                    iconPath = replaceSuffix(data.path, JPG)
                 icon = QIcon(iconPath)
                 if icon is not None and not icon.isNull():
                     item.setIcon(icon)
