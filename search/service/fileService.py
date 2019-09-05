@@ -95,6 +95,7 @@ def getElementsByTagName(collect, name):
     except Exception as err:
         print('获取失败' + name)
         print(err)
+        return ''
 
 
 def nfoToJavMovie(path):
