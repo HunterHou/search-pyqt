@@ -89,6 +89,14 @@ class FileService:
         return files
 
 
+def getElementsByTagName(collect, name):
+    try:
+        return collect.getElementsByTagName(name)[0].childNodes[0].data
+    except Exception as err:
+        print('获取失败' + name)
+        print(err)
+
+
 def nfoToJavMovie(path):
     if path is None or path == '' or not os.path.exists(path):
         return None
@@ -96,16 +104,16 @@ def nfoToJavMovie(path):
     dirpath = path.replace(arr[len(arr) - 1], "")
     domTree = parse(path)
     collect = domTree.documentElement
-    title = collect.getElementsByTagName('title')[0].childNodes[0].data
-    code = collect.getElementsByTagName('num')[0].childNodes[0].data
-    cover = collect.getElementsByTagName('fanart')[0].childNodes[0].data
-    poster = collect.getElementsByTagName('poster')[0].childNodes[0].data
-    director = collect.getElementsByTagName('director')[0].childNodes[0].data
-    pdate = collect.getElementsByTagName('release')[0].childNodes[0].data
-    series = collect.getElementsByTagName('plot')[0].childNodes[0].data
-    studio = collect.getElementsByTagName('studio')[0].childNodes[0].data
-    maker = collect.getElementsByTagName('maker')[0].childNodes[0].data
-    length = collect.getElementsByTagName('runtime')[0].childNodes[0].data
+    title = getElementsByTagName(collect, 'title')
+    code = getElementsByTagName(collect, 'num')
+    cover = getElementsByTagName(collect, 'fanart')
+    poster = getElementsByTagName(collect, 'poster')
+    director = getElementsByTagName(collect, 'director')
+    pdate = getElementsByTagName(collect, 'release')
+    series = getElementsByTagName(collect, 'plot')
+    studio = getElementsByTagName(collect, 'studio')
+    maker = getElementsByTagName(collect, 'maker')
+    length = getElementsByTagName(collect, 'runtime')
 
     actresses = []
     actors = collect.getElementsByTagName('name')

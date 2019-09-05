@@ -9,7 +9,13 @@ from search.model.file import *
 from search.net.javTool import JavTool
 from search.service.fileService import FileService, nfoToJavMovie
 from search.ui.infoUI import InfoUI
-from search.utils.textUtil import getPath
+
+
+def getStrJoin(list):
+    result = ""
+    for string in list:
+        result += "【" + string + "】"
+    return result
 
 
 class MainUI(QMainWindow):
@@ -18,7 +24,7 @@ class MainUI(QMainWindow):
     tabDataList = []
     dataList = []
     dataLib = []
-    rootPath = ''
+    rootPath = ['E:\\emby', 'G:\\emby']
     fileTypes = []
     tableData = None
     # 搜索文本框
@@ -34,12 +40,13 @@ class MainUI(QMainWindow):
     actressInput = None
     curCode = None
     curActress = None
+    curPicUrl = None
     curFilePath = None
     curDirPath = None
     curTitle = None
 
     # 默认勾选
-    imageToggle = 1
+    imageToggle = 0
     videoToggle = 1
     docsToggle = 1
     sortType = DESC
@@ -49,7 +56,7 @@ class MainUI(QMainWindow):
     # 初始化 loadUI
     def __init__(self):
         super().__init__()
-        self.rootPath = getPath()
+        # self.rootPath = getPath()
         self.infoLayout = QHBoxLayout()
         self.tableData = QTableWidget()
         self.codeInput = QLineEdit()
@@ -158,35 +165,44 @@ class MainUI(QMainWindow):
         # 创建左侧组件
         left_widget = QWidget()
         left_layout = QGridLayout()
-        left_layout.addWidget(grid_layout, 0, 0)
-        left_layout.addWidget(table_layout, 0, 1)
-        left_layout.addWidget(web_layout, 0, 2)
-        left_layout.addWidget(image, 1, 0)
-        left_layout.addWidget(video, 1, 1)
-        left_layout.addWidget(docs, 1, 2)
 
-        left_layout.addWidget(openFolder, 2, 0, 1, 1)
-        left_layout.addWidget(self.dirName, 2, 1, 1, 2)
+        left_layout.addWidget(QLabel("数据源:"), 0, 0, 1, 1)
+        self.webUrlLable = QLabel(self.webUrl)
+        left_layout.addWidget(self.webUrlLable, 0, 1, 1, 2)
+        left_layout.addWidget(QLabel("扫描路径:"), 1, 0, 1, 1)
+        self.diskLabel = QLabel(getStrJoin(self.rootPath))
+        left_layout.addWidget(self.diskLabel, 1, 1, 1, 1)
+        left_layout.addWidget(QLabel(""), 2, 0, 1, 3)
 
-        left_layout.addWidget(postButton, 3, 0, 1, 1)
-        left_layout.addWidget(coverButton, 3, 1, 1, 1)
-        left_layout.addWidget(okButton, 3, 2, 1, 1)
-        left_layout.addWidget(infoButton, 4, 0, 1, 1)
-        left_layout.addWidget(codeSearch, 4, 2, 1, 1)
+        left_layout.addWidget(grid_layout, 3, 0)
+        left_layout.addWidget(table_layout, 3, 1)
+        left_layout.addWidget(web_layout, 3, 2)
+        left_layout.addWidget(image, 4, 0)
+        left_layout.addWidget(video, 4, 1)
+        left_layout.addWidget(docs, 4, 2)
 
-        left_layout.addWidget(QLabel(""), 5, 0, 1, 3)
+        left_layout.addWidget(openFolder, 5, 0, 1, 1)
+        left_layout.addWidget(self.dirName, 5, 1, 1, 2)
 
-        left_layout.addWidget(QLabel('排序类型'), 6, 0, 1, 1)
-        left_layout.addWidget(asc, 6, 1, 1, 1)
-        left_layout.addWidget(desc, 6, 2, 1, 1)
-        left_layout.addWidget(name, 7, 0, 1, 1)
-        left_layout.addWidget(size, 7, 1, 1, 1)
-        left_layout.addWidget(mtime, 7, 2, 1, 1)
+        left_layout.addWidget(postButton, 6, 0, 1, 1)
+        left_layout.addWidget(coverButton, 6, 1, 1, 1)
+        left_layout.addWidget(okButton, 6, 2, 1, 1)
+        left_layout.addWidget(infoButton, 7, 0, 1, 1)
+        left_layout.addWidget(codeSearch, 7, 2, 1, 1)
 
-        left_layout.addWidget(QLabel(""), 8, 0, 1, 3)
+        left_layout.addWidget(QLabel(""), 7, 0, 1, 3)
 
-        left_layout.addWidget(QLabel("番号"))
-        left_layout.addWidget(self.codeInput)
+        left_layout.addWidget(QLabel('排序类型'), 8, 0, 1, 1)
+        left_layout.addWidget(asc, 8, 1, 1, 1)
+        left_layout.addWidget(desc, 8, 2, 1, 1)
+        left_layout.addWidget(name, 9, 0, 1, 1)
+        left_layout.addWidget(size, 9, 1, 1, 1)
+        left_layout.addWidget(mtime, 9, 2, 1, 1)
+
+
+
+        left_layout.addWidget(QLabel("番号"), 10, 0, 1, 1)
+        left_layout.addWidget(self.codeInput, 10, 1, 1, 2)
 
         left_layout.addWidget(QLabel("标题"), 11, 0, 1, 1)
         self.titleInput.setMaximumHeight(60)
@@ -199,10 +215,6 @@ class MainUI(QMainWindow):
         left_layout.addWidget(openFile)
         left_layout.addWidget(openDir)
         left_layout.addWidget(syncJav)
-
-        left_layout.addWidget(QLabel("数据源:"))
-        self.webUrlLable = QLabel(self.webUrl)
-        left_layout.addWidget(self.webUrlLable)
 
         # 创建右侧组件
         self.tab_widget = QTabWidget
@@ -315,7 +327,7 @@ class MainUI(QMainWindow):
         else:
             self.curCode = code
             self.curActress = movie.getActress()
-            self.curFilePath = movie.cover
+            self.curPicUrl = movie.cover
             self.curTitle = movie.title
             self._load_info_to_left()
 
@@ -323,15 +335,17 @@ class MainUI(QMainWindow):
     def _search_from_result(self, word):
         result = []
         for files in self.dataLib:
-            if files.name.find(word) >= 0 or files.code.find(word) >= 0 or files.actress.find(
-                    word) >= 0 or word == '' or word is None:
-                result.append(files)
+            if (files.name is not None and files.name.find(word) >= 0) or (
+                    files.code is not None and files.code.find(word) >= 0) or (
+                    files.actress is not None and files.actress.find(word) >= 0) or word == '' or word is None:
+                if files.fileType in self.fileTypes:
+                    result.append(files)
         self.dataList = result
 
     # 填充数据
     def _search_from_disk(self):
         self.dataLib = []
-        for path in self.rootPath.split(","):
+        for path in self.rootPath:
             if os.path.exists(path):
                 walk = FileService().build(path, self.fileTypes)
                 curList = walk.getFiles()
@@ -351,6 +365,8 @@ class MainUI(QMainWindow):
     def _tab_close(self, index):
         self._tab_item_close(index)
         index = self.tab_widget.currentIndex()
+        print("当前页:" + str(index))
+        print("Tab总数:" + str(len(self.tabDataList)))
         if index > 0:
             self.dataList = self.tabDataList[index]
 
@@ -587,8 +603,12 @@ class MainUI(QMainWindow):
         setting = bar.addMenu("设置")
         setting.setShortcutEnabled(1)
         changeUrlAction = QAction("切换数据源", self)
-        changeUrlAction.setShortcut(QKeySequence.Save)
         setting.addAction(changeUrlAction)
+
+        changeDisk = QAction("设置扫描路径", self)
+        changeDisk.setShortcut(QKeySequence.Save)
+        setting.addAction(changeDisk)
+
         setting.triggered[QAction].connect(self._menu_process_file)
 
     # 菜单按钮处理
@@ -598,10 +618,16 @@ class MainUI(QMainWindow):
         if action.text() == "退出":
             self.close()
         if action.text() == "切换数据源":
-            text, ok = QInputDialog.getText(self, "设置数据源", "网址:", )
+            text, ok = QInputDialog.getText(self, "设置数据源", "网址:")
             if ok:
                 self.webUrl = text
                 self.webUrlLable.setText(text)
+        if action.text() == "设置扫描路径":
+            text, ok = QInputDialog.getText(self, "设置扫描路径", "地址:")
+            if ok:
+                self.rootPath = list(text.split(','))
+                self.diskLabel.setText(text)
+            self._search_from_disk()
 
     # 点击图片box
 
