@@ -177,29 +177,30 @@ def getActress(filename):
 
 
 class File:
-    # 名称
-    name = ''
-    # 文件路径
-    path = ''
-    # 番号
-    code = ''
-    # 演员
-    actress = ''
-    # 类型
-    fileType = ''
-    # 文件夹路径
-    dirPath = ''
-    # 大小
-    size = ''
-    # 创建时间
-    create_time = ''
-    # 修改时间
-    modify_time = ''
 
     def __init__(self):
-        pass
+        """变量定义到 init 方法中 可用反射获取所有变量"""
+        # 名称
+        self.name = ''
+        # 文件路径
+        self.path = ''
+        # 番号
+        self.code = ''
+        # 演员
+        self.actress = ''
+        # 类型
+        self.fileType = ''
+        # 文件夹路径
+        self.dirPath = ''
+        # 大小
+        self.size = ''
+        # 创建时间
+        self.create_time = ''
+        # 修改时间
+        self.modify_time = ''
 
     def build(self, filename, type, dirpath):
+        """单独构造方法 方便用__init__ 建新对象"""
         self.name = filename
         self.code = getCode(filename)
         self.actress = getActress(filename)
@@ -212,37 +213,42 @@ class File:
         self.modify_time = getModifyTime(path)
         return self
 
+    def getMemberInfo(self):
+        result = []
+        for name, value in vars(self).items():
+            result.append([name, value if value is not None else ""])
+        return result
+
 
 class JavMovie:
-    code = ""
-    title = ""
-    # cover
-    cover = ""
-    # 海报
-    poster = ""
-    # 演员
-    actresses = ""
-    actressesUrl = ""
-    # 系列
-    series = ""
-    # 制作商
-    studio = ""
-    # 发行商
-    maker = ""
-    # 时长
-    length = ""
-    # 发行日期
-    pdate = ""
-
-    director = ""
-
-    dirPath = ""
 
     def __init__(self):
-        pass
+        """变量定义到 init 方法中 可用反射获取所有变量"""
+        self.code = ""
+        self.title = ""
+        # cover
+        self.cover = ""
+        # 海报
+        self.poster = ""
+        # 演员
+        self.actresses = ""
+        self.actressesUrl = ""
+        # 系列
+        self.series = ""
+        # 制作商
+        self.studio = ""
+        # 发行商
+        self.maker = ""
+        # 时长
+        self.length = ""
+        # 发行日期
+        self.pdate = ""
+        self.director = ""
+        self.dirPath = ""
 
     def build(self, code, title, cover, poster, actress, actressurl, director, pdate, series, studio, maker, length,
               dirpath):
+        """单独构造方法 方便用__init__ 建新对象"""
         self.code = code
         self.title = title
         self.cover = cover
