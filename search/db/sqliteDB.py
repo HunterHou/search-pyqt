@@ -4,7 +4,7 @@
 import sqlite3
 
 from search.model.file import File
-from search.utils.classUtil import *
+from search.utils.clazzUtil import *
 
 
 class SqliteDB:
@@ -15,15 +15,15 @@ class SqliteDB:
     def __init__(self):
         pass
 
-    def assembleMovies(self, sample, params, orders):
-        moives = []
+    def assembleMovies(self, tableName, sample, params, orders):
+        movies = []
         names = get_member_name(sample)
-        data = self.query('movie', names, params, orders)
+        data = self.query(tableName, names, params, orders)
         for row in data:
             file = File()
             set_member_info(names, row, file)
             moives.append(file)
-        return moives
+        return movies
 
     def query(self, tableName, columns, params, orders):
 
@@ -44,6 +44,13 @@ class SqliteDB:
                     sql += orders[index][0] + ' ' + orders[index][1]
         self.cursor.execute(sql, paramValues)
         return self.cursor.fetchall()
+
+    def insertObject(self, tableName, obj):
+        columns = get_member_name(obj)
+        row = get_member_value(obj)
+        sql = 'insert into %s (%s) values(%s)' % (tableName, ','.join(columns), ','.join('?' * len(row)))
+        self.cursor.execute(sql, row)
+        self.conn.commit()
 
     def insertOne(self, tableName, columns, row):
         sql = 'insert into %s (%s) values(%s)' % (tableName, ','.join(columns), ','.join('?' * len(row)))
@@ -79,12 +86,12 @@ class SqliteDB:
         self.conn.commit()
 
     def clearTable(self, tableName):
-        sql = 'delete from  %s' % (tableName)
+        sql = 'delete from  %s' % tableName
         self.cursor.execute(sql)
         self.conn.commit()
 
     def dropTable(self, tableName):
-        sql = 'drop table  %s' % (tableName)
+        sql = 'drop table  %s' % tableName
         self.cursor.execute(sql)
         self.conn.commit()
 

@@ -5,7 +5,7 @@ import unittest
 
 from search.db.sqliteDB import SqliteDB
 from search.model.file import File
-from search.utils.classUtil import get_member_name, get_member_value
+from search.utils.clazzUtil import get_member_name, get_member_value
 
 
 class TestSqlite(unittest.TestCase):
