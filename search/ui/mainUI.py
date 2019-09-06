@@ -187,22 +187,20 @@ class MainUI(QMainWindow):
 
         left_layout.addWidget(postButton, 6, 0, 1, 1)
         left_layout.addWidget(coverButton, 6, 1, 1, 1)
-        left_layout.addWidget(infoButton, 7, 0, 1, 1)
-        left_layout.addWidget(codeSearch, 7, 2, 1, 1)
 
-        left_layout.addWidget(QLabel(""), 7, 0, 1, 3)
+        left_layout.addWidget(QLabel('排序类型'), 7, 0, 1, 1)
+        left_layout.addWidget(asc, 7, 1, 1, 1)
+        left_layout.addWidget(desc, 7, 2, 1, 1)
+        left_layout.addWidget(name, 8, 0, 1, 1)
+        left_layout.addWidget(size, 8, 1, 1, 1)
+        left_layout.addWidget(mtime, 8, 2, 1, 1)
+        left_layout.addWidget(QLabel(""), 9, 0, 1, 3)
+        left_layout.addWidget(infoButton, 10, 0, 1, 1)
+        left_layout.addWidget(codeSearch, 10, 2, 1, 1)
+        left_layout.addWidget(QLabel("番号"), 11, 0, 1, 1)
+        left_layout.addWidget(self.codeInput, 11, 1, 1, 2)
 
-        left_layout.addWidget(QLabel('排序类型'), 8, 0, 1, 1)
-        left_layout.addWidget(asc, 8, 1, 1, 1)
-        left_layout.addWidget(desc, 8, 2, 1, 1)
-        left_layout.addWidget(name, 9, 0, 1, 1)
-        left_layout.addWidget(size, 9, 1, 1, 1)
-        left_layout.addWidget(mtime, 9, 2, 1, 1)
-
-        left_layout.addWidget(QLabel("番号"), 10, 0, 1, 1)
-        left_layout.addWidget(self.codeInput, 10, 1, 1, 2)
-
-        left_layout.addWidget(QLabel("标题"), 11, 0, 1, 1)
+        left_layout.addWidget(QLabel("标题"), 12, 0, 1, 1)
         self.titleInput.setMaximumHeight(60)
         self.titleInput.setMaximumWidth(160)
         left_layout.addWidget(self.titleInput, 12, 1, 2, 2)
@@ -437,12 +435,14 @@ class MainUI(QMainWindow):
             self.curCode = movieInfo.code
             self.curActress = movieInfo.getActress()
             self.curFilePath = targetfile.path
+            self.curPicUrl = None
             self.curDirPath = movieInfo.dirPath
             self.curTitle = movieInfo.title
         else:
             self.curCode = targetfile.code
             self.curActress = targetfile.actress
             self.curFilePath = targetfile.path
+            self.curPicUrl = None
             self.curDirPath = targetfile.dirPath
             self.curTitle = targetfile.name
 
@@ -460,15 +460,15 @@ class MainUI(QMainWindow):
         self.titleInput.setText(self.curTitle)
         self.actressInput.setText(self.curActress)
         try:
-            path = self.curFilePath
-            if path.find("http") < 0:
-                pic = getPixMap(path, 250, 400)
+            if self.curPicUrl is not None:
+                pic = getPixMapFromNet(self.curPicUrl, 250, 400)
                 if pic is not None and not pic.isNull():
                     self.curPic.setPixmap(pic)
             else:
-                pic = getPixMapFromNet(path, 250, 400)
+                pic = getPixMap(self.curFilePath, 250, 400)
                 if pic is not None and not pic.isNull():
                     self.curPic.setPixmap(pic)
+
         except Exception as err:
             print("_load_info_to_left")
             print("文件打开失败")
