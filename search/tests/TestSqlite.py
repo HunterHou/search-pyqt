@@ -1,41 +1,31 @@
 #!/usr/bin/python
 # encoding=utf-8
 
-import sqlite3
 import unittest
+
+from search.db.sqliteDB import SqliteDB
 
 
 class TestSqlite(unittest.TestCase):
+    table_name = 'user'
+    table_columns = ['id', 'name']
+    table_index = []
 
     def test_create_table(self):
-        conn = sqlite3.connect('search.db')
-        cursor = conn.cursor()
-        cursor.execute(
-            'create table movie(code varchar(20) ,title varchar(800),path varchar(800),actress varchar(800),fileType varchar(800),dirPath varchar(800),size varchar(800),create_time varchar(800),modify_time varchar(800))')
-        print(cursor.rowcount)
-        conn.commit()
-        conn.close()
+        db = SqliteDB()
+        db.createTable(self.table_name, self.table_columns, self.table_index)
+        db.close()
 
-    def test_insert_One(self):
-        conn = sqlite3.connect('search.db')
-        cursor = conn.cursor()
-        cursor.execute(
-            'insert into movie (code,title,path,actress,fileType,dirPath,size,create_time,modify_time) values (?,?,?,?,?,?,?,?,?)',
-            ('111', '', '', '', '', '', '', '', ''))
-        print(cursor.rowcount)
-        conn.commit()
-        conn.close()
+    def test_exists(self):
+        db = SqliteDB()
+        if db.isExists(self.table_name):
+            print('存在')
+        else:
+            print('不存在')
 
-    def test_query(self):
-        conn = sqlite3.connect('search.db')
-        cursor = conn.cursor()
-        cursor.execute(
-            'select * from movie')
+        db.close()
 
-        rows = cursor.fetchall()
-        for row in rows:
-            print(row)
-
-        print(cursor.rowcount)
-        conn.commit()
-        conn.close()
+    def test_get_table_info(self):
+        db = SqliteDB()
+        print(db.getTableInfo(self.table_name))
+        db.close()
