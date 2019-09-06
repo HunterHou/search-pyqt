@@ -72,9 +72,9 @@ class MainUI(QMainWindow):
         # 创建搜索按钮
         if self.dirName is None:
             self.dirName = QLineEdit()
-        openFolder = QPushButton("点我")
+        scanFolder = QPushButton("扫描路径")
         # openFolder.setShortcut(QKeySequence.Open)
-        openFolder.clicked[bool].connect(self._open_path)
+        scanFolder.clicked[bool].connect(self._scan_disk)
         okButton = QPushButton("搜索")
         okButton.setShortcut(QKeySequence(str("Return")))
         okButton.clicked[bool].connect(self._search_button_click)
@@ -169,9 +169,10 @@ class MainUI(QMainWindow):
         left_layout.addWidget(QLabel("数据源:"), 0, 0, 1, 1)
         self.webUrlLable = QLabel(self.webUrl)
         left_layout.addWidget(self.webUrlLable, 0, 1, 1, 2)
-        left_layout.addWidget(QLabel("扫描路径:"), 1, 0, 1, 1)
+        left_layout.addWidget(scanFolder, 1, 0, 1, 1)
         self.diskLabel = QLabel(getStrJoin(self.rootPath))
-        left_layout.addWidget(self.diskLabel, 1, 1, 1, 1)
+        self.diskLabel.setWordWrap(True)
+        left_layout.addWidget(self.diskLabel, 1, 1, 1, 2)
         left_layout.addWidget(QLabel(""), 2, 0, 1, 3)
 
         left_layout.addWidget(grid_layout, 3, 0)
@@ -181,12 +182,11 @@ class MainUI(QMainWindow):
         left_layout.addWidget(video, 4, 1)
         left_layout.addWidget(docs, 4, 2)
 
-        left_layout.addWidget(openFolder, 5, 0, 1, 1)
-        left_layout.addWidget(self.dirName, 5, 1, 1, 2)
+        left_layout.addWidget(self.dirName, 5, 0, 1, 2)
+        left_layout.addWidget(okButton, 5, 2, 1, 1)
 
         left_layout.addWidget(postButton, 6, 0, 1, 1)
         left_layout.addWidget(coverButton, 6, 1, 1, 1)
-        left_layout.addWidget(okButton, 6, 2, 1, 1)
         left_layout.addWidget(infoButton, 7, 0, 1, 1)
         left_layout.addWidget(codeSearch, 7, 2, 1, 1)
 
@@ -198,8 +198,6 @@ class MainUI(QMainWindow):
         left_layout.addWidget(name, 9, 0, 1, 1)
         left_layout.addWidget(size, 9, 1, 1, 1)
         left_layout.addWidget(mtime, 9, 2, 1, 1)
-
-
 
         left_layout.addWidget(QLabel("番号"), 10, 0, 1, 1)
         left_layout.addWidget(self.codeInput, 10, 1, 1, 2)
@@ -352,6 +350,10 @@ class MainUI(QMainWindow):
                 self.dataLib.extend(curList)
         self.dataList = self.dataLib
 
+    def _scan_disk(self):
+        self._search_from_disk()
+        self._search_button_click()
+
     def _sort_files_list(self):
         if len(self.dataList) > 0:
             print('排序：' + self.sortField + ' ' + self.sortType)
@@ -392,8 +394,7 @@ class MainUI(QMainWindow):
         # if not pathname:
         #     QMessageBox().about(self, "提示", "打开文件失败，可能是文件内型错误")
         # else:
-        self.dirName.setText(pathname)
-        self._search_button_click()
+        self.rootPath.append(pathname)
 
     # 点击事件
     def _open_file(self):
@@ -406,7 +407,7 @@ class MainUI(QMainWindow):
         if choose == '打开文件夹':
             if self.curDirPath is None or self.curDirPath == '':
                 return
-            command = '''start "" "''' + self.curDirPath + "\""
+            command = '''start "" "''' + self.curDirPath
             os.system(command)
 
     # 点击事件
@@ -594,20 +595,25 @@ class MainUI(QMainWindow):
         openAction = QAction("打开", self)
         openAction.setShortcut(QKeySequence.Open)
         file.addAction(openAction)
+
         quitAction = QAction("退出", self)
         quitAction.setShortcut(QKeySequence(str("ctrl+Q")))
-        file.addAction(quitAction)
 
+        addDisk = QAction("添加路径", self)
+        addDisk.setShortcut(QKeySequence.Save)
+        file.addAction(addDisk)
+
+        clearDisk = QAction("清空路径", self)
+        clearDisk.setShortcut(QKeySequence.Save)
+        file.addAction(clearDisk)
+
+        file.addAction(quitAction)
         file.triggered[QAction].connect(self._menu_process_file)
         # 设置
         setting = bar.addMenu("设置")
         setting.setShortcutEnabled(1)
         changeUrlAction = QAction("切换数据源", self)
         setting.addAction(changeUrlAction)
-
-        changeDisk = QAction("设置扫描路径", self)
-        changeDisk.setShortcut(QKeySequence.Save)
-        setting.addAction(changeDisk)
 
         setting.triggered[QAction].connect(self._menu_process_file)
 
@@ -622,11 +628,15 @@ class MainUI(QMainWindow):
             if ok:
                 self.webUrl = text
                 self.webUrlLable.setText(text)
-        if action.text() == "设置扫描路径":
-            text, ok = QInputDialog.getText(self, "设置扫描路径", "地址:")
-            if ok:
-                self.rootPath = list(text.split(','))
-                self.diskLabel.setText(text)
+        if action.text() == "添加路径":
+            self._open_path()
+            self.diskLabel.setText(getStrJoin(self.rootPath))
+            self._search_from_disk()
+        if action.text() == "清空路径":
+            self.rootPath = []
+            self.dataLib = []
+            self.dataList = []
+            self.diskLabel.setText("暂无路径")
             self._search_from_disk()
 
     # 点击图片box
@@ -640,9 +650,8 @@ class MainUI(QMainWindow):
         else:
             self.imageToggle = 0
             if set(IMAGE_TYPES) < set(self.fileTypes):
-                if set(VIDEO_TYPES) < set(self.fileTypes):
-                    for image in IMAGE_TYPES:
-                        self.fileTypes.remove(image)
+                for image in IMAGE_TYPES:
+                    self.fileTypes.remove(image)
 
     # 点击视频box
     def _choose_video(self, state):
@@ -666,6 +675,6 @@ class MainUI(QMainWindow):
                 self.fileTypes.extend(DOCS_TYPES)
         else:
             self.docsToggle = 0
-            if not set(DOCS_TYPES) < set(self.fileTypes):
+            if set(DOCS_TYPES) < set(self.fileTypes):
                 for doc in DOCS_TYPES:
                     self.fileTypes.remove(doc)
