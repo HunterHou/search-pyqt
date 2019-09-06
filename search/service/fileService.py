@@ -123,26 +123,3 @@ def nfoToJavMovie(path):
         actresses.append(actress)
     return JavMovie().build(code, title, cover, poster, actresses, "", director, pdate, series, studio, maker,
                             length, dirpath)
-    # BeautifulSoup 模式 读取xml 但是要求安装 pip install lxml
-    # nfoXML = readInfo(path)
-    # xmlBs = BeautifulSoup(nfoXML, 'xml')
-    # title = xmlBs.find('title').get_text()
-    # code = xmlBs.find('num').get_text()
-    # cover = xmlBs.find('fanart').get_text()
-    # poster = xmlBs.find('poster').get_text()
-    # director = xmlBs.find('director').get_text()
-    # pdate = xmlBs.find('premiered').get_text()
-    # series = xmlBs.find('premiered').get_text()
-    # studio = xmlBs.find('studio').get_text()
-    # maker = xmlBs.find('maker').get_text()
-    # length = xmlBs.find('runtime').get_text()
-    # actresses = []
-    # actors = xmlBs.find_all('name')
-    # for actor in actors:
-    #     actresses.append(actor.get_text())
-    #
-    # return JavMovie().build(code, title, cover, poster, actresses, director, pdate, series, studio, maker,
-    #                         length)
-
-# info = 'E:\emby\高橋しょう子\Moodyz\[MIDE-670] 【元年キャンペーン】彼女が四日間、旅行で留守の間、彼女のグラドルお姉さんとハメまくったドエロ純愛記録。 [高橋しょう子]\\[MIDE-670] 【元年キャンペーン】彼女が四日間、旅行で留守の間、彼女のグラドルお姉さんとハメまくったドエロ純愛記録。 [高橋しょう子].nfo'
-# print(nfoToJavMovie(info))
