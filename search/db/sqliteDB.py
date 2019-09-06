@@ -80,7 +80,7 @@ class SqliteDB:
     def isExists(self, name):
         """是否存在"""
         self.cursor.execute("select count(*)  from sqlite_master where type='table' and name = ?", [name])
-        result = false
+        result = False
         if len(self.cursor.fetchall()) > 0:
             result = True
         self.conn.commit()

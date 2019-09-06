@@ -52,6 +52,10 @@ class TestSqlite(unittest.TestCase):
                 print(str(index + 1) + ": " + row[index])
         db.close()
 
+    def test_movie_exist(self):
+        db = SqliteDB()
+        db.isExists(File().table_name)
+
     def test_movie_drop_table(self):
         db = SqliteDB()
         db.dropTable(File().table_name)
