@@ -54,7 +54,7 @@ class TestSqlite(unittest.TestCase):
 
     def test_movie_exist(self):
         db = SqliteDB()
-        db.isExists(File().table_name)
+        print(db.isExists(File().table_name))
 
     def test_movie_drop_table(self):
         db = SqliteDB()

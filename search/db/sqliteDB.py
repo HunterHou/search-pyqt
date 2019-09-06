@@ -81,7 +81,7 @@ class SqliteDB:
         """是否存在"""
         self.cursor.execute("select count(*)  from sqlite_master where type='table' and name = ?", [name])
         result = False
-        if len(self.cursor.fetchall()) > 0:
+        if self.cursor.fetchone()[0] > 0:
             result = True
         self.conn.commit()
         return result
