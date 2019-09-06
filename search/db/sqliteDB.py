@@ -1,32 +1,33 @@
 #!/usr/bin/python
 # encoding=utf-8
 
+import copy
 import sqlite3
 
-from search.model.file import File
 from search.utils.clazzUtil import *
 
 
 class SqliteDB:
     conn = sqlite3.connect('search.db')
     cursor = conn.cursor()
-    columns = ['code', 'title', 'path', 'actress', 'fileType', 'dirPath', 'size', 'create_time', 'modify_time']
 
     def __init__(self):
         pass
 
-    def assembleMovies(self, tableName, sample, params, orders):
-        movies = []
-        names = get_member_name(sample)
+    def assembleObjects(self, clazz, params, orders):
+        """查询并组装成可用对象"""
+        objects = []
+        tableName = clazz.table_name
+        names = get_member_name(clazz)
         data = self.query(tableName, names, params, orders)
         for row in data:
-            file = File()
-            set_member_info(names, row, file)
-            moives.append(file)
-        return movies
+            obj = copy.deepcopy(clazz)
+            set_member_info(names, row, obj)
+            objects.append(obj)
+        return objects
 
     def query(self, tableName, columns, params, orders):
-
+        """查询条件和排序组装 返回值 为list<list>"""
         sql = 'select %s from %s  ' % (','.join(columns) if len(columns) > 0 else '*', tableName)
         paramValues = []
         if len(params) > 0 and params is not None:
@@ -45,35 +46,48 @@ class SqliteDB:
         self.cursor.execute(sql, paramValues)
         return self.cursor.fetchall()
 
-    def insertObject(self, tableName, obj):
+    def insertObject(self, obj):
+        tableName = obj.table_name
+        """根据可用对象的成员  insert """
         columns = get_member_name(obj)
         row = get_member_value(obj)
         sql = 'insert into %s (%s) values(%s)' % (tableName, ','.join(columns), ','.join('?' * len(row)))
         self.cursor.execute(sql, row)
         self.conn.commit()
 
+    def createObjectTable(self, obj):
+        """根据对象  创建表 """
+        tableName = obj.table_name
+        columns = get_member_name(obj)
+        self.createTable(tableName, columns, [])
+
     def insertOne(self, tableName, columns, row):
+        """根据插入列名 插入值  insert """
         sql = 'insert into %s (%s) values(%s)' % (tableName, ','.join(columns), ','.join('?' * len(row)))
         self.cursor.execute(sql, row)
         self.conn.commit()
 
-    def insertMany(self, tableName, columns, rows):
-        if len(rows) == 0:
+    def insertMany(self, tableName, objs):
+        if len(objs) == 0:
             return
-        for row in rows:
-            sql = 'insert into %s(%s) values(%)' % (tableName, ','.join(columns), ','.join(row))
-            self.cursor.execute(sql)
-        self.conn.close()
+        for obj in objs:
+            columns = get_member_name(obj)
+            row = get_member_value(obj)
+            sql = 'insert into %s (%s) values(%s)' % (tableName, ','.join(columns), ','.join('?' * len(row)))
+            self.cursor.execute(sql, row)
+        self.conn.commit()
 
     def isExists(self, name):
+        """是否存在"""
         self.cursor.execute("select count(*)  from sqlite_master where type='table' and name = ?", [name])
         result = false
         if len(self.cursor.fetchall()) > 0:
             result = True
         self.conn.commit()
-        return result;
+        return result
 
     def getTableInfo(self, name):
+        """表信息"""
         self.cursor.execute("select * from sqlite_master where type='table' and name = ?", [name])
         return self.cursor.fetchone()
 

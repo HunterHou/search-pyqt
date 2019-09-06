@@ -177,6 +177,7 @@ def getActress(filename):
 
 
 class File:
+    table_name = "file"
 
     def __init__(self):
         """变量定义到 init 方法中 可用反射获取所有变量"""
@@ -221,6 +222,7 @@ class File:
 
 
 class JavMovie:
+    table_name = "movie"
 
     def __init__(self):
         """变量定义到 init 方法中 可用反射获取所有变量"""

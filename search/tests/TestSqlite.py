@@ -5,7 +5,7 @@ import unittest
 
 from search.db.sqliteDB import SqliteDB
 from search.model.file import File
-from search.utils.clazzUtil import get_member_name, get_member_value
+from search.utils.clazzUtil import get_member_name
 
 
 class TestSqlite(unittest.TestCase):
@@ -54,26 +54,26 @@ class TestSqlite(unittest.TestCase):
 
     def test_movie_drop_table(self):
         db = SqliteDB()
-        db.dropTable("movie")
+        db.dropTable(File().table_name)
 
     def test_movie_create_table(self):
         db = SqliteDB()
-        db.createTable("movie", get_member_name(File()), [])
+        db.createObjectTable(File())
 
     def test_movie_get_info(self):
         db = SqliteDB()
-        print(db.getTableInfo("movie"))
+        print(db.getTableInfo(File().table_name))
 
     def test_movie_insert(self):
         file = File().build("E:\\emby\\one\\2.gif", "gif", "E:\emby\one")
         db = SqliteDB()
-        db.insertOne("movie", get_member_name(file), get_member_value(file))
+        db.insertObject(file)
         db.close()
 
     def test_movie_query(self):
         db = SqliteDB()
         file = File()
-        datas = db.query("movie", get_member_name(file), [])
+        datas = db.query(file.table_name, get_member_name(file), [])
         for dindex in range(len(datas)):
             row = datas[dindex]
             print("当前数据:" + str(dindex))
@@ -86,6 +86,6 @@ class TestSqlite(unittest.TestCase):
         # params = [["name", "E:\\emby\\one\\2.gif"]]
         params = []
         orders = [['name', '']]
-        files = db.assembleMovies(File(), params, orders)
+        files = db.assembleObjects(File(), params, orders)
         for file in files:
             print(file.name + ":::" + file.path)
