@@ -24,7 +24,7 @@ class MainUI(QMainWindow):
     tabDataList = []
     dataList = []
     dataLib = []
-    rootPath = ['E:\\emby', 'G:\\emby']
+    rootPath = ['f:\\emby\\tomake']
     fileTypes = []
     tableData = None
     # 搜索文本框

@@ -9,6 +9,11 @@ from search.model.file import JavMovie
 from search.net.httpUitls import *
 
 
+def dealwithletter(str):
+    str = str.replace('/', '-')
+    return str
+
+
 class JavTool:
     webRoot = "https://www.cdnbus.in/"
     fileName = None
@@ -47,20 +52,40 @@ class JavTool:
                 actresses.append(actress_link.get_text())
                 actresses_url = actress_link.get('href')
                 actresses_urls.append(actresses_url)
-            text_node = soup.find_all('span', class_='header')
-            code = text_node[0].find_next('span').get_text()
-            pdate_span = text_node[1]
-            pdate_p = text_node[1].find_previous('p')
-            pdate_span.extract()
-            pdate = pdate_p.get_text()
-            length_span = text_node[2]
-            length_p = text_node[2].find_previous('p')
-            length_span.extract()
-            length = length_p.get_text()
-            director = text_node[3].find_next("a").get_text()
-            studio = text_node[4].find_next("a").get_text()
-            supplier = text_node[5].find_next("a").get_text()
-            series = text_node[6].find_next("a").get_text()
+            text_nodes = soup.find_all('span', class_='header')
+            director = ''
+            pdate = ''
+            series = ''
+            studio = ''
+            supplier = ''
+            length = ''
+            for text_node in text_nodes:
+                text = text_node.get_text()
+                if text == '識別碼:':
+                    code = text_node.find_next('span').get_text()
+
+                elif text == '發行日期:':
+                    pdate_span = text_node
+                    pdate_p = text_node.find_previous('p')
+                    pdate_span.extract()
+                    pdate = pdate_p.get_text()
+                elif text == '長度:':
+                    length_span = text_node
+                    length_p = text_node.find_previous('p')
+                    length_span.extract()
+                    length = length_p.get_text()
+                elif text == '導演:':
+                    director = text_node.find_next("a").get_text()
+                elif text == '製作商:':
+                    studio = text_node.find_next("a").get_text()
+                    studio = dealwithletter(studio)
+                elif text == '發行商:':
+                    supplier = text_node.find_next("a").get_text()
+                    supplier = dealwithletter(supplier)
+                elif text == '系列:':
+                    series = text_node.find_next("a").get_text()
+                    series = dealwithletter(series)
+
             return JavMovie().build(code, img_title, image, "", actresses, actresses_urls, director, pdate, series,
                                     studio,
                                     supplier,
@@ -92,7 +117,11 @@ class JavTool:
                 os.mkdir(movie.maker)
             os.chdir(movie.maker)
             # 创建目录结构：电影信息
-            fileName = "[" + movie.getActress() + "]" + " [" + movie.code + "]" + movie.title
+            title = movie.title
+            if len(title) > 50:
+                title = title[0:50]
+            fileName = "[" + movie.getActress() + "]" + " [" + movie.code + "]" + title
+
             dirPath = dirPath + "\\" + fileName
             if os.path.exists(dirPath):
                 pass
