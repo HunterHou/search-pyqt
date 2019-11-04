@@ -506,19 +506,44 @@ class MainUI(QMainWindow):
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(data.name)
             item.clicked[bool].connect(self._grid_click)
-            row = int(index / each)
-            cols = index % each
             title = QTextEdit(data.name)
             title.setMaximumHeight(40)
             title.setMaximumWidth(width)
-            play = QPushButton("打开")
-            open = QPushButton("文件夹")
 
-            self.gridLayout.addWidget(item, row * 3, cols*2)
-            self.gridLayout.addWidget(play, row * 3 + 1, cols)
-            self.gridLayout.addWidget(open, row * 3 + 1, cols)
+            url_father = os.path.dirname(os.path.abspath(__file__))
+            url_father = url_father.replace('ui', 'src\\')
+            play = QToolButton()
+            play.clicked[bool].connect(self._click_play_button)
+            play.setText(str(index))
+            play.setIcon(QIcon(url_father + 'play.png'))
+            play.setIconSize(QSize(20, 20))
+            play.setToolTip("播放")
+            play.setToolButtonStyle(Qt.ToolButtonIconOnly)
+            openF = QToolButton()
+            openF.clicked[bool].connect(self._click_openF_button)
+            openF.setText(str(index))
+            openF.setIcon(QIcon(url_father + 'openf.png'))
+            openF.setIconSize(QSize(20, 20))
+            openF.setToolTip("打开文件夹")
+            openF.setToolButtonStyle(Qt.ToolButtonIconOnly)
 
-            self.gridLayout.addWidget(title, row * 3 + 2, cols*2)
+            sync = QToolButton()
+            sync.clicked[bool].connect(self._click_sync_button)
+            sync.setText(str(index))
+            sync.setIcon(QIcon(url_father + 'sync.png'))
+            sync.setIconSize(QSize(20, 20))
+            sync.setToolTip("同步")
+            sync.setToolButtonStyle(Qt.ToolButtonIconOnly)
+
+            row = int(index / each)
+            cols = index % each
+            colscols = cols * 3
+
+            self.gridLayout.addWidget(item, row * 3, colscols, 1, 3)
+            self.gridLayout.addWidget(play, row * 3 + 1, colscols, 1, 1)
+            self.gridLayout.addWidget(openF, row * 3 + 1, colscols + 1, 1, 1)
+            self.gridLayout.addWidget(sync, row * 3 + 1, colscols + 2, 1, 1)
+            self.gridLayout.addWidget(title, row * 3 + 2, colscols, 1, 3)
         self.gridData.setLayout(self.gridLayout)
         scroll.setWidget(self.gridData)
         scroll.setAutoFillBackground(True)
@@ -578,6 +603,30 @@ class MainUI(QMainWindow):
             os.rename(self.curFilePath, tool.dirpath + "\\" + tool.fileName + "." + getSuffix(self.curFilePath))
         # shutil.move(, )
         QMessageBox().about(self, "提示", "同步成功!!!")
+
+    def _click_play_button(self):
+        text = self.sender().text()
+        self._set_curinfo(self.dataList[int(text)])
+        self._load_info_to_left()
+        if self.curFilePath is None or self.curFilePath == '':
+            return
+        command = '''start "" "''' + self.curFilePath + "\""
+        os.system(command)
+
+    def _click_openF_button(self):
+        text = self.sender().text()
+        self._set_curinfo(self.dataList[int(text)])
+        self._load_info_to_left()
+        if self.curDirPath is None or self.curDirPath == '':
+            return
+        command = '''start "" "''' + self.curDirPath
+        os.system(command)
+
+    def _click_sync_button(self):
+        text = self.sender().text()
+        self._set_curinfo(self.dataList[int(text)])
+        self._load_info_to_left()
+        self._sync_javmovie_info()
 
     def _click_info(self):
 
