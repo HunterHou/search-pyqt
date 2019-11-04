@@ -511,8 +511,14 @@ class MainUI(QMainWindow):
             title = QTextEdit(data.name)
             title.setMaximumHeight(40)
             title.setMaximumWidth(width)
-            self.gridLayout.addWidget(item, row * 2, cols)
-            self.gridLayout.addWidget(title, row * 2 + 1, cols)
+            play = QPushButton("打开")
+            open = QPushButton("文件夹")
+
+            self.gridLayout.addWidget(item, row * 3, cols*2)
+            self.gridLayout.addWidget(play, row * 3 + 1, cols)
+            self.gridLayout.addWidget(open, row * 3 + 1, cols)
+
+            self.gridLayout.addWidget(title, row * 3 + 2, cols*2)
         self.gridData.setLayout(self.gridLayout)
         scroll.setWidget(self.gridData)
         scroll.setAutoFillBackground(True)
