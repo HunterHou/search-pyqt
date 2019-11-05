@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import _thread
 import base64
 import webbrowser
 
@@ -621,7 +622,9 @@ class MainUI(QMainWindow):
         if tool.dirpath is not None and tool.fileName is not None:
             os.rename(filePath, tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath))
         # shutil.move(, )
-        QMessageBox().about(self, "提示", "同步成功!!!")
+        message = tool.fileName + ' 同步成功！'
+        self.statusBar().showMessage(message)
+        # QMessageBox().about(self, "提示", "同步成功!!!")
 
     def _click_play_button(self):
         text = self.sender().text()
@@ -644,6 +647,9 @@ class MainUI(QMainWindow):
     def _click_sync_button(self):
         text = self.sender().text()
         targetfile = self.dataList[int(text)]
+        _thread.start_new_thread(self._sync_thread, (targetfile,))
+
+    def _sync_thread(self, targetfile):
         tool = JavTool(self.webUrl)
         movie = tool.getJavInfo(targetfile.code)
         self._sync_move_movie(targetfile.dirPath, targetfile.path, movie, tool)

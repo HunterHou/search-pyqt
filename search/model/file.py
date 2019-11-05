@@ -151,7 +151,7 @@ def getCode(fileName):
     code = None
     rights = fileName.split("[")
     if len(rights) <= 1:
-        return code
+        return getTitle(fileName)
     for index in range(len(rights)):
         if index == 0:
             continue
