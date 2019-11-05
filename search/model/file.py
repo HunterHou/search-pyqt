@@ -93,9 +93,7 @@ def getTitle(filename):
     return filename
 
 
-def getSizeStr(path):
-    """获取文件大小 可视化"""
-    fileSize = getSize(path)
+def getSizeFromNumber(fileSize):
     if fileSize <= 1024:
         result = str(int(fileSize))
     elif fileSize <= 1024 * 1024:
@@ -105,6 +103,12 @@ def getSizeStr(path):
     else:
         result = str(int(fileSize / (1024 * 1024))) + " M"
     return result
+
+
+def getSizeStr(path):
+    """获取文件大小 可视化"""
+    fileSize = getSize(path)
+    return getSizeFromNumber(fileSize)
 
 
 def getSize(path):
@@ -195,6 +199,7 @@ class File:
         self.dirPath = ''
         # 大小
         self.size = ''
+        self.sizeStr = ''
         # 创建时间
         self.create_time = ''
         # 修改时间
@@ -209,7 +214,8 @@ class File:
         self.dirPath = dirpath
         path = dirpath + "\\" + filename
         self.path = path
-        self.size = getSizeStr(path)
+        self.size = getSize(path)
+        self.sizeStr = getSizeStr(path)
         self.create_time = getCreateTime(path)
         self.modify_time = getModifyTime(path)
         return self

@@ -1,4 +1,4 @@
 PIL --pip install pillow
 beautifulsoup4
 PyQt5
-Python35
+Python37

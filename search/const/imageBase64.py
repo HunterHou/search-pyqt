@@ -1,6 +1,6 @@
 import base64
 
-from search.const.ImgConst import PLAY_IMG
+from ImgConst import PLAY_IMG
 
 url = 'E:\\sync.png'
 

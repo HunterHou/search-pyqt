@@ -251,7 +251,11 @@ class MainUI(QMainWindow):
         #     self.statusBar().showMessage('等待执行...')
         #     return
         self._search_from_result(title)
-        message = '总数:' + str(len(self.dataList)) + '   执行完毕！！！'
+        totalSize = 0
+        for data in self.dataList:
+            if data.size:
+                totalSize += data.size
+        message = '文件:' + str(len(self.dataList)) + " 合计：" + getSizeFromNumber(totalSize) + '   执行完毕！！！'
         self.statusBar().showMessage(message)
         self._load_context()
 
