@@ -512,8 +512,6 @@ class MainUI(QMainWindow):
             title.setMaximumHeight(40)
             title.setMaximumWidth(width)
 
-            url_father = os.path.dirname(os.path.abspath(__file__))
-            url_father = url_father.replace('ui', 'src\\')
             play = QToolButton()
             play.clicked[bool].connect(self._click_play_button)
             play.setText(str(index))
