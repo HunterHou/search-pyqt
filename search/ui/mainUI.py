@@ -522,7 +522,7 @@ class MainUI(QMainWindow):
             openF = QToolButton()
             openF.clicked[bool].connect(self._click_openF_button)
             openF.setText(str(index))
-            openF.setIcon(QIcon(url_father + 'openf.png'))
+            openF.setIcon(QIcon(url_father + 'open.png'))
             openF.setIconSize(QSize(20, 20))
             openF.setToolTip("打开文件夹")
             openF.setToolButtonStyle(Qt.ToolButtonIconOnly)
