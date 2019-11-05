@@ -600,20 +600,26 @@ class MainUI(QMainWindow):
 
     # 同步数据
     def _sync_javmovie_info(self):
-        tool = JavTool(self.webUrl)
         code = self.codeInput.text()
         if code is None or code == '':
             return
             # 获取影片信息
+        tool = JavTool(self.webUrl)
         movie = tool.getJavInfo(code)
+        self._sync_move_movie(self.curDirPath, self.curFilePath, movie, tool)
+
+    def _sync_move_movie(self, dirPath, filePath, movie, tool):
+        '''  同步数据并移动  '''
         if movie is None:
             QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
             return
+        if tool is None:
+            tool = JavTool(self.webUrl)
         # 生成目录下载图片并切图png
-        tool.makeActress(self.curDirPath, movie)
+        tool.makeActress(dirPath, movie)
         # 移动源文件到目标目录 并重命名
         if tool.dirpath is not None and tool.fileName is not None:
-            os.rename(self.curFilePath, tool.dirpath + "\\" + tool.fileName + "." + getSuffix(self.curFilePath))
+            os.rename(filePath, tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath))
         # shutil.move(, )
         QMessageBox().about(self, "提示", "同步成功!!!")
 
@@ -637,9 +643,10 @@ class MainUI(QMainWindow):
 
     def _click_sync_button(self):
         text = self.sender().text()
-        self._set_curinfo(self.dataList[int(text)])
-        self._load_info_to_left()
-        self._sync_javmovie_info()
+        targetfile = self.dataList[int(text)]
+        tool = JavTool(self.webUrl)
+        movie = tool.getJavInfo(targetfile.code)
+        self._sync_move_movie(targetfile.dirPath, targetfile.path, movie, tool)
 
     def _click_info(self):
 
