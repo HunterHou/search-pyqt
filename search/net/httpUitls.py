@@ -15,7 +15,6 @@ def download(url, pathname):
                 f.write(fileResponse.read())
             print("下载完毕")
         except Exception as excep:
-            print("download")
             print("下载失败" + url)
             print(excep)
     else:

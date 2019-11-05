@@ -49,6 +49,7 @@ class MainUI(QMainWindow):
     curTitle = None
 
     # 默认勾选
+    curTaskCount = 0
     imageToggle = 0
     videoToggle = 1
     docsToggle = 1
@@ -605,6 +606,9 @@ class MainUI(QMainWindow):
         if code is None or code == '':
             return
             # 获取影片信息
+        self.curTaskCount = self.curTaskCount + 1
+        message = "当前任务数:" + str(self.curTaskCount) + "【" + code + '】 添加成功！'
+        self.statusBar().showMessage(message)
         tool = JavTool(self.webUrl)
         movie = tool.getJavInfo(code)
         self._sync_move_movie(self.curDirPath, self.curFilePath, movie, tool)
@@ -622,7 +626,8 @@ class MainUI(QMainWindow):
         if tool.dirpath is not None and tool.fileName is not None:
             os.rename(filePath, tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath))
         # shutil.move(, )
-        message = tool.fileName + ' 同步成功！'
+        self.curTaskCount = self.curTaskCount - 1
+        message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 同步成功！'
         self.statusBar().showMessage(message)
         # QMessageBox().about(self, "提示", "同步成功!!!")
 
@@ -650,6 +655,9 @@ class MainUI(QMainWindow):
         _thread.start_new_thread(self._sync_thread, (targetfile,))
 
     def _sync_thread(self, targetfile):
+        self.curTaskCount = self.curTaskCount + 1
+        message = "当前任务数:" + str(self.curTaskCount) + "【" +  targetfile.code + '】 添加成功！'
+        self.statusBar().showMessage(message)
         tool = JavTool(self.webUrl)
         movie = tool.getJavInfo(targetfile.code)
         self._sync_move_movie(targetfile.dirPath, targetfile.path, movie, tool)
