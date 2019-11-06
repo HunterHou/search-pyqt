@@ -616,7 +616,10 @@ class MainUI(QMainWindow):
     def _sync_move_movie(self, dirPath, filePath, movie, tool):
         '''  同步数据并移动  '''
         if movie is None:
-            QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
+            # QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
+            self.curTaskCount = self.curTaskCount - 1
+            message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 匹配失敗！'
+            self.statusBar().showMessage(message)
             return
         if tool is None:
             tool = JavTool(self.webUrl)
