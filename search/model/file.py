@@ -99,9 +99,9 @@ def getSizeFromNumber(fileSize):
     elif fileSize <= 1024 * 1024:
         result = str(int(fileSize / 1024)) + " k"
     elif fileSize <= 1024 * 1024 * 1024:
-        result = str(int(fileSize / (1024 * 1024))) + " M"
+        result = str(round(fileSize / (1024 * 1024), 2)) + " M"
     elif fileSize <= 1024 * 1024 * 1024 * 1024:
-        result = str(int(fileSize / (1024 * 1024 * 1024))) + " G"
+        result = str(round(fileSize / (1024 * 1024 * 1024), 2)) + " G"
     return result
 
 
