@@ -23,7 +23,7 @@ def writeNfo(path, filename, context):
 
 def writeFile(path, filename, suffex, context):
     filepath = path + "\\" + filename + "." + suffex
-    with open(filepath, 'x') as file:
+    with open(filepath, 'w', encoding="utf-8") as file:
         file.write(context)
 
 

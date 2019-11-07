@@ -11,6 +11,8 @@ from search.net.httpUitls import *
 
 def dealwithletter(str):
     str = str.replace('/', '-')
+    str = str.replace(':', '-')
+    str = str.replace('：', '-')
     return str
 
 
@@ -41,7 +43,7 @@ class JavTool:
             img_node = a_img_node.find('img')
             # title
             img_title = img_node.get("title")
-            img_title=dealwithletter(img_title)
+            img_title = dealwithletter(img_title)
             # image
             image = a_img_node.get("href")
             # actress
@@ -98,28 +100,28 @@ class JavTool:
 
     def makeNfo(self, movie, postname, postpath):
         nfo = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-               <movie>
-                  <title>''' + movie.title + '''</title>
-                  <year>''' + movie.pdate + '''</year>
-                  <releasedate>''' + movie.pdate + '''</releasedate>
-                  <runtime>''' + movie.pdate + '''</runtime>
-                  <poster>''' + postname + ".png" + '''</poster>
-                  <thumb>''' + postname + ".png" + '''</thumb>
-                  <fanart>''' + postname + ".jpg" + '''</fanart>
-                  <maker>''' + movie.maker + '''</maker>
-                  <label>''' + movie.maker + '''</label>
-                  <num>''' + movie.code + '''</num>
-                  <release>''' + movie.pdate + '''</release>
-                  <cover>''' + postname + ".jpg" + '''</cover>
-                  <art>
-                    <poster>''' + postpath + "" + postname + ".png" + '''</poster>
-                  </art>
-                  <actor>
-                    <name>''' + movie.actresses[0] + '''</name>
-                    <type>Actor</type>
-                  </actor>
-                  <year>''' + movie.pdate + '''</year>
-               </movie>'''
+<movie>
+  <year>''' + movie.pdate + '''</year>
+  <title>''' + movie.title + '''</title>
+  <releasedate>''' + movie.pdate + '''</releasedate>
+  <runtime>''' + movie.pdate + '''</runtime>
+  <poster>''' + postname + ".png" + '''</poster>
+  <thumb>''' + postname + ".png" + '''</thumb>
+  <fanart>''' + postname + ".jpg" + '''</fanart>
+  <maker>''' + movie.maker + '''</maker>
+  <label>''' + movie.maker + '''</label>
+  <num>''' + movie.code + '''</num>
+  <release>''' + movie.pdate + '''</release>
+  <cover>''' + postname + ".jpg" + '''</cover>
+  <art>
+    <poster>''' + postpath + "" + postname + ".png" + '''</poster>
+  </art>
+  <actor>
+    <name>''' + movie.actresses[0] + '''</name>
+    <type>Actor</type>
+  </actor>
+  <year>''' + movie.pdate + '''</year>
+</movie>'''
         return nfo
 
     def makeActress(self, rootpath, movie):

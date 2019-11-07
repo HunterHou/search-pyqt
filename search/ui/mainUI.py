@@ -627,7 +627,8 @@ class MainUI(QMainWindow):
         tool.makeActress(dirPath, movie)
         # 移动源文件到目标目录 并重命名
         if tool.dirpath is not None and tool.fileName is not None:
-            os.rename(filePath, tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath))
+            newfilepath = tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath)
+            os.rename(filePath, newfilepath)
         # shutil.move(, )
         self.curTaskCount = self.curTaskCount - 1
         message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 同步成功！'
