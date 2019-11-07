@@ -95,6 +95,10 @@ class JavTool:
             print("html解析失败")
             print(err)
 
+    def makeNfo(self, movie):
+        nfo = ""
+        return nfo
+
     def makeActress(self, rootpath, movie):
         """
         1、 根据刮蹭的信息 创建目录结构

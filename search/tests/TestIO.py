@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from search.model.fileInfo import writeFile
+from search.model.file import writeFile
 
 
 class IOTestCase(unittest.TestCase):
