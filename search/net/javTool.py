@@ -41,6 +41,7 @@ class JavTool:
             img_node = a_img_node.find('img')
             # title
             img_title = img_node.get("title")
+            img_title=dealwithletter(img_title)
             # image
             image = a_img_node.get("href")
             # actress
@@ -96,29 +97,29 @@ class JavTool:
             print(err)
 
     def makeNfo(self, movie, postname, postpath):
-        nfo = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?>'''
-        nfo += '''<movie>'''
-        nfo += '''<title>''' + movie.title + '''</title>'''
-        nfo += '''<year>''' + movie.pdate + '''</year>'''
-        nfo += '''<releasedate>''' + movie.pdate + '''</releasedate>'''
-        nfo += ''' <runtime>''' + movie.pdate + '''</runtime>'''
-        nfo += '''<poster>''' + postname + ".png" + '''</poster>'''
-        nfo += '''<thumb>''' + postname + ".png" + '''</thumb>'''
-        nfo += '''<fanart>''' + postname + ".jpg" + '''</fanart>'''
-        nfo += '''<maker>''' + movie.maker + '''</maker>'''
-        nfo += '''<label>''' + movie.maker + '''</label>'''
-        nfo += '''<num>''' + movie.code + '''</num>'''
-        nfo += '''<release>''' + movie.pdate + '''</release>'''
-        nfo += '''<cover>''' + postname + ".jpg" + '''</cover>'''
-        nfo += '''<art>
+        nfo = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?>'
+               <movie>
+                  <title>''' + movie.title + '''</title>
+                  <year>''' + movie.pdate + '''</year>
+                  <releasedate>''' + movie.pdate + '''</releasedate>
+                  <runtime>''' + movie.pdate + '''</runtime>
+                  <poster>''' + postname + ".png" + '''</poster>
+                  <thumb>''' + postname + ".png" + '''</thumb>
+                  <fanart>''' + postname + ".jpg" + '''</fanart>
+                  <maker>''' + movie.maker + '''</maker>
+                  <label>''' + movie.maker + '''</label>
+                  <num>''' + movie.code + '''</num>
+                  <release>''' + movie.pdate + '''</release>
+                  <cover>''' + postname + ".jpg" + '''</cover>
+                  <art>
                     <poster>''' + postpath + "" + postname + ".png" + '''</poster>
-                  </art>'''
-        nfo += '''<actor>
+                  </art>
+                  <actor>
                     <name>''' + movie.actresses[0] + '''</name>
                     <type>Actor</type>
-                  </actor>'''
-        nfo += '''<year>''' + movie.pdate + '''</year>'''
-        nfo += '''</movie>'''
+                  </actor>
+                  <year>''' + movie.pdate + '''</year>
+               </movie>'''
         return nfo
 
     def makeActress(self, rootpath, movie):

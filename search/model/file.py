@@ -22,7 +22,7 @@ def writeNfo(path, filename, context):
 
 
 def writeFile(path, filename, suffex, context):
-    filepath = path + "\\" + filename + "\\" + filename + "." + suffex
+    filepath = path + "\\" + filename + "." + suffex
     with open(filepath, 'x') as file:
         file.write(context)
 
@@ -294,5 +294,7 @@ class JavMovie:
         return self
 
     def getActress(self):
+        if len(self.actresses) == 0:
+            return 'null'
         actress = ','.join(self.actresses)
         return actress

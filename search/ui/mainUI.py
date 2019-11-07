@@ -618,7 +618,7 @@ class MainUI(QMainWindow):
         if movie is None:
             # QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
             self.curTaskCount = self.curTaskCount - 1
-            message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 匹配失敗！'
+            message = "当前任务数:" + str(self.curTaskCount) + "【" + filePath + '】 匹配失敗！'
             self.statusBar().showMessage(message)
             return
         if tool is None:
