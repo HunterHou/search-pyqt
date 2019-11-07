@@ -18,13 +18,13 @@ def writeNfo(path, filename, context):
         filename = filename + "(1)"
         writeNfo(path, filename, context)
     else:
-        writeFile(path, filename, context)
+        writeFile(path, filename, suffex, context)
 
 
 def writeFile(path, filename, suffex, context):
-    filepath = path + filename + "." + suffex
-    with open(filepath, 'w') as file:
-        file.writelines(context)
+    filepath = path + "\\" + filename + "\\" + filename + "." + suffex
+    with open(filepath, 'x') as file:
+        file.write(context)
 
 
 def getPixMapFromNet(path, width, height):

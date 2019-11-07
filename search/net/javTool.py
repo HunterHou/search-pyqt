@@ -102,19 +102,19 @@ class JavTool:
         nfo += '''<year>''' + movie.pdate + '''</year>'''
         nfo += '''<releasedate>''' + movie.pdate + '''</releasedate>'''
         nfo += ''' <runtime>''' + movie.pdate + '''</runtime>'''
-        nfo += '''<poster>''' + postname + '''</poster>'''
-        nfo += '''<thumb>''' + postname + '''</thumb>'''
-        nfo += '''<fanart>''' + postname + '''</fanart>'''
+        nfo += '''<poster>''' + postname + ".png" + '''</poster>'''
+        nfo += '''<thumb>''' + postname + ".png" + '''</thumb>'''
+        nfo += '''<fanart>''' + postname + ".jpg" + '''</fanart>'''
         nfo += '''<maker>''' + movie.maker + '''</maker>'''
         nfo += '''<label>''' + movie.maker + '''</label>'''
         nfo += '''<num>''' + movie.code + '''</num>'''
         nfo += '''<release>''' + movie.pdate + '''</release>'''
-        nfo += '''<cover>''' + postname + '''</cover>'''
+        nfo += '''<cover>''' + postname + ".jpg" + '''</cover>'''
         nfo += '''<art>
-                    <poster>''' + postpath + "" + postname + '''</poster>
+                    <poster>''' + postpath + "" + postname + ".png" + '''</poster>
                   </art>'''
         nfo += '''<actor>
-                    <name>''' + movie.actresses + '''</name>
+                    <name>''' + movie.actresses[0] + '''</name>
                     <type>Actor</type>
                   </actor>'''
         nfo += '''<year>''' + movie.pdate + '''</year>'''
@@ -164,12 +164,14 @@ class JavTool:
             cropped = img.crop((widthPos, 0, img.width, img.height))  # (left, upper, right, lower)
             croppedName = filepath.replace(".jpg", '.png')
             cropped.save(croppedName)
-            nfo = self.makeNfo(movie, fileName, dirPath)
-            writeNfo(dirPath, fileName, nfo)
             # 返回信息
             self.dirpath = dirPath
             self.filepath = filepath
             self.fileName = fileName
+
+            nfo = self.makeNfo(movie, fileName, dirPath)
+            writeNfo(dirPath, fileName, nfo)
+
         except Exception as err:
             print("生成目录信息")
             print(err)
