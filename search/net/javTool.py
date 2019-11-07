@@ -97,7 +97,7 @@ class JavTool:
             print(err)
 
     def makeNfo(self, movie, postname, postpath):
-        nfo = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?>'
+        nfo = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?>
                <movie>
                   <title>''' + movie.title + '''</title>
                   <year>''' + movie.pdate + '''</year>

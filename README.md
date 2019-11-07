@@ -3,7 +3,7 @@ Python桌面级应用：
 <p>使用技术：Python3.7 + PyQt5</p>
 <p>WIn10环境打包：</p>
 <ul>安装打包工具：pip install pyinstaller</ul>
-<ul>打包命令：pyinstaller.exe  -w   .\search.py</ul>
+<ul>打包命令：pyinstaller.exe -F -w   .\search.py</ul>
 
 <p>搜索功能介绍</p>
 <ol>
