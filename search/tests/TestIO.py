@@ -1,11 +1,7 @@
 import os
 import unittest
 
-
-def write(path, filename, suffex, context):
-    filepath = path + filename + "." + suffex
-    with open(filepath, 'w') as file:
-        file.writelines(context)
+from search.model.fileInfo import writeFile
 
 
 class IOTestCase(unittest.TestCase):
@@ -22,7 +18,7 @@ class IOTestCase(unittest.TestCase):
             self.filename = self.filename + "(1)"
             self.test_something()
         else:
-            write(path, self.filename, suffex, context)
+            writeFile(path, self.filename, suffex, context)
 
 
 if __name__ == '__main__':
