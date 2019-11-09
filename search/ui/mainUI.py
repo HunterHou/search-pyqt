@@ -36,6 +36,7 @@ class MainUI(QMainWindow):
     layoutType = '栅格'
     # 0 海报模式 还是 1 封面模式
     post_cover = POSTER
+    scan_status = 0
 
     # 缓存信息
     codeInput = None
@@ -348,6 +349,16 @@ class MainUI(QMainWindow):
 
     # 填充数据
     def _search_from_disk(self):
+        if self.scan_status == 0:
+            self.scan_status = 1
+            message = "开始搜索..."
+            self.statusBar().showMessage(message)
+            _thread.start_new_thread(self._excute__search_from_disk())
+        else:
+            message = "搜索中..."
+            self.statusBar().showMessage(message)
+
+    def _excute__search_from_disk(self):
         self.dataLib = []
         for path in self.rootPath:
             if os.path.exists(path):
@@ -355,10 +366,11 @@ class MainUI(QMainWindow):
                 curList = walk.getFiles()
                 self.dataLib.extend(curList)
         self.dataList = self.dataLib
+        self.scan_status = 0
+        self._search_button_click()
 
     def _scan_disk(self):
         self._search_from_disk()
-        self._search_button_click()
 
     def _sort_files_list(self):
         if len(self.dataList) > 0:
@@ -513,6 +525,7 @@ class MainUI(QMainWindow):
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(data.name)
             item.clicked[bool].connect(self._grid_click)
+
             title = QTextEdit(data.name)
             title.setMaximumHeight(40)
             title.setMaximumWidth(width)
