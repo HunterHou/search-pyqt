@@ -65,6 +65,7 @@ class MainUI(QMainWindow):
     # 初始化 loadUI
     def __init__(self):
         super().__init__()
+        self.fileAct = self.addToolBar("文件")
         self.displayAct = self.addToolBar("显示")
         self.resetPathAct()
         self.infoLayout = QHBoxLayout()
@@ -770,10 +771,10 @@ class MainUI(QMainWindow):
         scanDisk.triggered[bool].connect(self._scan_disk)
         openAction.triggered[bool].connect(self._open_path)
         clearDisk.triggered[bool].connect(self._clear_path)
-        fileAct = self.addToolBar("文件")
-        fileAct.addAction(scanDisk)
-        fileAct.addAction(openAction)
-        fileAct.addAction(clearDisk)
+
+        self.fileAct.addAction(scanDisk)
+        self.fileAct.addAction(openAction)
+        self.fileAct.addAction(clearDisk)
 
     def _displayAct_event(self, event):
         print(event)
