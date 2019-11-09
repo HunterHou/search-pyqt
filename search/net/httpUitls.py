@@ -7,18 +7,21 @@ def download(url, pathname):
     """ 用http请求多媒体 ， 并下载到本地 """
     fileResponse = getResponse(url)
     if fileResponse is None:
-        return
+        return False
 
     if fileResponse.status == 200:
         try:
-            with open(pathname, 'wb') as f:
+            with open(pathname, 'xb') as f:
                 f.write(fileResponse.read())
-            print("下载完毕")
-        except Exception as excep:
-            print("下载失败" + url)
-            print(excep)
+            print("下载完毕...")
+            return True
+        except Exception as err:
+            print("下载失败..." + url)
+            print(err)
+            return False
     else:
-        print("下载图片连接失败:" + url)
+        print("下载图片连接失败..." + url)
+        return False
 
 
 def getResponse(url):
@@ -27,8 +30,12 @@ def getResponse(url):
         req = request.Request(url)
         req.add_header('User-Agent', 'Mozilla/6.0')
         response = request.urlopen(req, timeout=10)
+        if response.status == 200:
+            print("请求成功..." + url)
+        else:
+            print("请求失败..." + url)
         return response
     except Exception as err:
-        print("getResponse 失败:" + url)
+        print("请求失败...:" + url)
         print(err)
         return None

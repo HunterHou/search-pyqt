@@ -7,13 +7,7 @@ from bs4 import BeautifulSoup
 
 from search.model.file import JavMovie, writeNfo
 from search.net.httpUitls import *
-
-
-def dealwithletter(str):
-    str = str.replace('/', '-')
-    str = str.replace(':', '-')
-    str = str.replace('：', '-')
-    return str
+from search.utils.letterUtil import win10FilenameFilter
 
 
 class JavTool:
@@ -31,7 +25,7 @@ class JavTool:
         avResponse = getResponse(url)
         if avResponse is None:
             return None
-        print(avResponse.status)
+
         try:
             html = avResponse.read().decode('utf-8')
             soup = BeautifulSoup(html, 'html.parser')
@@ -43,7 +37,7 @@ class JavTool:
             img_node = a_img_node.find('img')
             # title
             img_title = img_node.get("title")
-            img_title = dealwithletter(img_title)
+            img_title = win10FilenameFilter(img_title)
             # image
             image = a_img_node.get("href")
             # actress
@@ -81,13 +75,13 @@ class JavTool:
                     director = text_node.find_next("a").get_text()
                 elif text == '製作商:':
                     studio = text_node.find_next("a").get_text()
-                    studio = dealwithletter(studio)
+                    studio = win10FilenameFilter(studio)
                 elif text == '發行商:':
                     supplier = text_node.find_next("a").get_text()
-                    supplier = dealwithletter(supplier)
+                    supplier = win10FilenameFilter(supplier)
                 elif text == '系列:':
                     series = text_node.find_next("a").get_text()
-                    series = dealwithletter(series)
+                    series = win10FilenameFilter(series)
 
             return JavMovie().build(code, img_title, image, "", actresses, actresses_urls, director, pdate, series,
                                     studio,
@@ -162,23 +156,27 @@ class JavTool:
             filepath = dirPath + "\\" + fileName + pic_end
             if os.path.exists(filepath):
                 os.remove(filepath)
-            download(movie.cover, filepath)
-            # 图片切割成 png
-            img = Image.open(filepath)
-            widthPos = int((img.width / 80) * 42)
-            cropped = img.crop((widthPos, 0, img.width, img.height))  # (left, upper, right, lower)
-            croppedFilepath = filepath.replace(".jpg", '.png')
-            if os.path.exists(croppedFilepath):
-                os.remove(croppedFilepath)
-            cropped.save(croppedFilepath)
-            # 返回信息
-            self.dirpath = dirPath
-            self.filepath = filepath
-            self.fileName = fileName
+            down_ok = download(movie.cover, filepath)
+            if down_ok:
+                # 图片切割成 png
+                img = Image.open(filepath)
+                widthPos = int((img.width / 80) * 42)
+                cropped = img.crop((widthPos, 0, img.width, img.height))  # (left, upper, right, lower)
+                croppedFilepath = filepath.replace(".jpg", '.png')
+                if os.path.exists(croppedFilepath):
+                    os.remove(croppedFilepath)
+                cropped.save(croppedFilepath)
+                # 返回信息
+                self.dirpath = dirPath
+                self.filepath = filepath
+                self.fileName = fileName
 
-            nfo = self.makeNfo(movie, fileName, dirPath)
-            writeNfo(dirPath, fileName, nfo)
-
+                nfo = self.makeNfo(movie, fileName, dirPath)
+                writeNfo(dirPath, fileName, nfo)
+                return True
+            else:
+                return False
         except Exception as err:
             print("生成目录信息")
             print(err)
+            return False

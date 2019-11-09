@@ -362,7 +362,6 @@ class MainUI(QMainWindow):
 
     def _sort_files_list(self):
         if len(self.dataList) > 0:
-            print('排序：' + self.sortField + ' ' + self.sortType)
             self.dataList.sort(key=getSortField(self.sortField), reverse=getReverse(self.sortType))
 
     def _tab_item_close(self, index):
@@ -624,14 +623,16 @@ class MainUI(QMainWindow):
         if tool is None:
             tool = JavTool(self.webUrl)
         # 生成目录下载图片并切图png
-        tool.makeActress(dirPath, movie)
-        # 移动源文件到目标目录 并重命名
-        if tool.dirpath is not None and tool.fileName is not None:
-            newfilepath = tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath)
-            os.rename(filePath, newfilepath)
-        # shutil.move(, )
+        make_ok = tool.makeActress(dirPath, movie)
         self.curTaskCount = self.curTaskCount - 1
         message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 同步成功！'
+        if make_ok:
+            # 移动源文件到目标目录 并重命名
+            if tool.dirpath is not None and tool.fileName is not None:
+                newfilepath = tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath)
+                os.rename(filePath, newfilepath)
+        else:
+            message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 同步失败！'
         self.statusBar().showMessage(message)
         # QMessageBox().about(self, "提示", "同步成功!!!")
 
@@ -660,7 +661,7 @@ class MainUI(QMainWindow):
 
     def _sync_thread(self, targetfile):
         self.curTaskCount = self.curTaskCount + 1
-        message = "当前任务数:" + str(self.curTaskCount) + "【" +  targetfile.code + '】 添加成功！'
+        message = "当前任务数:" + str(self.curTaskCount) + "【" + targetfile.code + '】 添加成功！'
         self.statusBar().showMessage(message)
         tool = JavTool(self.webUrl)
         movie = tool.getJavInfo(targetfile.code)
