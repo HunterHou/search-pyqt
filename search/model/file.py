@@ -191,13 +191,12 @@ def getActress(filename):
     if len(rights) <= 1:
         return actress
     for index in range(len(rights)):
-        if index == 0:
-            continue
         right = rights[index]
         lefts = right.split("]")
         for left in lefts:
-            if left.find("-") == 0:
-                return left
+            if left.find("-") > 0 or left == '':
+                continue
+            return left
     return actress
 
 

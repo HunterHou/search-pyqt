@@ -776,9 +776,6 @@ class MainUI(QMainWindow):
         self.fileAct.addAction(scanDisk)
 
 
-    def _displayAct_event(self, event):
-        print(event)
-
     # 菜单按钮处理
     def _menu_process_file(self, action):
         if action.text() == "退出":
