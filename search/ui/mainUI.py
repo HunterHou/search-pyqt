@@ -644,6 +644,7 @@ class MainUI(QMainWindow):
             if tool.dirpath is not None and tool.fileName is not None:
                 newfilepath = tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath)
                 os.rename(filePath, newfilepath)
+                print("文件移动重命名成功:" + newfilepath)
         else:
             message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 同步失败！'
         self.statusBar().showMessage(message)

@@ -166,6 +166,7 @@ class JavTool:
                 if os.path.exists(croppedFilepath):
                     os.remove(croppedFilepath)
                 cropped.save(croppedFilepath)
+                print("图片裁剪成功")
                 # 返回信息
                 self.dirpath = dirPath
                 self.filepath = filepath
@@ -173,6 +174,7 @@ class JavTool:
 
                 nfo = self.makeNfo(movie, fileName, dirPath)
                 writeNfo(dirPath, fileName, nfo)
+                print("影片信息创建成功")
                 return True
             else:
                 return False

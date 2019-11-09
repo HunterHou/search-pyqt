@@ -13,10 +13,10 @@ def download(url, pathname):
         try:
             with open(pathname, 'xb') as f:
                 f.write(fileResponse.read())
-            print("下载完毕...")
+            print("文件创建成功...")
             return True
         except Exception as err:
-            print("下载失败..." + url)
+            print("文件创建失败..." + url)
             print(err)
             return False
     else:
