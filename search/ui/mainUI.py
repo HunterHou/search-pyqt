@@ -59,19 +59,13 @@ class MainUI(QMainWindow):
     sortField = MODIFY_TIME
     webUrl = "https://www.cdnbus.in/"
 
-    fileAct = ""
-    exitAct = ""
     displayAct = ""
 
     # 初始化 loadUI
     def __init__(self):
         super().__init__()
-        self.fileAct = self.addToolBar("文件")
-        self.exitAct = self.addToolBar("系统")
         self.displayAct = self.addToolBar("显示")
-
         self.resetPathAct()
-
         self.infoLayout = QHBoxLayout()
         self.tableData = QTableWidget()
         self.codeInput = QLineEdit()
@@ -220,8 +214,8 @@ class MainUI(QMainWindow):
 
         self.webUrlLable = QLabel(self.webUrl)
 
-        left_layout.addWidget(QLabel("数据源:"), 0, 0)
-        left_layout.addWidget(self.webUrlLable, 0, 1)
+        left_layout.addWidget(QLabel("数据源:"), 0, 0, 1, 1)
+        left_layout.addWidget(self.webUrlLable, 0, 1, 1, 2)
         # self.diskLabel = QLabel(getStrJoin(self.rootPath))
         # self.diskLabel.setWordWrap(True)
         # self.diskLabel.setMaximumWidth(240)
@@ -448,7 +442,6 @@ class MainUI(QMainWindow):
                 pathAct.triggered[bool].connect(self._path_click)
                 self.displayAct.addAction(pathAct)
 
-
     def _path_click(self):
         text = self.sender().text()
         self.rootPath.remove(text)
@@ -479,8 +472,7 @@ class MainUI(QMainWindow):
     # 点击事件
     def _table_line_click(self):
         index = self.tableData.currentRow()
-        self._set_curinfo(self.dataList[index])
-        self._load_info_to_left()
+        self._set_curinfo(index)
 
     def _table_line_double_click(self):
         self._table_line_click()
@@ -496,7 +488,10 @@ class MainUI(QMainWindow):
             command = '''start "" "''' + self.curDirPath + "\""
             os.system(command)
 
-    def _set_curinfo(self, targetfile):
+    def _set_curinfo(self, index):
+        if index is None:
+            return
+        targetfile = self.dataList[index]
         nfopath = replaceSuffix(targetfile.path, "nfo")
         movieInfo = nfoToJavMovie(nfopath)
         if movieInfo is not None:
@@ -514,12 +509,14 @@ class MainUI(QMainWindow):
             self.curDirPath = targetfile.dirPath
             self.curTitle = targetfile.name
 
+        self._load_info_to_left()
+
     def _grid_click(self):
         text = self.sender().text()
-        if int(text) > len(self.dataList) - 1:
+        index = int(text)
+        if index > len(self.dataList) - 1:
             return
-        self._set_curinfo(self.dataList[int(text)])
-        self._load_info_to_left()
+        self._set_curinfo(index)
 
     def _load_info_to_left(self):
         if self.curCode is not None:
@@ -703,8 +700,7 @@ class MainUI(QMainWindow):
 
     def _click_play_button(self):
         text = self.sender().text()
-        self._set_curinfo(self.dataList[int(text)])
-        self._load_info_to_left()
+        self._set_curinfo(int(text))
         if self.curFilePath is None or self.curFilePath == '':
             return
         command = '''start "" "''' + self.curFilePath + "\""
@@ -712,8 +708,7 @@ class MainUI(QMainWindow):
 
     def _click_openF_button(self):
         text = self.sender().text()
-        self._set_curinfo(self.dataList[int(text)])
-        self._load_info_to_left()
+        self._set_curinfo(int(text))
         if self.curDirPath is None or self.curDirPath == '':
             return
         command = '''start "" "''' + self.curDirPath
@@ -772,13 +767,12 @@ class MainUI(QMainWindow):
 
         scanDisk = QAction("扫描路径", self)
         scanDisk.triggered[bool].connect(self._scan_disk)
-        self.fileAct.addAction(scanDisk)
         openAction.triggered[bool].connect(self._open_path)
-        self.fileAct.addAction(openAction)
         clearDisk.triggered[bool].connect(self._clear_path)
-        self.fileAct.addAction(clearDisk)
-
-        self.exitAct.addAction(quitAction)
+        fileAct = self.addToolBar("文件")
+        fileAct.addAction(scanDisk)
+        fileAct.addAction(openAction)
+        fileAct.addAction(clearDisk)
 
     def _displayAct_event(self, event):
         print(event)
