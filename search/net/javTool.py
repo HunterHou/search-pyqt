@@ -160,13 +160,17 @@ class JavTool:
             # 下载图片
             pic_end = ".jpg"
             filepath = dirPath + "\\" + fileName + pic_end
+            if os.path.exists(filepath):
+                os.remove(filepath)
             download(movie.cover, filepath)
             # 图片切割成 png
             img = Image.open(filepath)
             widthPos = int((img.width / 80) * 42)
             cropped = img.crop((widthPos, 0, img.width, img.height))  # (left, upper, right, lower)
-            croppedName = filepath.replace(".jpg", '.png')
-            cropped.save(croppedName)
+            croppedFilepath = filepath.replace(".jpg", '.png')
+            if os.path.exists(croppedFilepath):
+                os.remove(croppedFilepath)
+            cropped.save(croppedFilepath)
             # 返回信息
             self.dirpath = dirPath
             self.filepath = filepath
