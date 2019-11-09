@@ -201,7 +201,7 @@ class MainUI(QMainWindow):
         left_layout.addWidget(QLabel("标题"), 10, 0, 1, 1)
         self.titleInput.setMaximumHeight(60)
         self.titleInput.setMaximumWidth(160)
-        left_layout.addWidget(self.titleInput, 12, 1, 2, 2)
+        left_layout.addWidget(self.titleInput, 10, 1, 2, 2)
         left_layout.addWidget(QLabel("演员"), 14, 0, 1, 1)
         left_layout.addWidget(self.actressInput, 14, 1, 1, 2)
         self.curPic = QLabel()
@@ -361,7 +361,8 @@ class MainUI(QMainWindow):
             self.scan_status = 1
             message = "开始搜索..."
             self.statusBar().showMessage(message)
-            _thread.start_new_thread(self._excute__search_from_disk())
+            self._excute__search_from_disk()
+            # _thread.start_new_thread(self._excute__search_from_disk())
         else:
             message = "搜索中..."
             self.statusBar().showMessage(message)
