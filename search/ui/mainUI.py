@@ -74,7 +74,6 @@ class MainUI(QMainWindow):
         self.titleInput = QTextEdit()
         self.actressInput = QLineEdit()
         self._initUI()
-        self._search_from_disk()
 
     # 载入UI窗口
     def _initUI(self):
