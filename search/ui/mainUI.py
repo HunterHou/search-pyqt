@@ -768,13 +768,13 @@ class MainUI(QMainWindow):
         setting.triggered[QAction].connect(self._menu_process_file)
 
         scanDisk = QAction("扫描路径", self)
-        scanDisk.triggered[bool].connect(self._scan_disk)
         openAction.triggered[bool].connect(self._open_path)
+        scanDisk.triggered[bool].connect(self._scan_disk)
         clearDisk.triggered[bool].connect(self._clear_path)
-
-        self.fileAct.addAction(scanDisk)
         self.fileAct.addAction(openAction)
         self.fileAct.addAction(clearDisk)
+        self.fileAct.addAction(scanDisk)
+
 
     def _displayAct_event(self, event):
         print(event)
