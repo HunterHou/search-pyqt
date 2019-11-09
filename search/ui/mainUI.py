@@ -59,6 +59,7 @@ class MainUI(QMainWindow):
     sortField = MODIFY_TIME
     webUrl = "https://www.cdnbus.in/"
 
+    # 定义显示路径的按钮
     displayAct = ""
 
     # 初始化 loadUI
