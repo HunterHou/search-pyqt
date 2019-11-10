@@ -61,6 +61,7 @@ class MainUI(QMainWindow):
     webUrl = "https://www.cdnbus.in/"
 
     # 分页
+    totalSize = 0
     totalRow = 0
     totalPage = 0
     pageNo = 1
@@ -264,13 +265,17 @@ class MainUI(QMainWindow):
         self.tabTitle = self.dirName.text()
         self._search_from_Lib()
         # 计算总容量
-        totalSize = 0
-        for data in self.dataList:
-            if data.size:
-                totalSize += data.size
-        message = '文件:' + str(len(self.dataList)) + " 合计：" + getSizeFromNumber(totalSize) + '   执行完毕！！！'
+        message = "库文件数:【" + str(self.totalRow) + " | " + str(self.totalSize) + "】"
+        message += '搜索结果:【' + str(len(self.dataList)) + " | " + self.getTotalSize(self.dataList) + '】   执行完毕！！！'
         self.statusBar().showMessage(message)
         self._load_context()
+
+    def getTotalSize(self, dataList):
+        totalSize = 0
+        for data in dataList:
+            if data.size:
+                totalSize += data.size
+        return getSizeFromNumber(totalSize)
 
     def _choose_post_cover(self):
         #  0 海报 1 封面
@@ -306,12 +311,12 @@ class MainUI(QMainWindow):
 
     def _load_context_thread(self, isNew):
         if self.tabTitle == '' or self.tabTitle is None:
-            message = str(self.pageNo) + "/" + str(self.totalPage)
+            title = str(self.pageNo) + "/" + str(self.totalPage)
             firstRow = self.pageSize * (self.pageNo - 1) + 1
             lastRow = self.pageSize * (self.pageNo) if self.pageSize * (self.pageNo) <= self.totalRow else self.totalRow
-            message += "--" + str(firstRow) + "/" + str(lastRow)
-            message += "--" + str(self.totalRow)
-            self.tabTitle = message
+            title += "--" + str(firstRow) + "/" + str(lastRow)
+            title += "--" + str(self.totalRow)
+            self.tabTitle = title
         if len(self.dataList) == 0:
             self._tab_close_all()
             return
@@ -388,6 +393,7 @@ class MainUI(QMainWindow):
                     self.dataLib.extend(curList)
         self.totalRow = len(self.dataLib)
         self.totalPage = math.ceil(self.totalRow / self.pageSize)
+        self.totalSize = self.getTotalSize(self.dataLib)
 
         if self.pageTool is None or self.pageTool == '':
             self.pageTool = self.addToolBar("分页")
