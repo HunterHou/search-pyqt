@@ -10,6 +10,38 @@ from search.net.httpUitls import *
 from search.utils.letterUtil import win10FilenameFilter
 
 
+def makeNfo(movie, postname, postpath):
+    try:
+        actress = movie.actresses[0] if len(movie.actresses) > 0 else ""
+        nfo = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+    <movie>
+      <year>''' + movie.pdate + '''</year>
+      <title>''' + movie.title + '''</title>
+      <releasedate>''' + movie.pdate + '''</releasedate>
+      <runtime>''' + movie.pdate + '''</runtime>
+      <poster>''' + postname + ".png" + '''</poster>
+      <thumb>''' + postname + ".png" + '''</thumb>
+      <fanart>''' + postname + ".jpg" + '''</fanart>
+      <maker>''' + movie.maker + '''</maker>
+      <label>''' + movie.maker + '''</label>
+      <num>''' + movie.code + '''</num>
+      <release>''' + movie.pdate + '''</release>
+      <cover>''' + postname + ".jpg" + '''</cover>
+      <art>
+        <poster>''' + postpath + "" + postname + ".png" + '''</poster>
+      </art>
+      <actor>
+        <name>''' + actress + '''</name>
+        <type>Actor</type>
+      </actor>
+      <year>''' + movie.pdate + '''</year>
+    </movie>'''
+        return nfo
+    except Exception as err:
+        print(err)
+        return None
+
+
 class JavTool:
     webRoot = "https://www.cdnbus.in/"
     fileName = None
@@ -92,32 +124,6 @@ class JavTool:
             print("html解析失败")
             print(err)
 
-    def makeNfo(self, movie, postname, postpath):
-        nfo = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<movie>
-  <year>''' + movie.pdate + '''</year>
-  <title>''' + movie.title + '''</title>
-  <releasedate>''' + movie.pdate + '''</releasedate>
-  <runtime>''' + movie.pdate + '''</runtime>
-  <poster>''' + postname + ".png" + '''</poster>
-  <thumb>''' + postname + ".png" + '''</thumb>
-  <fanart>''' + postname + ".jpg" + '''</fanart>
-  <maker>''' + movie.maker + '''</maker>
-  <label>''' + movie.maker + '''</label>
-  <num>''' + movie.code + '''</num>
-  <release>''' + movie.pdate + '''</release>
-  <cover>''' + postname + ".jpg" + '''</cover>
-  <art>
-    <poster>''' + postpath + "" + postname + ".png" + '''</poster>
-  </art>
-  <actor>
-    <name>''' + movie.actresses[0] + '''</name>
-    <type>Actor</type>
-  </actor>
-  <year>''' + movie.pdate + '''</year>
-</movie>'''
-        return nfo
-
     def makeActress(self, rootpath, movie):
         """
         1、 根据刮蹭的信息 创建目录结构
@@ -172,9 +178,10 @@ class JavTool:
                 self.filepath = filepath
                 self.fileName = fileName
 
-                nfo = self.makeNfo(movie, fileName, dirPath)
-                writeNfo(dirPath, fileName, nfo)
-                print("影片信息创建成功")
+                nfo = makeNfo(movie, fileName, dirPath)
+                if nfo is not None:
+                    writeNfo(dirPath, fileName, nfo)
+                    print("影片信息创建成功")
                 return True
             else:
                 return False

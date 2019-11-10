@@ -60,13 +60,16 @@ class MainUI(QMainWindow):
     webUrl = "https://www.cdnbus.in/"
 
     # 定义显示路径的按钮
+    fileAct = ""
     displayAct = ""
 
     # 初始化 loadUI
     def __init__(self):
         super().__init__()
-        self.fileAct = self.addToolBar("文件")
-        self.displayAct = self.addToolBar("显示")
+        self.fileAct = QToolBar("文件")
+        self.displayAct = QToolBar("显示")
+        self.addToolBar(Qt.TopToolBarArea, self.fileAct)
+        self.addToolBar(Qt.BottomToolBarArea, self.displayAct)
         self.resetPathAct()
         self.infoLayout = QHBoxLayout()
         self.tableData = QTableWidget()
@@ -436,8 +439,8 @@ class MainUI(QMainWindow):
             self._open_path()
 
     def resetPathAct(self):
-        self.removeToolBar(self.displayAct)
-        self.displayAct = self.addToolBar("显示")
+        if self.displayAct != "" and self.displayAct is not None:
+            self.displayAct.clear()
         if len(self.rootPath) > 0:
             for path in self.rootPath:
                 pathAct = QAction(path, self)
@@ -774,7 +777,6 @@ class MainUI(QMainWindow):
         self.fileAct.addAction(openAction)
         self.fileAct.addAction(clearDisk)
         self.fileAct.addAction(scanDisk)
-
 
     # 菜单按钮处理
     def _menu_process_file(self, action):
