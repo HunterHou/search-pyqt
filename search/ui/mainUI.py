@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import _thread
 import base64
+import math
 import webbrowser
 
 from PyQt5.QtCore import *
@@ -59,9 +60,16 @@ class MainUI(QMainWindow):
     sortField = MODIFY_TIME
     webUrl = "https://www.cdnbus.in/"
 
-    # 定义显示路径的按钮
-    fileAct = ""
-    displayAct = ""
+    # 分页
+    totalRow = 0
+    totalPage = 0
+    pageNo = 1
+    pageSize = 100
+    tabTitle = ""
+    pageTool = None
+
+    def getFirstRow(self):
+        return self.pageSize * (self.pageNo - 1)
 
     # 初始化 loadUI
     def __init__(self):
@@ -253,15 +261,9 @@ class MainUI(QMainWindow):
 
     def _search_button_click(self):
         self.statusBar().showMessage('执行中')
-        # 提示框测试
-        # replay = QMessageBox.question(self, '提示',
-        #                               self.dirName.text(), QMessageBox.Yes)
-        # if replay == QMessageBox.Yes:
-        title = self.dirName.text()
-        # if title is None or title == '':
-        #     self.statusBar().showMessage('等待执行...')
-        #     return
-        self._search_from_result(title)
+        self.tabTitle = self.dirName.text()
+        self._search_from_Lib()
+        # 计算总容量
         totalSize = 0
         for data in self.dataList:
             if data.size:
@@ -301,35 +303,32 @@ class MainUI(QMainWindow):
         except Exception as err:
             print("_load_context")
             print(err)
-        # if __name__ == 'search.ui.mainUI':
-        #     freeze_support()
-        #     pool = Pool(processes=1)
-        #     pool.map_async(, [])
-        #     pool.close()
-        #     pool.join()
 
     def _load_context_thread(self, isNew):
-        title = self.dirName.text()
+        if self.tabTitle == '' or self.tabTitle is None:
+            message = str(self.pageNo) + "/" + str(self.totalPage)
+            firstRow = self.pageSize * (self.pageNo - 1) + 1
+            lastRow = self.pageSize * (self.pageNo) if self.pageSize * (self.pageNo) <= self.totalRow else self.totalRow
+            message += "--" + str(firstRow) + "/" + str(lastRow)
+            message += "--" + str(self.totalRow)
+            self.tabTitle = message
         if len(self.dataList) == 0:
             self._tab_close_all()
             return
         if self.layoutType == WEB:
             # 打开浏览器
             webbrowser.open(self.webUrl)
-            # self.webview = WebEngineView(self)  # self必须要有，是将主窗口作为参数，传给浏览器
-            # self.webview.load(QUrl("http://www.baidu.com"))
-            # self.addAloneTab(self.loadGridData(), "栅格")
             return
         if self.layoutType == '栅格':
             gridData = self._load_grid_data()
             if isNew:
-                self._tab_add(gridData, title)
+                self._tab_add(gridData, self.tabTitle)
             else:
                 self.tab_widget.setCurrentWidget(gridData)
         elif self.layoutType == '表格':
             tableData = self._load_table_data()
             if isNew:
-                self._tab_add(tableData, title)
+                self._tab_add(tableData, self.tabTitle)
             else:
                 self.tab_widget.setCurrentWidget(tableData)
 
@@ -348,14 +347,23 @@ class MainUI(QMainWindow):
             self._load_info_to_left()
 
     # 填充数据
-    def _search_from_result(self, word):
+    def _search_from_Lib(self):
+        word = self.tabTitle
         result = []
-        for files in self.dataLib:
-            if (files.name is not None and files.name.find(word) >= 0) or (
-                    files.code is not None and files.code.find(word) >= 0) or (
-                    files.actress is not None and files.actress.find(word) >= 0) or word == '' or word is None:
-                if files.fileType in self.fileTypes:
-                    result.append(files)
+        if word == '' or word is None:
+            if self.pageNo == self.totalPage:
+                result = self.dataLib[self.getFirstRow():]
+            else:
+                first = self.getFirstRow()
+                last = self.getFirstRow() + self.pageSize
+                result = self.dataLib[first:last]
+        else:
+            for files in self.dataLib:
+                if (files.name is not None and files.name.find(word) >= 0) or (
+                        files.code is not None and files.code.find(word) >= 0) or (
+                        files.actress is not None and files.actress.find(word) >= 0) or word == '' or word is None:
+                    if files.fileType in self.fileTypes:
+                        result.append(files)
         self.dataList = result
 
     # 填充数据
@@ -378,7 +386,30 @@ class MainUI(QMainWindow):
                     walk = FileService().build(path, self.fileTypes)
                     curList = walk.getFiles()
                     self.dataLib.extend(curList)
-        self.dataList = self.dataLib
+        self.totalRow = len(self.dataLib)
+        self.totalPage = math.ceil(self.totalRow / self.pageSize)
+
+        if self.pageTool is None or self.pageTool == '':
+            self.pageTool = self.addToolBar("分页")
+        else:
+            self.pageTool.clear()
+        nextPage = QAction("下一页", self)
+        nextPage.triggered[bool].connect(self._change_Page)
+        prePage = QAction("上一页", self)
+        prePage.triggered[bool].connect(self._change_Page)
+        firstPage = QAction("首页", self)
+        firstPage.triggered[bool].connect(self._change_Page)
+        lastPage = QAction("末页", self)
+        lastPage.triggered[bool].connect(self._change_Page)
+        self.pageTool.addAction(firstPage)
+        self.pageTool.addAction(nextPage)
+        self.pageTool.addAction(prePage)
+        self.pageTool.addAction(lastPage)
+        for index in range(self.totalPage):
+            curPage = QAction(str(index + 1), self)
+            curPage.triggered[bool].connect(self._change_Page)
+            self.pageTool.addAction(curPage)
+
         self.scan_status = 0
         self._search_button_click()
 
@@ -459,6 +490,26 @@ class MainUI(QMainWindow):
         self.dataList = []
         self.resetPathAct()
         self._tab_close_all()
+
+    def _change_Page(self):
+        text = self.sender().text()
+        if self.dirName.text() == '' or self.dirName.text() is None:
+            # 搜索框为空的时候执行翻页 否则只进行搜索
+            if text == '首页':
+                self.pageNo = 1
+            elif text == '下一页':
+                if self.totalPage == 1:
+                    return
+                self.pageNo = self.pageNo + 1
+            elif text == '上一页':
+                if self.pageNo == 1:
+                    return
+                self.pageNo = self.pageNo - 1
+            elif text == '末页':
+                self.pageNo = self.totalPage
+            else:
+                self.pageNo = int(text)
+        self._search_button_click()
 
     # 点击事件
     def _open_file(self):
@@ -769,6 +820,9 @@ class MainUI(QMainWindow):
         changeUrlAction = QAction("切换数据源", self)
         setting.addAction(changeUrlAction)
         setting.triggered[QAction].connect(self._menu_process_file)
+        changePageSizeAction = QAction("切换分页", self)
+        setting.addAction(changePageSizeAction)
+        setting.triggered[QAction].connect(self._menu_process_file)
 
         scanDisk = QAction("扫描路径", self)
         openAction.triggered[bool].connect(self._open_path)
@@ -787,9 +841,13 @@ class MainUI(QMainWindow):
             if ok:
                 self.webUrl = text
                 self.webUrlLable.setText(text)
-        if action.text() == "扫描路径":
+        elif action.text() == "切换分页":
+            text, ok = QInputDialog.getText(self, "切换分页", "每页显示:")
+            if ok:
+                self.pageSize = int(text)
+        elif action.text() == "扫描路径":
             self._scan_disk()
-        if action.text() == "清空路径":
+        elif action.text() == "清空路径":
             self._clear_path()
 
     # 点击图片box
