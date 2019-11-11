@@ -371,19 +371,6 @@ class MainUI(QMainWindow):
                         result.append(files)
         self.dataList = result
 
-    # 填充数据
-    def _search_from_disk(self):
-        if self.scan_status == 0:
-            self.scan_status = 1
-            message = "开始搜索..."
-            self.statusBar().showMessage(message)
-            self._tab_close_all()
-            self._excute__search_from_disk()
-            _thread.start_new_thread(self._excute__search_from_disk())
-        else:
-            message = "搜索中..."
-            self.statusBar().showMessage(message)
-
     def _excute__search_from_disk(self):
         self.dataLib = []
         if len(self.rootPath) > 0:
@@ -421,7 +408,16 @@ class MainUI(QMainWindow):
         self._search_button_click()
 
     def _scan_disk(self):
-        self._search_from_disk()
+        if self.scan_status == 0:
+            self.scan_status = 1
+            message = "开始搜索..."
+            self.statusBar().showMessage(message)
+            self._tab_close_all()
+            self._excute__search_from_disk()
+            # _thread.start_new_thread(self._excute__search_from_disk())
+        else:
+            message = "搜索中..."
+            self.statusBar().showMessage(message)
 
     def _sort_files_list(self):
         if len(self.dataList) > 0:
