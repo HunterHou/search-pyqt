@@ -10,7 +10,6 @@ request.install_opener(opener)
 
 def download(url, pathname):
     """ 用http请求多媒体 ， 并下载到本地 """
-
     try:
         request.urlretrieve(url, pathname)
         print("文件创建成功...")
@@ -19,23 +18,6 @@ def download(url, pathname):
         print("文件创建失败..." + url)
         print(err)
         return False
-    # fileResponse = getResponse(url)
-    # if fileResponse is None:
-    #     return False
-    #
-    # if fileResponse.status == 200:
-    #     try:
-    #         with open(pathname, 'xb') as f:
-    #             f.write(fileResponse.read())
-    #         print("文件创建成功...")
-    #         return True
-    #     except Exception as err:
-    #         print("文件创建失败..." + url)
-    #         print(err)
-    #         return False
-    # else:
-    #     print("下载图片连接失败..." + url)
-    #     return False
 
 
 def getResponse(url):
