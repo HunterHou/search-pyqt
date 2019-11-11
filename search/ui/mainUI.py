@@ -2,7 +2,6 @@
 import _thread
 import base64
 import math
-import threading
 import webbrowser
 
 from PyQt5.QtCore import *
@@ -416,8 +415,9 @@ class MainUI(QMainWindow):
             message = "开始搜索..."
             self.statusBar().showMessage(message)
             self._tab_close_all()
-            th = threading.Thread(target=self._excute__search_from_disk, name='funciton')
-            th.start()
+            self._excute__search_from_disk()
+            # th = threading.Thread(target=self._excute__search_from_disk, name='funciton')
+            # th.start()
             # _thread.start_new_thread(self._excute__search_from_disk())
         else:
             message = "搜索中..."
