@@ -81,7 +81,7 @@ class MainUI(QMainWindow):
         self.displayAct = QToolBar("显示")
         self.addToolBar(Qt.TopToolBarArea, self.fileAct)
         self.addToolBar(Qt.BottomToolBarArea, self.displayAct)
-        self.resetPathAct()
+        self._reset_path_action()
         self.infoLayout = QHBoxLayout()
         self.tableData = QTableWidget()
         self.codeInput = QLineEdit()
@@ -268,11 +268,11 @@ class MainUI(QMainWindow):
         self._search_from_Lib()
         # 计算总容量
         message = "库文件数:【" + str(self.totalRow) + " | " + str(self.totalSize) + "】"
-        message += '搜索结果:【' + str(len(self.dataList)) + " | " + self.getTotalSize(self.dataList) + '】   执行完毕！！！'
+        message += '搜索结果:【' + str(len(self.dataList)) + " | " + self._get_total_size(self.dataList) + '】   执行完毕！！！'
         self.statusBar().showMessage(message)
         self._load_context()
 
-    def getTotalSize(self, dataList):
+    def _get_total_size(self, dataList):
         totalSize = 0
         for data in dataList:
             if data.size:
@@ -383,7 +383,7 @@ class MainUI(QMainWindow):
                     self.dataLib.extend(curList)
         self.totalRow = len(self.dataLib)
         self.totalPage = math.ceil(self.totalRow / self.pageSize)
-        self.totalSize = self.getTotalSize(self.dataLib)
+        self.totalSize = self._get_total_size(self.dataLib)
 
         if self.pageTool is None or self.pageTool == '':
             self.pageTool = self.addToolBar("分页")
@@ -467,11 +467,12 @@ class MainUI(QMainWindow):
                 arr = pathname.split("/")
                 pathname = pathname.replace(arr[-1], '')
                 self.curDisk = pathname
-            self.resetPathAct()
+            self._reset_path_action()
             self.curDisk = pathname
             self._open_path()
 
-    def resetPathAct(self):
+    def _reset_path_action(self):
+        '''重置工具栏 路径按钮'''
         if self.displayAct != "" and self.displayAct is not None:
             self.displayAct.clear()
         if len(self.rootPath) > 0:
@@ -483,14 +484,14 @@ class MainUI(QMainWindow):
     def _path_click(self):
         text = self.sender().text()
         self.rootPath.remove(text)
-        self.resetPathAct()
+        self._reset_path_action()
         self._tab_close_all()
 
     def _clear_path(self):
         self.rootPath = []
         self.dataLib = []
         self.dataList = []
-        self.resetPathAct()
+        self._reset_path_action()
         self._tab_close_all()
 
     def _change_Page(self):
