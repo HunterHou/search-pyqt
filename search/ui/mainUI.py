@@ -427,24 +427,19 @@ class MainUI(QMainWindow):
         if len(self.dataList) > 0:
             self.dataList.sort(key=getSortField(self.sortField), reverse=getReverse(self.sortType))
 
-    def _tab_item_close(self, index):
-        # self.tab_widget.removeTab(index)
-        self.tab_widget.removeTab(index)
-        del self.tabDataList[index]
+    def _tab_close_all(self):
+        '''关闭所有Tab'''
+        self.tab_widget.clear()
+        self.tabDataList = []
 
     def _tab_close(self, index):
-        self._tab_item_close(index)
+        '''关闭指定Tab'''
+        self.tab_widget.removeTab(index)
+        if index < len(self.tabDataList):
+            del self.tabDataList[index]
         index = self.tab_widget.currentIndex()
-        print("当前页:" + str(index))
-        print("Tab总数:" + str(len(self.tabDataList)))
         if index > 0:
             self.dataList = self.tabDataList[index]
-
-    def _tab_close_all(self):
-        cnt = self.tab_widget.count()
-        for index in range(cnt):
-            # 删除Tab页时 同步删除当前Tab页对应的数据
-            self._tab_item_close(index)
 
     def _tab_change(self, index):
         self.dataList = self.tabDataList[index]
