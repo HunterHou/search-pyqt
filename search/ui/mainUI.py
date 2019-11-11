@@ -377,6 +377,7 @@ class MainUI(QMainWindow):
             self.scan_status = 1
             message = "开始搜索..."
             self.statusBar().showMessage(message)
+            self._tab_close_all()
             self._excute__search_from_disk()
             # _thread.start_new_thread(self._excute__search_from_disk())
         else:
