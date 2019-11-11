@@ -2,6 +2,7 @@
 import _thread
 import base64
 import math
+import threading
 import webbrowser
 
 from PyQt5.QtCore import *
@@ -69,6 +70,8 @@ class MainUI(QMainWindow):
     tabTitle = ""
     pageTool = None
 
+    # loading
+
     def getFirstRow(self):
         return self.pageSize * (self.pageNo - 1)
 
@@ -108,7 +111,7 @@ class MainUI(QMainWindow):
         infoButton.clicked[bool].connect(self._click_info)
 
         syncJav = QPushButton("数据同步")
-        syncJav.clicked[bool].connect(self._click_sync_javmovie)
+        syncJav.clicked[bool].connect(self._click_sync_movie)
 
         # 布局 0 栅格 1 表格 3 网页
         grid_layout = QRadioButton(GRID)
@@ -413,7 +416,8 @@ class MainUI(QMainWindow):
             message = "开始搜索..."
             self.statusBar().showMessage(message)
             self._tab_close_all()
-            self._excute__search_from_disk()
+            th = threading.Thread(target=self._excute__search_from_disk, name='funciton')
+            th.start()
             # _thread.start_new_thread(self._excute__search_from_disk())
         else:
             message = "搜索中..."
@@ -719,7 +723,7 @@ class MainUI(QMainWindow):
 
         return tableData
 
-    def _click_sync_javmovie(self):
+    def _click_sync_movie(self):
         '''点击同步数据 按钮'''
         code = self.codeInput.text()
         if code is None or code == '':
@@ -727,7 +731,7 @@ class MainUI(QMainWindow):
             # 获取影片信息
         self._pull_move_movie(self.curDirPath, self.curFilePath, code)
 
-    def _sync_javmovie_info_new_thread(self, targetfile):
+    def _sync_movie_info_new_thread(self, targetfile):
         '''同步数据 开启线程'''
         self._pull_move_movie(targetfile.dirPath, targetfile.path, targetfile.code)
 
