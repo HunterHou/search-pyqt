@@ -108,7 +108,7 @@ class MainUI(QMainWindow):
         infoButton.clicked[bool].connect(self._click_info)
 
         syncJav = QPushButton("数据同步")
-        syncJav.clicked[bool].connect(self._sync_javmovie_info)
+        syncJav.clicked[bool].connect(self._click_sync_javmovie)
 
         # 布局 0 栅格 1 表格 3 网页
         grid_layout = QRadioButton(GRID)
@@ -379,7 +379,7 @@ class MainUI(QMainWindow):
             self.statusBar().showMessage(message)
             self._tab_close_all()
             self._excute__search_from_disk()
-            # _thread.start_new_thread(self._excute__search_from_disk())
+            _thread.start_new_thread(self._excute__search_from_disk())
         else:
             message = "搜索中..."
             self.statusBar().showMessage(message)
@@ -723,21 +723,28 @@ class MainUI(QMainWindow):
 
         return tableData
 
-    # 同步数据
-    def _sync_javmovie_info(self):
+    def _click_sync_javmovie(self):
+        '''点击同步数据 按钮'''
         code = self.codeInput.text()
         if code is None or code == '':
             return
             # 获取影片信息
+        self._pull_move_movie(self.curDirPath, self.curFilePath, code)
+
+    def _sync_javmovie_info_new_thread(self, targetfile):
+        '''同步数据 开启线程'''
+        self._pull_move_movie(targetfile.dirPath, targetfile.path, targetfile.code)
+
+    def _pull_move_movie(self, dirPath, filePath, code):
+        '''  pull数据并移动  '''
+
         self.curTaskCount = self.curTaskCount + 1
         message = "当前任务数:" + str(self.curTaskCount) + "【" + code + '】 添加成功！'
         self.statusBar().showMessage(message)
+
         tool = JavTool(self.webUrl)
         movie = tool.getJavInfo(code)
-        self._sync_move_movie(self.curDirPath, self.curFilePath, movie, tool)
 
-    def _sync_move_movie(self, dirPath, filePath, movie, tool):
-        '''  同步数据并移动  '''
         if movie is None:
             # QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
             self.curTaskCount = self.curTaskCount - 1
@@ -762,6 +769,7 @@ class MainUI(QMainWindow):
         # QMessageBox().about(self, "提示", "同步成功!!!")
 
     def _click_play_button(self):
+        '''执行播放'''
         text = self.sender().text()
         self._set_curinfo(int(text))
         if self.curFilePath is None or self.curFilePath == '':
@@ -770,6 +778,7 @@ class MainUI(QMainWindow):
         os.system(command)
 
     def _click_openF_button(self):
+        '''执行打开文件夹'''
         text = self.sender().text()
         self._set_curinfo(int(text))
         if self.curDirPath is None or self.curDirPath == '':
@@ -778,17 +787,10 @@ class MainUI(QMainWindow):
         os.system(command)
 
     def _click_sync_button(self):
+        '''执行同步数据'''
         text = self.sender().text()
         targetfile = self.dataList[int(text)]
-        _thread.start_new_thread(self._sync_thread, (targetfile,))
-
-    def _sync_thread(self, targetfile):
-        self.curTaskCount = self.curTaskCount + 1
-        message = "当前任务数:" + str(self.curTaskCount) + "【" + targetfile.code + '】 添加成功！'
-        self.statusBar().showMessage(message)
-        tool = JavTool(self.webUrl)
-        movie = tool.getJavInfo(targetfile.code)
-        self._sync_move_movie(targetfile.dirPath, targetfile.path, movie, tool)
+        _thread.start_new_thread(self._pull_move_movie, (targetfile.dirPath, targetfile.path, targetfile.code))
 
     def _click_info(self):
 
