@@ -1,14 +1,18 @@
 #!/usr/bin/python3
 # encoding=utf-8
 from urllib import request
-from urllib.request import urlretrieve
+
+opener = request.build_opener()
+opener.addheaders = [('User-Agent',
+                      'Mozilla/6.0')]
+request.install_opener(opener)
 
 
 def download(url, pathname):
     """ 用http请求多媒体 ， 并下载到本地 """
 
     try:
-        urlretrieve(url, pathname)
+        request.urlretrieve(url, pathname)
         print("文件创建成功...")
         return True
     except Exception as err:
