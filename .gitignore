@@ -11,3 +11,5 @@ search/main.spec
 .idea/encodings.xml
 search/search.spec
 /search/.main.spec
+/build/setup/
+/setup.spec
