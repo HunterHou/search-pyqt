@@ -10,7 +10,10 @@ MP4 = "mp4"
 WMV = "wmv"
 MKV = "mkv"
 AVI = "avi"
-DOCS_TYPES = [XLSX, TXT]
+JAVA = "java"
+XML = "xml"
+PROPERTIES = "properties"
+DOCS_TYPES = [XLSX, TXT, JAVA, XML, PROPERTIES]
 VIDEO_TYPES = [MP4, WMV, MKV, AVI]
 IMAGE_TYPES = [JPG, GIF]
 

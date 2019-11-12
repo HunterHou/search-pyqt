@@ -52,7 +52,6 @@ class MainUI(QMainWindow):
     curDisk = "F:\\emby"
 
     # 默认勾选
-    showPic = 1
     curTaskCount = 0
     imageToggle = 0
     videoToggle = 1
@@ -133,18 +132,22 @@ class MainUI(QMainWindow):
 
         postButton = QRadioButton(POSTER)
         coverButton = QRadioButton(COVER)
+        noPicButton = QRadioButton(NOPIC)
 
         if self.post_cover == POSTER:
             postButton.toggle()
         elif self.post_cover == COVER:
             coverButton.toggle()
+        elif self.post_cover == NOPIC:
+            noPicButton.toggle()
 
         postButton.clicked[bool].connect(self._choose_post_cover)
         coverButton.clicked[bool].connect(self._choose_post_cover)
-
+        noPicButton.clicked[bool].connect(self._choose_post_cover)
         self.displayGroup = QButtonGroup()
         self.displayGroup.addButton(postButton, 0)
         self.displayGroup.addButton(coverButton, 1)
+        self.displayGroup.addButton(noPicButton, 2)
 
         asc = QRadioButton(ASC)
         desc = QRadioButton(DESC)
@@ -181,16 +184,13 @@ class MainUI(QMainWindow):
         video.stateChanged.connect(self._choose_video)
         docs = QCheckBox("文档", self)
         docs.stateChanged.connect(self._choose_docs)
-        noPicButton = QCheckBox(NOPIC, self)
-        noPicButton.stateChanged.connect(self._show_pic)
+
         if self.imageToggle == 1:
             image.toggle()
         if self.videoToggle == 1:
             video.toggle()
         if self.docsToggle == 1:
             docs.toggle()
-        if self.showPic == 0:
-            noPicButton.toggle()
         # 创建左侧组件
         left_widget = QWidget()
         left_layout = QGridLayout()
@@ -293,8 +293,7 @@ class MainUI(QMainWindow):
         self.post_cover = self.displayGroup.checkedButton().text()
         # index = self.tab_widget.currentIndex()
         # self.tab_widget.removeTab(self.tab_widget.count() - 1)
-        if self.layoutType == GRID:
-            self._load_context()
+        self._load_context()
 
     def _sort_type_change(self):
         print(self.sortTypeGroup.checkedButton().text())
@@ -615,13 +614,13 @@ class MainUI(QMainWindow):
         self.gridLayout = QGridLayout()
         for index in range(self.gridLayout.count()):
             self.gridLayout.itemAt(index).widget().deleteLater()
-        width = 200 if self.post_cover == POSTER else 500
+        width = 200 if self.post_cover == POSTER else (500 if self.post_cover == COVER else 80)
         each = int(self.tab_widget.width() / width)
         for index in range(len(self.dataList)):
             data = self.dataList[index]
             item = QToolButton()
             item.setText(str(index))
-            if self.showPic == 1:
+            if self.post_cover != NOPIC:
                 try:
                     if self.post_cover == POSTER:
                         iconPath = replaceSuffix(data.path, PNG)
@@ -704,7 +703,7 @@ class MainUI(QMainWindow):
         tableData.setHorizontalHeaderLabels(['图片', NAME, "番号", "路径", "优优", "大小", "创建时间", "修改时间"])
         tableData.doubleClicked.connect(self._table_line_double_click)
         tableData.itemClicked.connect(self._table_line_click)
-        tableData.setColumnWidth(0, 200)
+        tableData.setColumnWidth(0, 200 if self.post_cover != NOPIC else 80)
         tableData.setColumnWidth(1, 180)
         tableData.setColumnWidth(2, 80)
         tableData.setColumnWidth(3, 200)
@@ -712,13 +711,15 @@ class MainUI(QMainWindow):
         for index in range(len(self.dataList)):
             file = self.dataList[index]
             row_id = index
-            if self.showPic == 1:
+            if self.post_cover != NOPIC:
                 tableData.setRowHeight(index, 300)
                 row_name = QLabel()
                 pic = getPixMap(file.path, 200, 300)
                 if pic is not None:
                     row_name.setPixmap(pic)
                 tableData.setCellWidget(row_id, 0, row_name)
+            else:
+                tableData.setItem(row_id, 0, QTableWidgetItem("无图模式"))
             tableData.setItem(row_id, 1, QTableWidgetItem(file.name))
             tableData.setItem(row_id, 2, QTableWidgetItem(file.code))
             tableData.setItem(row_id, 3, QTableWidgetItem(file.path))
@@ -892,12 +893,7 @@ class MainUI(QMainWindow):
                 for video in VIDEO_TYPES:
                     self.fileTypes.remove(video)
 
-    def _show_pic(self, state):
-        if state == Qt.Checked:
-            self.showPic = 0
-        else:
-            self.showPic = 1
-            # 点击文档box
+    # 点击文档box
 
     def _choose_docs(self, state):
 
