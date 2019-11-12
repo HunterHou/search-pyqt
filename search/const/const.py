@@ -14,6 +14,7 @@ DOCS_TYPES = [XLSX, TXT]
 VIDEO_TYPES = [MP4, WMV, MKV, AVI]
 IMAGE_TYPES = [JPG, GIF]
 
+NOPIC = "无图"
 POSTER = "海报"
 COVER = "封面"
 ASC = "正序"

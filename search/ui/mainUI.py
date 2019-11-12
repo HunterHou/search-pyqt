@@ -35,7 +35,7 @@ class MainUI(QMainWindow):
     dirName = None
     # 布局 0 栅格 1 表格 3 网页
     layoutType = '栅格'
-    # 0 海报模式 还是 1 封面模式
+    # 0 海报模式 还是 1 封面模式 2 无图
     post_cover = POSTER
     scan_status = 0
 
@@ -52,6 +52,7 @@ class MainUI(QMainWindow):
     curDisk = "F:\\emby"
 
     # 默认勾选
+    showPic = 1
     curTaskCount = 0
     imageToggle = 0
     videoToggle = 1
@@ -132,12 +133,15 @@ class MainUI(QMainWindow):
 
         postButton = QRadioButton(POSTER)
         coverButton = QRadioButton(COVER)
+
         if self.post_cover == POSTER:
             postButton.toggle()
         elif self.post_cover == COVER:
             coverButton.toggle()
+
         postButton.clicked[bool].connect(self._choose_post_cover)
         coverButton.clicked[bool].connect(self._choose_post_cover)
+
         self.displayGroup = QButtonGroup()
         self.displayGroup.addButton(postButton, 0)
         self.displayGroup.addButton(coverButton, 1)
@@ -177,12 +181,16 @@ class MainUI(QMainWindow):
         video.stateChanged.connect(self._choose_video)
         docs = QCheckBox("文档", self)
         docs.stateChanged.connect(self._choose_docs)
+        noPicButton = QCheckBox(NOPIC, self)
+        noPicButton.stateChanged.connect(self._show_pic)
         if self.imageToggle == 1:
             image.toggle()
         if self.videoToggle == 1:
             video.toggle()
         if self.docsToggle == 1:
             docs.toggle()
+        if self.showPic == 0:
+            noPicButton.toggle()
         # 创建左侧组件
         left_widget = QWidget()
         left_layout = QGridLayout()
@@ -199,6 +207,7 @@ class MainUI(QMainWindow):
 
         left_layout.addWidget(postButton, 4, 0, 1, 1)
         left_layout.addWidget(coverButton, 4, 1, 1, 1)
+        left_layout.addWidget(noPicButton, 4, 2, 1, 1)
 
         left_layout.addWidget(QLabel('排序类型'), 5, 0, 1, 1)
         left_layout.addWidget(asc, 5, 1, 1, 1)
@@ -305,13 +314,12 @@ class MainUI(QMainWindow):
 
     def _load_context(self, isNew=True):
         try:
-            self._sort_files_list()
             self._load_context_thread(isNew)
         except Exception as err:
-            print("_load_context")
-            print(err)
+            print("load_context:" + err)
 
     def _load_context_thread(self, isNew):
+        self._sort_files_list()
         if self.tabTitle == '' or self.tabTitle is None:
             title = str(self.pageNo) + "/" + str(self.totalPage)
             firstRow = self.pageSize * (self.pageNo - 1) + 1
@@ -327,13 +335,13 @@ class MainUI(QMainWindow):
             webbrowser.open(self.webUrl)
             return
         if self.layoutType == '栅格':
-            gridData = self._load_grid_data()
+            gridData = self._load_grid()
             if isNew:
                 self._tab_add(gridData, self.tabTitle)
             else:
                 self.tab_widget.setCurrentWidget(gridData)
         elif self.layoutType == '表格':
-            tableData = self._load_table_data()
+            tableData = self._load_table()
             if isNew:
                 self._tab_add(tableData, self.tabTitle)
             else:
@@ -601,7 +609,7 @@ class MainUI(QMainWindow):
             print(err)
 
     # loading 数据
-    def _load_grid_data(self):
+    def _load_grid(self):
         scroll = QScrollArea()
         self.gridData = QWidget()
         self.gridLayout = QGridLayout()
@@ -613,22 +621,23 @@ class MainUI(QMainWindow):
             data = self.dataList[index]
             item = QToolButton()
             item.setText(str(index))
-            try:
-                if self.post_cover == POSTER:
-                    iconPath = replaceSuffix(data.path, PNG)
-                    if os.path.exists(iconPath):
-                        pass
+            if self.showPic == 1:
+                try:
+                    if self.post_cover == POSTER:
+                        iconPath = replaceSuffix(data.path, PNG)
+                        if os.path.exists(iconPath):
+                            pass
+                        else:
+                            iconPath = replaceSuffix(data.path, JPG)
                     else:
                         iconPath = replaceSuffix(data.path, JPG)
-                else:
-                    iconPath = replaceSuffix(data.path, JPG)
-                icon = QIcon(iconPath)
-                if icon is not None and not icon.isNull():
-                    item.setIcon(icon)
-            except Exception as err:
-                print("_load_grid_data")
-                print(err)
-            item.setIconSize(QSize(width, 300))
+                    icon = QIcon(iconPath)
+                    if icon is not None and not icon.isNull():
+                        item.setIcon(icon)
+                except Exception as err:
+                    print("_load_grid_data")
+                    print(err)
+                item.setIconSize(QSize(width, 300))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(data.name)
             item.clicked[bool].connect(self._grid_click)
@@ -684,7 +693,7 @@ class MainUI(QMainWindow):
         return scroll
 
     # 载入数据 表格形式
-    def _load_table_data(self):
+    def _load_table(self):
         tableData = self.tableData
         tableData.setRowCount(0)
         tableData.setColumnCount(0)
@@ -704,16 +713,17 @@ class MainUI(QMainWindow):
             tableData.setRowHeight(index, 300)
             file = self.dataList[index]
             row_id = index
-            row_name = QLabel()
-            pic = getPixMap(file.path, 200, 300)
-            if pic is not None:
-                row_name.setPixmap(pic)
-            tableData.setCellWidget(row_id, 0, row_name)
+            if self.showPic == 1:
+                row_name = QLabel()
+                pic = getPixMap(file.path, 200, 300)
+                if pic is not None:
+                    row_name.setPixmap(pic)
+                tableData.setCellWidget(row_id, 0, row_name)
             tableData.setItem(row_id, 1, QTableWidgetItem(file.name))
             tableData.setItem(row_id, 2, QTableWidgetItem(file.code))
             tableData.setItem(row_id, 3, QTableWidgetItem(file.path))
             tableData.setItem(row_id, 4, QTableWidgetItem(file.actress))
-            tableData.setItem(row_id, 5, QTableWidgetItem(file.size))
+            tableData.setItem(row_id, 5, QTableWidgetItem(file.sizeStr))
             tableData.setItem(row_id, 6, QTableWidgetItem(file.create_time))
             tableData.setItem(row_id, 7, QTableWidgetItem(file.modify_time))
 
@@ -882,7 +892,13 @@ class MainUI(QMainWindow):
                 for video in VIDEO_TYPES:
                     self.fileTypes.remove(video)
 
-    # 点击文档box
+    def _show_pic(self, state):
+        if state == Qt.Checked:
+            self.showPic = 0
+        else:
+            self.showPic = 1
+            # 点击文档box
+
     def _choose_docs(self, state):
 
         if state == Qt.Checked:
