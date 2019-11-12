@@ -315,7 +315,8 @@ class MainUI(QMainWindow):
         try:
             self._load_context_thread(isNew)
         except Exception as err:
-            print("load_context:" + err)
+            print("load_context has error")
+            print(err)
 
     def _load_context_thread(self, isNew):
         self._sort_files_list()
@@ -614,8 +615,9 @@ class MainUI(QMainWindow):
         self.gridLayout = QGridLayout()
         for index in range(self.gridLayout.count()):
             self.gridLayout.itemAt(index).widget().deleteLater()
-        width = 200 if self.post_cover == POSTER else (500 if self.post_cover == COVER else 80)
+        width = 200 if self.post_cover == POSTER else (500 if self.post_cover == COVER else 300)
         each = int(self.tab_widget.width() / width)
+
         for index in range(len(self.dataList)):
             data = self.dataList[index]
             item = QToolButton()
@@ -644,6 +646,7 @@ class MainUI(QMainWindow):
             title = QTextEdit(data.name)
             title.setMaximumHeight(40)
             title.setMaximumWidth(width)
+            title.setMinimumWidth(width)
 
             play = QToolButton()
             play.clicked[bool].connect(self._click_play_button)
@@ -676,16 +679,16 @@ class MainUI(QMainWindow):
             sync.setIconSize(QSize(20, 20))
             sync.setToolTip("同步")
             sync.setToolButtonStyle(Qt.ToolButtonIconOnly)
-
             row = int(index / each)
             cols = index % each
-            colscols = cols * 3
-
-            self.gridLayout.addWidget(item, row * 3, colscols, 1, 3)
-            self.gridLayout.addWidget(play, row * 3 + 1, colscols, 1, 1)
-            self.gridLayout.addWidget(openF, row * 3 + 1, colscols + 1, 1, 1)
-            self.gridLayout.addWidget(sync, row * 3 + 1, colscols + 2, 1, 1)
-            self.gridLayout.addWidget(title, row * 3 + 2, colscols, 1, 3)
+            colspan = cols * 3
+            rowspan = row * 3 if self.post_cover != NOPIC else row * 2
+            if self.post_cover != NOPIC:
+                self.gridLayout.addWidget(item, rowspan, colspan, 1, 3)
+            self.gridLayout.addWidget(play, rowspan + 1, colspan, 1, 1)
+            self.gridLayout.addWidget(openF, rowspan + 1, colspan + 1, 1, 1)
+            self.gridLayout.addWidget(sync, rowspan + 1, colspan + 2, 1, 1)
+            self.gridLayout.addWidget(title, rowspan + 2, colspan, 1, 3)
         self.gridData.setLayout(self.gridLayout)
         scroll.setWidget(self.gridData)
         scroll.setAutoFillBackground(True)
