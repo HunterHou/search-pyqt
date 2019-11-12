@@ -643,7 +643,7 @@ class MainUI(QMainWindow):
             item.setToolTip(data.name)
             item.clicked[bool].connect(self._grid_click)
 
-            title = QTextEdit(data.name)
+            title = QLabel(data.name)
             title.setMaximumHeight(40)
             title.setMaximumWidth(width)
             title.setMinimumWidth(width)
