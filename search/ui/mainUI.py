@@ -710,10 +710,10 @@ class MainUI(QMainWindow):
         tableData.setColumnWidth(3, 200)
         # tableData.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         for index in range(len(self.dataList)):
-            tableData.setRowHeight(index, 300)
             file = self.dataList[index]
             row_id = index
             if self.showPic == 1:
+                tableData.setRowHeight(index, 300)
                 row_name = QLabel()
                 pic = getPixMap(file.path, 200, 300)
                 if pic is not None:
