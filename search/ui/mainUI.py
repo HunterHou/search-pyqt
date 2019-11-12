@@ -645,6 +645,7 @@ class MainUI(QMainWindow):
 
             title = QLabel(data.name)
             title.setMaximumHeight(40)
+            title.setWordWrap(True)
             title.setMaximumWidth(width)
             title.setMinimumWidth(width)
 
