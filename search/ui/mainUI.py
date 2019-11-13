@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# encoding=utf-8
 import _thread
 import base64
 import math

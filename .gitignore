@@ -13,3 +13,5 @@ search/search.spec
 /search/.main.spec
 /build/setup/
 /setup.spec
+/.vs
+/search/.vscode
