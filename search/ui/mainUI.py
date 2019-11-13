@@ -34,9 +34,9 @@ class MainUI(QMainWindow):
     # 搜索文本框
     dirName = None
     # 布局 0 栅格 1 表格 3 网页
-    layoutType = '栅格'
+    layoutType = '表格'
     # 0 海报模式 还是 1 封面模式 2 无图
-    post_cover = POSTER
+    post_cover = NOPIC
     scan_status = 0
 
     # 缓存信息
@@ -65,7 +65,7 @@ class MainUI(QMainWindow):
     totalRow = 0
     totalPage = 0
     pageNo = 1
-    pageSize = 100
+    pageSize = 200
     tabTitle = ""
     pageTool = None
 
@@ -160,20 +160,20 @@ class MainUI(QMainWindow):
         self.sortTypeGroup = QButtonGroup()
         self.sortTypeGroup.addButton(asc, 0)
         self.sortTypeGroup.addButton(desc, 1)
-        name = QRadioButton(NAME)
+        code = QRadioButton(CODE)
         size = QRadioButton(SIZE)
         mtime = QRadioButton(MODIFY_TIME)
-        if self.sortField == NAME:
-            name.toggle()
+        if self.sortField == CODE:
+            code.toggle()
         elif self.sortField == SIZE:
             size.toggle()
         elif self.sortField == MODIFY_TIME:
             mtime.toggle()
-        name.clicked[bool].connect(self._sort_field_change)
+        code.clicked[bool].connect(self._sort_field_change)
         size.clicked[bool].connect(self._sort_field_change)
         mtime.clicked[bool].connect(self._sort_field_change)
         self.sortFieldGroup = QButtonGroup()
-        self.sortFieldGroup.addButton(name, 0)
+        self.sortFieldGroup.addButton(code, 0)
         self.sortFieldGroup.addButton(size, 1)
         self.sortFieldGroup.addButton(mtime, 2)
 
@@ -212,7 +212,7 @@ class MainUI(QMainWindow):
         left_layout.addWidget(QLabel('排序类型'), 5, 0, 1, 1)
         left_layout.addWidget(asc, 5, 1, 1, 1)
         left_layout.addWidget(desc, 5, 2, 1, 1)
-        left_layout.addWidget(name, 6, 0, 1, 1)
+        left_layout.addWidget(code, 6, 0, 1, 1)
         left_layout.addWidget(size, 6, 1, 1, 1)
         left_layout.addWidget(mtime, 6, 2, 1, 1)
         left_layout.addWidget(QLabel(""), 7, 0, 1, 3)
@@ -820,30 +820,28 @@ class MainUI(QMainWindow):
     def _menu_button_add(self):
         bar = self.menuBar()
         # 文件
-        file = bar.addMenu("文件")
-        file.setShortcutEnabled(1)
         openAction = QAction("打开路径", self)
         openAction.setShortcut(QKeySequence.Open)
-        file.addAction(openAction)
-
         quitAction = QAction("退出", self)
         quitAction.setShortcut(QKeySequence(str("ctrl+Q")))
 
-        clearDisk = QAction("清空路径", self)
-        clearDisk.setShortcut(QKeySequence.Save)
-
+        file = bar.addMenu("文件")
+        file.setShortcutEnabled(1)
+        file.addAction(openAction)
         file.addAction(quitAction)
         file.triggered[QAction].connect(self._menu_process_file)
         # 设置
+        changeUrlAction = QAction("切换数据源", self)
+        changePageSizeAction = QAction("切换分页", self)
+
         setting = bar.addMenu("设置")
         setting.setShortcutEnabled(1)
-        changeUrlAction = QAction("切换数据源", self)
         setting.addAction(changeUrlAction)
-        setting.triggered[QAction].connect(self._menu_process_file)
-        changePageSizeAction = QAction("切换分页", self)
         setting.addAction(changePageSizeAction)
         setting.triggered[QAction].connect(self._menu_process_file)
 
+        clearDisk = QAction("清空路径", self)
+        clearDisk.setShortcut(QKeySequence.Save)
         scanDisk = QAction("扫描路径", self)
         openAction.triggered[bool].connect(self._open_path)
         scanDisk.triggered[bool].connect(self._scan_disk)
@@ -861,10 +859,12 @@ class MainUI(QMainWindow):
             if ok:
                 self.webUrl = text
                 self.webUrlLable.setText(text)
+            return
         elif action.text() == "切换分页":
             text, ok = QInputDialog.getText(self, "切换分页", "每页显示:")
             if ok:
                 self.pageSize = int(text)
+            return
         elif action.text() == "扫描路径":
             self._scan_disk()
         elif action.text() == "清空路径":

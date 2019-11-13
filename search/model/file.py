@@ -70,12 +70,12 @@ def getReverse(sort):
 
 
 def getSortField(key):
-    if key == NAME:
-        return operator.attrgetter("name", 'size', 'modify_time')
+    if key == CODE:
+        return operator.attrgetter("code", 'size', 'modify_time')
     elif key == SIZE:
-        return operator.attrgetter('size', "name", 'modify_time')
+        return operator.attrgetter('size', "code", 'modify_time')
     elif key == MODIFY_TIME:
-        return operator.attrgetter('modify_time', "name", 'size')
+        return operator.attrgetter('modify_time', "code", 'size')
 
 
 def replaceSuffix(filename, suffix):

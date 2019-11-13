@@ -23,6 +23,7 @@ COVER = "封面"
 ASC = "正序"
 DESC = "倒序"
 NAME = "名称"
+CODE = "番号"
 SIZE = "大小"
 MODIFY_TIME = "修改时间"
 
