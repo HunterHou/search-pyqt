@@ -2,6 +2,7 @@
 # encoding=utf-8
 import _thread
 import base64
+import logging
 import math
 import webbrowser
 
@@ -14,6 +15,12 @@ from search.model.file import *
 from search.net.javTool import JavTool
 from search.service.fileService import FileService, nfoToJavMovie
 from search.ui.infoUI import InfoUI
+
+LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"  # 日志格式化输出
+DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"  # 日期格式
+fp = logging.FileHandler('a.txt', encoding='utf-8')
+fs = logging.StreamHandler()
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=DATE_FORMAT, handlers=[fp, fs])
 
 
 def getStrJoin(list):
@@ -316,11 +323,10 @@ class MainUI(QMainWindow):
         try:
             self._load_context_thread(isNew)
         except Exception as err:
-            print("load_context has error")
-            print(err)
+            logging.exception("load_context has error" + str(err))
 
     def _load_context_thread(self, isNew):
-        self._sort_files_list()
+        self._sort_files_list(self.dataList)
         if self.tabTitle == '' or self.tabTitle is None:
             title = str(self.pageNo) + "/" + str(self.totalPage)
             firstRow = self.pageSize * (self.pageNo - 1) + 1
@@ -366,6 +372,7 @@ class MainUI(QMainWindow):
     def _search_from_Lib(self):
         word = self.tabTitle
         result = []
+        self._sort_files_list(self.dataLib)
         if word == '' or word is None:
             if self.pageNo == self.totalPage:
                 result = self.dataLib[self.getFirstRow():]
@@ -432,9 +439,10 @@ class MainUI(QMainWindow):
             message = "搜索中..."
             self.statusBar().showMessage(message)
 
-    def _sort_files_list(self):
-        if len(self.dataList) > 0:
-            self.dataList.sort(key=getSortField(self.sortField), reverse=getReverse(self.sortType))
+    def _sort_files_list(self, dataList):
+        if len(dataList) > 0:
+            logging.info("当前排序：" + self.sortField + self.sortType)
+            dataList.sort(key=getSortField(self.sortField), reverse=getReverse(self.sortType))
 
     def _tab_close_all(self):
         '''关闭所有Tab'''
@@ -462,8 +470,7 @@ class MainUI(QMainWindow):
             self.tab_widget.addTab(widget, title)
             self.tab_widget.setCurrentWidget(widget)
         except Exception as err:
-            print("_tab_add")
-            print(err)
+            logging.error("_tab_add" + str(err))
 
     # 选择框
     def _open_path(self):
@@ -605,9 +612,8 @@ class MainUI(QMainWindow):
                     self.curPic.setPixmap(pic)
 
         except Exception as err:
-            print("_load_info_to_left")
-            print("文件打开失败")
-            print(err)
+            logging.error("_load_info_to_left" + "文件打开失败")
+            logging.error(str(err))
 
     # loading 数据
     def _load_grid(self):
@@ -637,8 +643,7 @@ class MainUI(QMainWindow):
                     if icon is not None and not icon.isNull():
                         item.setIcon(icon)
                 except Exception as err:
-                    print("_load_grid_data")
-                    print(err)
+                    logging.error("_load_grid_data" + str(err))
                 item.setIconSize(QSize(width, 300))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(data.name)
@@ -709,10 +714,10 @@ class MainUI(QMainWindow):
         tableData.doubleClicked.connect(self._table_line_double_click)
         tableData.itemClicked.connect(self._table_line_click)
         tableData.setColumnWidth(0, 200 if self.post_cover != NOPIC else 80)
-        tableData.setColumnWidth(1, 180)
+        tableData.setColumnWidth(1, 300)
         tableData.setColumnWidth(2, 80)
         tableData.setColumnWidth(3, 200)
-        # tableData.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        tableData.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         for index in range(len(self.dataList)):
             file = self.dataList[index]
             row_id = index
@@ -774,7 +779,7 @@ class MainUI(QMainWindow):
             if tool.dirpath is not None and tool.fileName is not None:
                 newfilepath = tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath)
                 os.rename(filePath, newfilepath)
-                print("文件移动重命名成功:" + newfilepath)
+                logging.info("文件移动重命名成功:" + newfilepath)
         else:
             message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 同步失败！'
         self.statusBar().showMessage(message)

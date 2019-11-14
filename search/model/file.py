@@ -169,7 +169,7 @@ def getModifyTime(path):
 
 def getCode(fileName):
     """根据 文件名称  分析番号 [] 中包含 '-'符号    """
-    code = None
+    code = ""
     rights = fileName.split("[")
     if len(rights) <= 1:
         return getTitle(fileName)

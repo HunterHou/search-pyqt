@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # encoding=utf-8
 
+import logging
 import os
 
 from PIL import Image
@@ -121,9 +122,8 @@ class JavTool:
                                     supplier,
                                     length, '')
         except Exception as err:
-            print(avResponse)
-            print("html解析失败")
-            print(err)
+            logging.info(avResponse)
+            logging.error("html解析失败", err)
 
     def makeActress(self, rootpath, movie):
         """
@@ -174,7 +174,7 @@ class JavTool:
                 if os.path.exists(croppedFilepath):
                     os.remove(croppedFilepath)
                 cropped.save(croppedFilepath)
-                print("图片裁剪成功")
+                logging.info("图片裁剪成功")
                 # 返回信息
                 self.dirpath = dirPath
                 self.filepath = filepath
@@ -183,11 +183,11 @@ class JavTool:
                 nfo = makeNfo(movie, fileName, dirPath)
                 if nfo is not None:
                     writeNfo(dirPath, fileName, nfo)
-                    print("影片信息创建成功")
+                    logging.info("影片信息创建成功")
                 return True
             else:
                 return False
         except Exception as err:
-            print("生成目录信息")
-            print(err)
+            logging.error("生成目录信息", err)
+
             return False
