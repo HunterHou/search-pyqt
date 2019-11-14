@@ -140,12 +140,13 @@ class JavTool:
                 os.mkdir(movie.getActress())
             os.chdir(movie.getActress())
             # 创建目录结构：发行商
-            dirPath = dirPath + "\\" + movie.maker
+            maker = movie.maker if movie.maker != '' else movie.studio
+            dirPath = dirPath + "\\" + maker
             if os.path.exists(dirPath):
                 pass
             else:
-                os.mkdir(movie.maker)
-            os.chdir(movie.maker)
+                os.mkdir(maker)
+            os.chdir(maker)
             # 创建目录结构：电影信息
             title = movie.title
             if len(title) > 50:
