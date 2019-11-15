@@ -17,6 +17,7 @@ from search.ui.infoUI import InfoUI
 
 logger = logging.getLogger("search")
 
+
 def getStrJoin(list):
     result = ""
     for string in list:
@@ -74,7 +75,7 @@ class MainUI(QMainWindow):
 
     # loading
 
-    def getFirstRow(self):
+    def _getFirstRow(self):
         return self.pageSize * (self.pageNo - 1)
 
     # 初始化 loadUI
@@ -85,7 +86,7 @@ class MainUI(QMainWindow):
         self.displayAct = QToolBar("显示")
         self.addToolBar(Qt.TopToolBarArea, self.fileAct)
         self.addToolBar(Qt.BottomToolBarArea, self.displayAct)
-        self._reset_path_action()
+        self._resetPathTool()
         self.infoLayout = QHBoxLayout()
         self.tableData = QTableWidget()
         self.codeInput = QLineEdit()
@@ -95,26 +96,26 @@ class MainUI(QMainWindow):
 
     # 载入UI窗口
     def _initUI(self):
-        self.setWindowTitle("文件目录")
+        self.setWindowTitle("文件搜索")
         self.resize(1400, 900)
         # 创建搜索按钮
         if self.dirName is None:
             self.dirName = QLineEdit()
         okButton = QPushButton("搜索")
         okButton.setShortcut(QKeySequence(str("Return")))
-        okButton.clicked[bool].connect(self._search_button_click)
+        okButton.clicked[bool].connect(self._clickSearchButton)
 
         openFile = QPushButton("打开文件")
         openFile.clicked[bool].connect(self._open_file)
         openDir = QPushButton("打开文件夹")
         openDir.clicked[bool].connect(self._open_file)
         codeSearch = QPushButton("番号搜索")
-        codeSearch.clicked[bool].connect(self._search_code)
+        codeSearch.clicked[bool].connect(self._ClickSearchCode)
         infoButton = QPushButton("info")
-        infoButton.clicked[bool].connect(self._click_info)
+        infoButton.clicked[bool].connect(self._clickInfo)
 
         syncJav = QPushButton("数据同步")
-        syncJav.clicked[bool].connect(self._click_sync_movie)
+        syncJav.clicked[bool].connect(self._clickSyncMovie)
 
         # 布局 0 栅格 1 表格 3 网页
         grid_layout = QRadioButton(GRID)
@@ -126,9 +127,9 @@ class MainUI(QMainWindow):
             table_layout.toggle()
         elif self.layoutType == ACTRESS:
             web_layout.toggle()
-        grid_layout.clicked[bool].connect(self._choose_layout)
-        table_layout.clicked[bool].connect(self._choose_layout)
-        web_layout.clicked[bool].connect(self._choose_layout)
+        grid_layout.clicked[bool].connect(self._chooseLayout)
+        table_layout.clicked[bool].connect(self._chooseLayout)
+        web_layout.clicked[bool].connect(self._chooseLayout)
         self.layoutGroup = QButtonGroup()
         self.layoutGroup.addButton(grid_layout, 0)
         self.layoutGroup.addButton(table_layout, 1)
@@ -145,9 +146,9 @@ class MainUI(QMainWindow):
         elif self.post_cover == NOPIC:
             noPicButton.toggle()
 
-        postButton.clicked[bool].connect(self._choose_post_cover)
-        coverButton.clicked[bool].connect(self._choose_post_cover)
-        noPicButton.clicked[bool].connect(self._choose_post_cover)
+        postButton.clicked[bool].connect(self._choosePostCover)
+        coverButton.clicked[bool].connect(self._choosePostCover)
+        noPicButton.clicked[bool].connect(self._choosePostCover)
         self.displayGroup = QButtonGroup()
         self.displayGroup.addButton(postButton, 0)
         self.displayGroup.addButton(coverButton, 1)
@@ -159,8 +160,8 @@ class MainUI(QMainWindow):
             asc.toggle()
         elif self.sortType == DESC:
             desc.toggle()
-        asc.clicked[bool].connect(self._sort_type_change)
-        desc.clicked[bool].connect(self._sort_type_change)
+        asc.clicked[bool].connect(self._sortTypeChange)
+        desc.clicked[bool].connect(self._sortTypeChange)
         self.sortTypeGroup = QButtonGroup()
         self.sortTypeGroup.addButton(asc, 0)
         self.sortTypeGroup.addButton(desc, 1)
@@ -173,9 +174,9 @@ class MainUI(QMainWindow):
             size.toggle()
         elif self.sortField == MODIFY_TIME:
             mtime.toggle()
-        code.clicked[bool].connect(self._sort_field_change)
-        size.clicked[bool].connect(self._sort_field_change)
-        mtime.clicked[bool].connect(self._sort_field_change)
+        code.clicked[bool].connect(self._sortFieldChange)
+        size.clicked[bool].connect(self._sortFieldChange)
+        mtime.clicked[bool].connect(self._sortFieldChange)
         self.sortFieldGroup = QButtonGroup()
         self.sortFieldGroup.addButton(code, 0)
         self.sortFieldGroup.addButton(size, 1)
@@ -183,11 +184,11 @@ class MainUI(QMainWindow):
 
         # 复选框
         image = QCheckBox("图片", self)
-        image.stateChanged.connect(self._choose_image)
+        image.stateChanged.connect(self._chooseImage)
         video = QCheckBox("视频", self)
-        video.stateChanged.connect(self._choose_video)
+        video.stateChanged.connect(self._chooseVideo)
         docs = QCheckBox("文档", self)
-        docs.stateChanged.connect(self._choose_docs)
+        docs.stateChanged.connect(self._chooseDocs)
 
         if self.imageToggle == 1:
             image.toggle()
@@ -269,21 +270,21 @@ class MainUI(QMainWindow):
 
         self.setCentralWidget(main_widget)
 
-        self._menu_button_add()
+        self._initMenuButton()
 
         self.show()
 
     # 点击搜索
 
-    def _search_button_click(self):
+    def _clickSearchButton(self):
         self.statusBar().showMessage('执行中')
         self.tabTitle = self.dirName.text()
-        self._search_from_Lib()
+        self._searchFromLib()
         # 计算总容量
         message = "库文件数:【" + str(self.totalRow) + " | " + str(self.totalSize) + "】"
         message += '搜索结果:【' + str(len(self.dataList)) + " | " + self._get_total_size(self.dataList) + '】   执行完毕！！！'
         self.statusBar().showMessage(message)
-        self._load_context()
+        self._loadContext()
 
     def _get_total_size(self, dataList):
         totalSize = 0
@@ -292,40 +293,38 @@ class MainUI(QMainWindow):
                 totalSize += data.size
         return getSizeFromNumber(totalSize)
 
-    def _choose_post_cover(self):
+    def _choosePostCover(self):
         #  0 海报 1 封面
         self.post_cover = self.displayGroup.checkedButton().text()
-        # index = self.tab_widget.currentIndex()
-        # self.tab_widget.removeTab(self.tab_widget.count() - 1)
-        self._load_context()
+        self._loadContext()
 
-    def _sort_type_change(self):
+    def _sortTypeChange(self):
         print(self.sortTypeGroup.checkedButton().text())
         self.sortType = self.sortTypeGroup.checkedButton().text()
         self._sort_files_list(self.dataLib)
-        self._load_context()
+        self._loadContext()
 
-    def _sort_field_change(self):
+    def _sortFieldChange(self):
         print(self.sortFieldGroup.checkedButton().text())
         self.sortField = self.sortFieldGroup.checkedButton().text()
         self._sort_files_list(self.dataLib)
-        self._load_context()
+        self._loadContext()
 
     # 选择布局
-    def _choose_layout(self):
+    def _chooseLayout(self):
         # 布局 0 栅格 1 表格 3 网页
         self.layoutType = self.layoutGroup.checkedButton().text()
 
-        self._load_context()
+        self._loadContext()
 
-    def _load_context(self, isNew=True):
+    def _loadContext(self, isNew=True):
         try:
-            self._load_context_thread(isNew)
+            self._loadContextThread(isNew)
         except Exception as err:
             print("load_context has error" + str(err))
             logger.error("load_context has error" + str(err))
 
-    def _load_context_thread(self, isNew):
+    def _loadContextThread(self, isNew):
         self._sort_files_list(self.dataList)
         if self.tabTitle == '' or self.tabTitle is None:
             title = str(self.pageNo) + "/" + str(self.totalPage)
@@ -339,26 +338,26 @@ class MainUI(QMainWindow):
             return
         if self.layoutType == ACTRESS:
             self._tab_close_all()
-            gridData = self._load_grid_actress()
+            gridData = self._initGridActress()
             if isNew:
                 self._tab_add(gridData, 'YY:' + str(len(self.actressLib)))
             else:
                 self.tab_widget.setCurrentWidget(gridData)
         if self.layoutType == '栅格':
-            gridData = self._load_grid()
+            gridData = self._initGrid()
             if isNew:
                 self._tab_add(gridData, self.tabTitle)
             else:
                 self.tab_widget.setCurrentWidget(gridData)
         elif self.layoutType == '表格':
-            tableData = self._load_table()
+            tableData = self._init_table()
             if isNew:
                 self._tab_add(tableData, self.tabTitle)
             else:
                 self.tab_widget.setCurrentWidget(tableData)
 
     # 搜饭
-    def _search_code(self):
+    def _ClickSearchCode(self):
         tool = JavTool(self.webUrl)
         code = self.codeInput.text()
         movie = tool.getJavInfo(code)
@@ -372,16 +371,16 @@ class MainUI(QMainWindow):
             self._load_info_to_left()
 
     # 填充数据
-    def _search_from_Lib(self):
+    def _searchFromLib(self):
         word = self.tabTitle
         result = []
         self._sort_files_list(self.dataLib)
         if word == '' or word is None:
             if self.pageNo == self.totalPage:
-                result = self.dataLib[self.getFirstRow():]
+                result = self.dataLib[self._getFirstRow():]
             else:
-                first = self.getFirstRow()
-                last = self.getFirstRow() + self.pageSize
+                first = self._getFirstRow()
+                last = self._getFirstRow() + self.pageSize
                 result = self.dataLib[first:last]
         else:
             for files in self.dataLib:
@@ -392,7 +391,7 @@ class MainUI(QMainWindow):
                         result.append(files)
         self.dataList = result
 
-    def _excute__search_from_disk(self):
+    def _excuteSearchFromDisk(self):
         self.dataLib.clear()
         self.actressLib.clear()
         names = []
@@ -404,10 +403,15 @@ class MainUI(QMainWindow):
                     # self.dataLib.extend(curList)
                     # self.actressLib.extend(curAcrtess)
         self.scan_status = 0
+        self._pageToolsInit()
+
+        self._clickSearchButton()
+
+    def _pageToolsInit(self):
+        '''分页初始化'''
         self.totalRow = len(self.dataLib)
         self.totalPage = math.ceil(self.totalRow / self.pageSize)
         self.totalSize = self._get_total_size(self.dataLib)
-
         if self.pageTool is None or self.pageTool == '':
             self.pageTool = self.addToolBar("分页")
         else:
@@ -417,43 +421,41 @@ class MainUI(QMainWindow):
         nextPhoto = QPixmap()
         nextPhoto.loadFromData(nextStr)
         nextPage.setIcon(QIcon(nextPhoto))
-        nextPage.triggered[bool].connect(self._change_Page)
+        nextPage.triggered[bool].connect(self._changePage)
         prePage = QAction("上一页", self)
         preStr = base64.b64decode(BACK)
         prePhoto = QPixmap()
         prePhoto.loadFromData(preStr)
         prePage.setIcon(QIcon(prePhoto))
-        prePage.triggered[bool].connect(self._change_Page)
+        prePage.triggered[bool].connect(self._changePage)
         firstPage = QAction("首页", self)
         firstStr = base64.b64decode(LAST)
         firstPhoto = QPixmap()
         firstPhoto.loadFromData(firstStr)
         firstPage.setIcon(QIcon(firstPhoto))
-        firstPage.triggered[bool].connect(self._change_Page)
+        firstPage.triggered[bool].connect(self._changePage)
         lastPage = QAction("末页", self)
         lastStr = base64.b64decode(NEXT)
         lastPhoto = QPixmap()
         lastPhoto.loadFromData(lastStr)
         lastPage.setIcon(QIcon(lastPhoto))
-        lastPage.triggered[bool].connect(self._change_Page)
+        lastPage.triggered[bool].connect(self._changePage)
         self.pageTool.addAction(firstPage)
         self.pageTool.addAction(prePage)
         self.pageTool.addAction(nextPage)
         self.pageTool.addAction(lastPage)
         for index in range(self.totalPage):
             curPage = QAction(str(index + 1), self)
-            curPage.triggered[bool].connect(self._change_Page)
+            curPage.triggered[bool].connect(self._changePage)
             self.pageTool.addAction(curPage)
 
-        self._search_button_click()
-
-    def _scan_disk(self):
+    def _searchDisk(self):
         if self.scan_status == 0:
             self.scan_status = 1
             message = "开始搜索..."
             self.statusBar().showMessage(message)
             self._tab_close_all()
-            self._excute__search_from_disk()
+            self._excuteSearchFromDisk()
             # th = threading.Thread(target=self._excute__search_from_disk, name='funciton')
             # th.start()
             # _thread.start_new_thread(self._excute__search_from_disk())
@@ -505,34 +507,34 @@ class MainUI(QMainWindow):
                 arr = pathname.split("/")
                 pathname = pathname.replace(arr[-1], '')
                 self.curDisk = pathname
-            self._reset_path_action()
+            self._resetPathTool()
             self.curDisk = pathname
             self._open_path()
 
-    def _reset_path_action(self):
+    def _resetPathTool(self):
         '''重置工具栏 路径按钮'''
         if self.displayAct != "" and self.displayAct is not None:
             self.displayAct.clear()
         if len(self.rootPath) > 0:
             for path in self.rootPath:
                 pathAct = QAction(path, self)
-                pathAct.triggered[bool].connect(self._path_click)
+                pathAct.triggered[bool].connect(self._clickPathTool)
                 self.displayAct.addAction(pathAct)
 
-    def _path_click(self):
+    def _clickPathTool(self):
         text = self.sender().text()
         self.rootPath.remove(text)
-        self._reset_path_action()
+        self._resetPathTool()
         self._tab_close_all()
 
-    def _clear_path(self):
+    def _clickClearPath(self):
         self.rootPath = []
         self.dataLib = []
         self.dataList = []
-        self._reset_path_action()
+        self._resetPathTool()
         self._tab_close_all()
 
-    def _change_Page(self):
+    def _changePage(self):
         text = self.sender().text()
         if self.dirName.text() == '' or self.dirName.text() is None:
             # 搜索框为空的时候执行翻页 否则只进行搜索
@@ -550,7 +552,7 @@ class MainUI(QMainWindow):
                 self.pageNo = self.totalPage
             else:
                 self.pageNo = int(text)
-        self._search_button_click()
+        self._clickSearchButton()
 
     # 点击事件
     def _open_file(self):
@@ -608,14 +610,14 @@ class MainUI(QMainWindow):
 
         self._load_info_to_left()
 
-    def _grid_click(self):
+    def _clickGrid(self):
         text = self.sender().text()
         index = int(text)
         if index > len(self.dataList) - 1:
             return
         self._set_curinfo(index)
 
-    def _grid_act_click(self):
+    def _clickGridActress(self):
         text = self.sender().text()
         index = int(text)
         if index > len(self.actressLib) - 1:
@@ -624,7 +626,7 @@ class MainUI(QMainWindow):
         self.dirName.setText(name)
         self.layoutType = GRID
         self.post_cover = POSTER
-        self._search_button_click()
+        self._clickSearchButton()
 
     def _load_info_to_left(self):
         if self.curCode is not None:
@@ -648,7 +650,7 @@ class MainUI(QMainWindow):
             logger.error("_load_info_to_left" + str(err))
 
     # loading 数据
-    def _load_grid(self):
+    def _initGrid(self):
         scroll = QScrollArea()
         self.gridData = QWidget()
         self.gridLayout = QGridLayout()
@@ -679,7 +681,7 @@ class MainUI(QMainWindow):
                 item.setIconSize(QSize(width, 300))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(data.name)
-            item.clicked[bool].connect(self._grid_click)
+            item.clicked[bool].connect(self._clickGrid)
 
             title = QLabel(data.name)
             title.setMaximumHeight(40)
@@ -688,7 +690,7 @@ class MainUI(QMainWindow):
             title.setMinimumWidth(width)
 
             play = QToolButton()
-            play.clicked[bool].connect(self._click_play_button)
+            play.clicked[bool].connect(self._clickPlaybutton)
             play.setText(str(index))
             playPhoto = QPixmap()
             playStr = base64.b64decode(PLAY)
@@ -699,7 +701,7 @@ class MainUI(QMainWindow):
             play.setToolButtonStyle(Qt.ToolButtonIconOnly)
 
             openF = QToolButton()
-            openF.clicked[bool].connect(self._click_openF_button)
+            openF.clicked[bool].connect(self._clickOpenButton)
             openF.setText(str(index))
             openPhoto = QPixmap()
             openStr = base64.b64decode(OPEN)
@@ -710,7 +712,7 @@ class MainUI(QMainWindow):
             openF.setToolButtonStyle(Qt.ToolButtonIconOnly)
 
             sync = QToolButton()
-            sync.clicked[bool].connect(self._click_sync_button)
+            sync.clicked[bool].connect(self._clickSyncButton)
             sync.setText(str(index))
             syncPhoto = QPixmap()
             syncStr = base64.b64decode(CHANGE)
@@ -721,7 +723,7 @@ class MainUI(QMainWindow):
             sync.setToolButtonStyle(Qt.ToolButtonIconOnly)
 
             delete = QToolButton()
-            delete.clicked[bool].connect(self._click_delete_button)
+            delete.clicked[bool].connect(self._clickDeleteButton)
             delete.setText(str(index))
             deletePhoto = QPixmap()
             deleteStr = base64.b64decode(CLOSE)
@@ -746,14 +748,14 @@ class MainUI(QMainWindow):
         scroll.setAutoFillBackground(True)
         return scroll
 
-    def _load_grid_actress(self):
+    def _initGridActress(self):
         scroll = QScrollArea()
         self.gridData = QWidget()
         self.gridLayout = QGridLayout()
         for index in range(self.gridLayout.count()):
             self.gridLayout.itemAt(index).widget().deleteLater()
         width = 120
-        each = int(self.tab_widget.width() / width)-1
+        each = int(self.tab_widget.width() / width) - 1
         if self.sortField == CODE:
             self.actressLib.sort(key=lambda x: x[0], reverse=getReverse(self.sortType))
         elif self.sortField == SIZE:
@@ -780,7 +782,7 @@ class MainUI(QMainWindow):
             item.setIconSize(QSize(width, 180))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(actressname)
-            item.clicked[bool].connect(self._grid_act_click)
+            item.clicked[bool].connect(self._clickGridActress)
             title = QLabel(actressname)
             title.setMaximumHeight(40)
             title.setWordWrap(True)
@@ -798,7 +800,7 @@ class MainUI(QMainWindow):
         return scroll
 
     # 载入数据 表格形式
-    def _load_table(self):
+    def _init_table(self):
         tableData = self.tableData
         tableData.setRowCount(0)
         tableData.setColumnCount(0)
@@ -836,19 +838,19 @@ class MainUI(QMainWindow):
 
         return tableData
 
-    def _click_sync_movie(self):
+    def _clickSyncMovie(self):
         '''点击同步数据 按钮'''
         code = self.codeInput.text()
         if code is None or code == '':
             return
             # 获取影片信息
-        self._pull_move_movie(self.curDirPath, self.curFilePath, code)
+        self._sync_move_movie(self.curDirPath, self.curFilePath, code)
 
     def _sync_movie_info_new_thread(self, targetfile):
         '''同步数据 开启线程'''
-        self._pull_move_movie(targetfile.dirPath, targetfile.path, targetfile.code)
+        self._sync_move_movie(targetfile.dirPath, targetfile.path, targetfile.code)
 
-    def _pull_move_movie(self, dirPath, filePath, code):
+    def _sync_move_movie(self, dirPath, filePath, code):
         '''  pull数据并移动  '''
 
         self.curTaskCount = self.curTaskCount + 1
@@ -881,7 +883,7 @@ class MainUI(QMainWindow):
         self.statusBar().showMessage(message)
         # QMessageBox().about(self, "提示", "同步成功!!!")
 
-    def _click_play_button(self):
+    def _clickPlaybutton(self):
         '''执行播放'''
         text = self.sender().text()
         self._set_curinfo(int(text))
@@ -890,7 +892,7 @@ class MainUI(QMainWindow):
         command = '''start "" "''' + self.curFilePath + "\""
         os.system(command)
 
-    def _click_delete_button(self):
+    def _clickDeleteButton(self):
         text = self.sender().text()
         targetfile = self.dataList[int(text)]
         filepath = targetfile.path
@@ -903,7 +905,7 @@ class MainUI(QMainWindow):
             os.removedirs(targetfile.dirPath)
         QMessageBox().about(self, "提示", "删除成功")
 
-    def _click_openF_button(self):
+    def _clickOpenButton(self):
         '''执行打开文件夹'''
         text = self.sender().text()
         self._set_curinfo(int(text))
@@ -912,13 +914,13 @@ class MainUI(QMainWindow):
         command = '''start "" "''' + self.curDirPath
         os.system(command)
 
-    def _click_sync_button(self):
+    def _clickSyncButton(self):
         '''执行同步数据'''
         text = self.sender().text()
         targetfile = self.dataList[int(text)]
-        _thread.start_new_thread(self._pull_move_movie, (targetfile.dirPath, targetfile.path, targetfile.code))
+        _thread.start_new_thread(self._sync_move_movie, (targetfile.dirPath, targetfile.path, targetfile.code))
 
-    def _click_info(self):
+    def _clickInfo(self):
 
         javMovie = None
         nfoPath = replaceSuffix(self.curFilePath, 'nfo')
@@ -932,7 +934,7 @@ class MainUI(QMainWindow):
             self._tab_add(info, javMovie.code)
 
     # 添加菜单按钮
-    def _menu_button_add(self):
+    def _initMenuButton(self):
         bar = self.menuBar()
         # 文件
         openAction = QAction("打开路径", self)
@@ -944,7 +946,7 @@ class MainUI(QMainWindow):
         file.setShortcutEnabled(1)
         file.addAction(openAction)
         file.addAction(quitAction)
-        file.triggered[QAction].connect(self._menu_process_file)
+        file.triggered[QAction].connect(self._clickMenu)
         # 设置
         changeUrlAction = QAction("切换数据源", self)
         changePageSizeAction = QAction("切换分页", self)
@@ -953,20 +955,20 @@ class MainUI(QMainWindow):
         setting.setShortcutEnabled(1)
         setting.addAction(changeUrlAction)
         setting.addAction(changePageSizeAction)
-        setting.triggered[QAction].connect(self._menu_process_file)
+        setting.triggered[QAction].connect(self._clickMenu)
 
         clearDisk = QAction("清空路径", self)
         clearDisk.setShortcut(QKeySequence.Save)
         scanDisk = QAction("扫描路径", self)
         openAction.triggered[bool].connect(self._open_path)
-        scanDisk.triggered[bool].connect(self._scan_disk)
-        clearDisk.triggered[bool].connect(self._clear_path)
+        scanDisk.triggered[bool].connect(self._searchDisk)
+        clearDisk.triggered[bool].connect(self._clickClearPath)
         self.fileAct.addAction(openAction)
         self.fileAct.addAction(clearDisk)
         self.fileAct.addAction(scanDisk)
 
     # 菜单按钮处理
-    def _menu_process_file(self, action):
+    def _clickMenu(self, action):
         if action.text() == "退出":
             self.close()
         if action.text() == "切换数据源":
@@ -983,15 +985,15 @@ class MainUI(QMainWindow):
                 logger.info("切换分页:" + text)
             return
         elif action.text() == "扫描路径":
-            self._scan_disk()
+            self._searchDisk()
             logger.info("扫描路径")
         elif action.text() == "清空路径":
-            self._clear_path()
+            self._clickClearPath()
             logger.info("清空路径")
 
     # 点击图片box
 
-    def _choose_image(self, state):
+    def _chooseImage(self, state):
 
         if state == Qt.Checked:
             self.imageToggle = 1
@@ -1004,7 +1006,7 @@ class MainUI(QMainWindow):
                     self.fileTypes.remove(image)
 
     # 点击视频box
-    def _choose_video(self, state):
+    def _chooseVideo(self, state):
 
         if state == Qt.Checked:
             self.videoToggle = 1
@@ -1018,7 +1020,7 @@ class MainUI(QMainWindow):
 
     # 点击文档box
 
-    def _choose_docs(self, state):
+    def _chooseDocs(self, state):
 
         if state == Qt.Checked:
             self.docsToggle = 1

@@ -12,6 +12,7 @@ from search.utils.letterUtil import win10FilenameFilter
 
 logger = logging.getLogger("search")
 
+
 def makeNfo(movie, postname, postpath):
     try:
         actress = movie.actresses[0] if len(movie.actresses) > 0 else ""
@@ -122,8 +123,8 @@ class JavTool:
                                     supplier,
                                     length, '')
         except Exception as err:
-            logger.info(avResponse)
             logger.error("html解析失败", err)
+            logger.error(avResponse)
 
     def makeActress(self, rootpath, movie):
         """
