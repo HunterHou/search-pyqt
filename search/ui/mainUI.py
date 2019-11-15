@@ -301,17 +301,20 @@ class MainUI(QMainWindow):
     def _sort_type_change(self):
         print(self.sortTypeGroup.checkedButton().text())
         self.sortType = self.sortTypeGroup.checkedButton().text()
+        self._sort_files_list(self.dataLib)
         self._load_context()
 
     def _sort_field_change(self):
         print(self.sortFieldGroup.checkedButton().text())
         self.sortField = self.sortFieldGroup.checkedButton().text()
+        self._sort_files_list(self.dataLib)
         self._load_context()
 
     # 选择布局
     def _choose_layout(self):
         # 布局 0 栅格 1 表格 3 网页
         self.layoutType = self.layoutGroup.checkedButton().text()
+
         self._load_context()
 
     def _load_context(self, isNew=True):
