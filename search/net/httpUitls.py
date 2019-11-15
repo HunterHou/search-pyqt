@@ -3,8 +3,6 @@
 import logging
 from urllib import request
 
-logging.basicConfig(level=logging.INFO)
-
 opener = request.build_opener()
 opener.addheaders = [('User-Agent',
                       'Mozilla/6.0')]

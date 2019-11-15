@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # encoding=utf-8
 
-import logging
 import os
 
 from PIL import Image

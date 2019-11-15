@@ -16,12 +16,6 @@ from search.net.javTool import JavTool
 from search.service.fileService import FileService, nfoToJavMovie
 from search.ui.infoUI import InfoUI
 
-LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"  # 日志格式化输出
-DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"  # 日期格式
-fp = logging.FileHandler('a.txt', encoding='utf-8')
-fs = logging.StreamHandler()
-logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=DATE_FORMAT, handlers=[fp, fs])
-
 
 def getStrJoin(list):
     result = ""
