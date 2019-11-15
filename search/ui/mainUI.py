@@ -403,11 +403,11 @@ class MainUI(QMainWindow):
                     # self.dataLib.extend(curList)
                     # self.actressLib.extend(curAcrtess)
         self.scan_status = 0
-        self._pageToolsInit()
+        self._initPageTools()
 
         self._clickSearchButton()
 
-    def _pageToolsInit(self):
+    def _initPageTools(self):
         '''分页初始化'''
         self.totalRow = len(self.dataLib)
         self.totalPage = math.ceil(self.totalRow / self.pageSize)
@@ -417,7 +417,7 @@ class MainUI(QMainWindow):
         else:
             self.pageTool.clear()
         nextPage = QAction("下一页", self)
-        nextStr = base64.b64decode(NEXT)
+        nextStr = base64.b64decode(FORWARD)
         nextPhoto = QPixmap()
         nextPhoto.loadFromData(nextStr)
         nextPage.setIcon(QIcon(nextPhoto))
@@ -899,7 +899,6 @@ class MainUI(QMainWindow):
         ok = QMessageBox().question(self, "提示", "确定删除 " + targetfile.name, QMessageBox.Yes, QMessageBox.No)
         if ok == QMessageBox.No:
             return
-
         suffixes = ['.jpg', '.png', '.mp4', '.nfo', '.wmv', '.mkv']
         for suffix in suffixes:
             thispath = filepath.replace('.mp4', suffix)

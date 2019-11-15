@@ -123,7 +123,7 @@ class JavTool:
                                     supplier,
                                     length, '')
         except Exception as err:
-            logger.error("html解析失败", err)
+            logger.error("html解析失败"+str(err))
             logger.error(avResponse)
 
     def makeActress(self, rootpath, movie):
@@ -189,6 +189,6 @@ class JavTool:
             else:
                 return False
         except Exception as err:
-            logger.error("生成目录信息", err)
+            logger.error("生成目录信息"+str(err))
 
             return False
