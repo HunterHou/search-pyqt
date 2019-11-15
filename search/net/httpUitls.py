@@ -3,6 +3,10 @@
 import logging
 from urllib import request
 
+LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"  # 日志格式化输出
+DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"  # 日期格式
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=DATE_FORMAT, filename="search.log")
+
 opener = request.build_opener()
 opener.addheaders = [('User-Agent',
                       'Mozilla/6.0')]

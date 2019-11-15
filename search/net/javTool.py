@@ -10,6 +10,10 @@ from search.model.file import JavMovie, writeNfo
 from search.net.httpUitls import *
 from search.utils.letterUtil import win10FilenameFilter
 
+LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"  # 日志格式化输出
+DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"  # 日期格式
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=DATE_FORMAT, filename="search.log")
+
 
 def makeNfo(movie, postname, postpath):
     try:

@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from search.const.ImgConst import PLAY_IMG, SYNC_IMG, OPEN_IMG
+from search.const.ImgConst import *
 from search.model.file import *
 from search.net.javTool import JavTool
 from search.service.fileService import FileService, nfoToJavMovie
@@ -79,6 +79,7 @@ class MainUI(QMainWindow):
     # 初始化 loadUI
     def __init__(self):
         super().__init__()
+        logging.info("页面初始化...")
         self.fileAct = QToolBar("文件")
         self.displayAct = QToolBar("显示")
         self.addToolBar(Qt.TopToolBarArea, self.fileAct)
@@ -606,8 +607,7 @@ class MainUI(QMainWindow):
                     self.curPic.setPixmap(pic)
 
         except Exception as err:
-            logging.error("_load_info_to_left" + "文件打开失败")
-            logging.error(str(err))
+            logging.error("_load_info_to_left" + str(err))
 
     # loading 数据
     def _load_grid(self):
@@ -659,6 +659,7 @@ class MainUI(QMainWindow):
             play.setIconSize(QSize(20, 20))
             play.setToolTip("播放")
             play.setToolButtonStyle(Qt.ToolButtonIconOnly)
+
             openF = QToolButton()
             openF.clicked[bool].connect(self._click_openF_button)
             openF.setText(str(index))
@@ -680,16 +681,28 @@ class MainUI(QMainWindow):
             sync.setIconSize(QSize(20, 20))
             sync.setToolTip("同步")
             sync.setToolButtonStyle(Qt.ToolButtonIconOnly)
+
+            delete = QToolButton()
+            delete.clicked[bool].connect(self._click_delete_button)
+            delete.setText(str(index))
+            deletePhoto = QPixmap()
+            deleteStr = base64.b64decode(STOP)
+            deletePhoto.loadFromData(deleteStr)
+            delete.setIcon(QIcon(playPhoto))
+            delete.setIconSize(QSize(20, 20))
+            delete.setToolTip("删除")
+            delete.setToolButtonStyle(Qt.ToolButtonIconOnly)
             row = int(index / each)
             cols = index % each
-            colspan = cols * 3
+            colspan = cols * 4
             rowspan = row * 3 if self.post_cover != NOPIC else row * 2
             if self.post_cover != NOPIC:
-                self.gridLayout.addWidget(item, rowspan, colspan, 1, 3)
+                self.gridLayout.addWidget(item, rowspan, colspan, 1, 4)
             self.gridLayout.addWidget(play, rowspan + 1, colspan, 1, 1)
             self.gridLayout.addWidget(openF, rowspan + 1, colspan + 1, 1, 1)
             self.gridLayout.addWidget(sync, rowspan + 1, colspan + 2, 1, 1)
-            self.gridLayout.addWidget(title, rowspan + 2, colspan, 1, 3)
+            self.gridLayout.addWidget(delete, rowspan + 1, colspan + 3, 1, 1)
+            self.gridLayout.addWidget(title, rowspan + 2, colspan, 1, 4)
         self.gridData.setLayout(self.gridLayout)
         scroll.setWidget(self.gridData)
         scroll.setAutoFillBackground(True)
@@ -788,6 +801,19 @@ class MainUI(QMainWindow):
         command = '''start "" "''' + self.curFilePath + "\""
         os.system(command)
 
+    def _click_delete_button(self):
+        text = self.sender().text()
+        targetfile = self.dataList[int(text)]
+        filepath = targetfile.path
+        suffixes = ['.jpg', '.png', '.mp4', '.nfo', '.wmv', '.mkv']
+        for suffix in suffixes:
+            thispath = filepath.replace('.mp4', suffix)
+            if os.path.exists(thispath):
+                os.remove(thispath)
+        if os.path.getsize(targetfile.dirPath) == 0:
+            os.removedirs(targetfile.dirPath)
+        self._load_context(True)
+
     def _click_openF_button(self):
         '''执行打开文件夹'''
         text = self.sender().text()
@@ -859,16 +885,20 @@ class MainUI(QMainWindow):
             if ok:
                 self.webUrl = text
                 self.webUrlLable.setText(text)
+                logging.info("切换数据源:" + text)
             return
         elif action.text() == "切换分页":
             text, ok = QInputDialog.getText(self, "切换分页", "每页显示:")
             if ok:
                 self.pageSize = int(text)
+                logging.info("切换分页:" + text)
             return
         elif action.text() == "扫描路径":
             self._scan_disk()
+            logging.info("扫描路径")
         elif action.text() == "清空路径":
             self._clear_path()
+            logging.info("清空路径")
 
     # 点击图片box
 
