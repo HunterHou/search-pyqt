@@ -896,6 +896,10 @@ class MainUI(QMainWindow):
         text = self.sender().text()
         targetfile = self.dataList[int(text)]
         filepath = targetfile.path
+        ok = QMessageBox().question(self, "提示", "确定删除 " + targetfile.name, QMessageBox.Yes, QMessageBox.No)
+        if ok == QMessageBox.No:
+            return
+
         suffixes = ['.jpg', '.png', '.mp4', '.nfo', '.wmv', '.mkv']
         for suffix in suffixes:
             thispath = filepath.replace('.mp4', suffix)
