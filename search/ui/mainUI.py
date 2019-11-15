@@ -337,6 +337,7 @@ class MainUI(QMainWindow):
             self._tab_close_all()
             return
         if self.layoutType == ACTRESS:
+            self._tab_close_all()
             gridData = self._load_grid_actress()
             if isNew:
                 self._tab_add(gridData, 'YY:' + str(len(self.actressLib)))
@@ -399,8 +400,8 @@ class MainUI(QMainWindow):
                 if os.path.exists(path):
                     walk = FileService().build(path, self.fileTypes)
                     curList, curAcrtess = walk.getFiles(self.dataLib, names, self.actressLib)
-                    self.dataLib.extend(curList)
-                    self.actressLib.extend(curAcrtess)
+                    # self.dataLib.extend(curList)
+                    # self.actressLib.extend(curAcrtess)
         self.scan_status = 0
         self.totalRow = len(self.dataLib)
         self.totalPage = math.ceil(self.totalRow / self.pageSize)
@@ -750,8 +751,14 @@ class MainUI(QMainWindow):
         self.gridLayout = QGridLayout()
         for index in range(self.gridLayout.count()):
             self.gridLayout.itemAt(index).widget().deleteLater()
-        width = 200
-        each = int(self.tab_widget.width() / width)
+        width = 120
+        each = int(self.tab_widget.width() / width)-1
+        if self.sortField == CODE:
+            self.actressLib.sort(key=lambda x: x[0], reverse=getReverse(self.sortType))
+        elif self.sortField == SIZE:
+            self.actressLib.sort(key=lambda x: x[1], reverse=getReverse(self.sortType))
+        else:
+            self.actressLib.sort(key=lambda x: x[2], reverse=getReverse(self.sortType))
         for index in range(len(self.actressLib)):
             data = self.actressLib[index]
             actressname = data[0]
@@ -769,7 +776,7 @@ class MainUI(QMainWindow):
                     item.setIcon(icon)
             except Exception as err:
                 logging.error("_load_grid_data" + str(err))
-            item.setIconSize(QSize(width, 300))
+            item.setIconSize(QSize(width, 180))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(actressname)
             item.clicked[bool].connect(self._grid_act_click)

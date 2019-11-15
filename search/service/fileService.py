@@ -89,7 +89,7 @@ class FileService:
                             pass
                         else:
                             names.append(file.actress)
-                            actresses.append((file.actress, file.path))
+                            actresses.append((file.actress, file.path, file.modify_time))
             except IOError as  ioError:
                 print("文件读取失败：")
                 print(ioError)
