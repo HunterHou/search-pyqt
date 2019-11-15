@@ -828,7 +828,7 @@ class MainUI(QMainWindow):
                 os.remove(thispath)
         if os.path.getsize(targetfile.dirPath) == 0:
             os.removedirs(targetfile.dirPath)
-        self._load_context(True)
+        QMessageBox().about(self, "提示", "删除成功")
 
     def _click_openF_button(self):
         '''执行打开文件夹'''
