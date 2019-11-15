@@ -30,6 +30,7 @@ class MainUI(QMainWindow):
     tabDataList = []
     dataList = []
     dataLib = []
+    actressLib = []
     rootPath = ['f:\\emby\\tomake']
     fileTypes = []
     tableData = None
@@ -389,12 +390,14 @@ class MainUI(QMainWindow):
 
     def _excute__search_from_disk(self):
         self.dataLib = []
+        self.actressLib = []
         if len(self.rootPath) > 0:
             for path in self.rootPath:
                 if os.path.exists(path):
                     walk = FileService().build(path, self.fileTypes)
-                    curList = walk.getFiles()
+                    curList, curAcress = walk.getFiles()
                     self.dataLib.extend(curList)
+                    self.actressLib.extend(curAcress)
         self.totalRow = len(self.dataLib)
         self.totalPage = math.ceil(self.totalRow / self.pageSize)
         self.totalSize = self._get_total_size(self.dataLib)

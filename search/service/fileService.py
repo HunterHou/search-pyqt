@@ -64,7 +64,7 @@ class FileService:
         return self.files
 
     # 查询结果
-    def fileWalk(self, path, dirs, files):
+    def fileWalk(self, path, dirs, files, names, actresses):
         if not path:
             return self.files
         listFolder = os.listdir(path)
@@ -77,16 +77,21 @@ class FileService:
                     continue
                 if os.path.isdir(folerpath):
                     dirs.append(folerpath)
-                    self.fileWalk(folerpath, dirs, files)
+                    self.fileWalk(folerpath, dirs, files, names, actresses)
                 else:
                     dirname = os.path.dirname(folerpath)
                     file = buildFileFromFilename(self.fileTypes, dirname, folder)
+                    if names.index(file.actress) > 0 and file.actress:
+                        pass
+                    else:
+                        names.append(file.actress)
+                        actresses.append({file.actress, file.path})
                     if file != 0:
                         files.append(file)
             except IOError as  ioError:
                 print("文件读取失败：")
                 print(ioError)
-        return files
+        return files, actresses
 
 
 def getElementsByTagName(collect, name):
@@ -119,7 +124,7 @@ def nfoToJavMovie(path):
     actresses = []
     actors = collect.getElementsByTagName('name')
     for actor in actors:
-        if len(actor.childNodes)>0:
+        if len(actor.childNodes) > 0:
             actress = actor.childNodes[0].data
             actresses.append(actress)
     return JavMovie().build(code, title, cover, poster, actresses, "", director, pdate, series, studio, maker,
