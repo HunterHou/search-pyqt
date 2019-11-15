@@ -38,9 +38,9 @@ class MainUI(QMainWindow):
     # 搜索文本框
     dirName = None
     # 布局 0 栅格 1 表格 3 网页
-    layoutType = '表格'
+    layoutType = GRID
     # 0 海报模式 还是 1 封面模式 2 无图
-    post_cover = NOPIC
+    post_cover = POSTER
     scan_status = 0
 
     # 缓存信息
@@ -343,13 +343,13 @@ class MainUI(QMainWindow):
                 self._tab_add(gridData, 'YY:' + str(len(self.actressLib)))
             else:
                 self.tab_widget.setCurrentWidget(gridData)
-        if self.layoutType == '栅格':
+        if self.layoutType == GRID:
             gridData = self._initGrid()
             if isNew:
                 self._tab_add(gridData, self.tabTitle)
             else:
                 self.tab_widget.setCurrentWidget(gridData)
-        elif self.layoutType == '表格':
+        elif self.layoutType == TABLE:
             tableData = self._init_table()
             if isNew:
                 self._tab_add(tableData, self.tabTitle)
@@ -700,6 +700,17 @@ class MainUI(QMainWindow):
             play.setToolTip("播放")
             play.setToolButtonStyle(Qt.ToolButtonIconOnly)
 
+            info = QToolButton()
+            info.clicked[bool].connect(self._clickPlaybutton)
+            info.setText(str(index))
+            infoPhoto = QPixmap()
+            infoStr = base64.b64decode(CHANGE)
+            infoPhoto.loadFromData(infoStr)
+            info.setIcon(QIcon(infoPhoto))
+            info.setIconSize(QSize(20, 20))
+            info.setToolTip("详情")
+            info.setToolButtonStyle(Qt.ToolButtonIconOnly)
+
             openF = QToolButton()
             openF.clicked[bool].connect(self._clickOpenButton)
             openF.setText(str(index))
@@ -715,7 +726,7 @@ class MainUI(QMainWindow):
             sync.clicked[bool].connect(self._clickSyncButton)
             sync.setText(str(index))
             syncPhoto = QPixmap()
-            syncStr = base64.b64decode(CHANGE)
+            syncStr = base64.b64decode(REPLAY)
             syncPhoto.loadFromData(syncStr)
             sync.setIcon(QIcon(syncPhoto))
             sync.setIconSize(QSize(20, 20))
@@ -734,15 +745,16 @@ class MainUI(QMainWindow):
             delete.setToolButtonStyle(Qt.ToolButtonIconOnly)
             row = int(index / each)
             cols = index % each
-            colspan = cols * 4
+            colspan = cols * 5
             rowspan = row * 3 if self.post_cover != NOPIC else row * 2
             if self.post_cover != NOPIC:
-                self.gridLayout.addWidget(item, rowspan, colspan, 1, 4)
+                self.gridLayout.addWidget(item, rowspan, colspan, 1, 5)
             self.gridLayout.addWidget(play, rowspan + 1, colspan, 1, 1)
-            self.gridLayout.addWidget(openF, rowspan + 1, colspan + 1, 1, 1)
-            self.gridLayout.addWidget(sync, rowspan + 1, colspan + 2, 1, 1)
-            self.gridLayout.addWidget(delete, rowspan + 1, colspan + 3, 1, 1)
-            self.gridLayout.addWidget(title, rowspan + 2, colspan, 1, 4)
+            self.gridLayout.addWidget(info, rowspan + 1, colspan + 1, 1, 1)
+            self.gridLayout.addWidget(delete, rowspan + 1, colspan + 2, 1, 1)
+            self.gridLayout.addWidget(openF, rowspan + 1, colspan + 3, 1, 1)
+            self.gridLayout.addWidget(sync, rowspan + 1, colspan + 4, 1, 1)
+            self.gridLayout.addWidget(title, rowspan + 2, colspan, 1, 5)
         self.gridData.setLayout(self.gridLayout)
         scroll.setWidget(self.gridData)
         scroll.setAutoFillBackground(True)
