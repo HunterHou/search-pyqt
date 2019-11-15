@@ -1,10 +1,13 @@
 #!/usr/bin/python3
 
 
+import logging
 import os
 from xml.dom.minidom import parse
 
 from search.model.file import File, JavMovie
+
+logger = logging.getLogger("search")
 
 
 def readInfo(path):
@@ -20,8 +23,7 @@ def readInfo(path):
         # file.close()
         return context
     except Exception as err:
-        print("readInfo")
-        print(err)
+        logger.error("readInfo" + str(err))
         return context
 
 
@@ -91,8 +93,7 @@ class FileService:
                             names.append(file.actress)
                             actresses.append((file.actress, file.path, file.modify_time))
             except IOError as  ioError:
-                print("文件读取失败：")
-                print(ioError)
+                logger.error("文件读取失败" + str(ioError))
         return files, actresses
 
 
@@ -100,8 +101,7 @@ def getElementsByTagName(collect, name):
     try:
         return collect.getElementsByTagName(name)[0].childNodes[0].data
     except Exception as err:
-        print('获取失败' + name)
-        print(err)
+        logger.error("获取失败:" + name + str(err))
         return ''
 
 
