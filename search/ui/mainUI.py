@@ -393,11 +393,12 @@ class MainUI(QMainWindow):
     def _excute__search_from_disk(self):
         self.dataLib.clear()
         self.actressLib.clear()
+        names = []
         if len(self.rootPath) > 0:
             for path in self.rootPath:
                 if os.path.exists(path):
                     walk = FileService().build(path, self.fileTypes)
-                    curList, curAcrtess = walk.getFiles()
+                    curList, curAcrtess = walk.getFiles(self.dataLib, names, self.actressLib)
                     self.dataLib.extend(curList)
                     self.actressLib.extend(curAcrtess)
         self.scan_status = 0

@@ -51,9 +51,9 @@ class FileService:
         self.dirs = []
         return self
 
-    def getFiles(self):
+    def getFiles(self, files, names, actress):
         '''获取文件列表，前提必须先 build '''
-        return self.fileWalk(self.rootPath, self.dirs, self.files, self.names, self.actress)
+        return self.fileWalk(self.rootPath, self.dirs, files, names, actress)
 
     def osWalkFiles(self):
         '''累加上次查询结果'''
