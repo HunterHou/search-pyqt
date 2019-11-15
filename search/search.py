@@ -18,14 +18,20 @@ def loggerInit():
     rootLevel = logging.INFO
     LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"  # 日志格式化输出
     DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"  # 日期格式
-
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger("search")
     logger.setLevel(rootLevel)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
     console = logging.StreamHandler()
     console.setLevel(rootLevel)
+    filehandler = logging.FileHandler("search.log", mode='a', encoding=None, delay=False)
+    filehandler.setLevel(rootLevel)
+    # 定义handler的输出格式
+    console.setFormatter(formatter)
+    filehandler.setFormatter(formatter)
+
     logger.addHandler(console)
-    logging.basicConfig(level=rootLevel,
-                        format=LOG_FORMAT, datefmt=DATE_FORMAT, filename="search.log")
+    logger.addHandler(filehandler)
 
 
 def main():

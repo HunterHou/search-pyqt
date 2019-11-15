@@ -10,10 +10,7 @@ from search.model.file import JavMovie, writeNfo
 from search.net.httpUitls import *
 from search.utils.letterUtil import win10FilenameFilter
 
-LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"  # 日志格式化输出
-DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"  # 日期格式
-logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=DATE_FORMAT, filename="search.log")
-
+logger = logging.getLogger("search")
 
 def makeNfo(movie, postname, postpath):
     try:
@@ -125,8 +122,8 @@ class JavTool:
                                     supplier,
                                     length, '')
         except Exception as err:
-            logging.info(avResponse)
-            logging.error("html解析失败", err)
+            logger.info(avResponse)
+            logger.error("html解析失败", err)
 
     def makeActress(self, rootpath, movie):
         """
@@ -177,7 +174,7 @@ class JavTool:
                 if os.path.exists(croppedFilepath):
                     os.remove(croppedFilepath)
                 cropped.save(croppedFilepath)
-                logging.info("图片裁剪成功")
+                logger.info("图片裁剪成功")
                 # 返回信息
                 self.dirpath = dirPath
                 self.filepath = filepath
@@ -186,11 +183,11 @@ class JavTool:
                 nfo = makeNfo(movie, fileName, dirPath)
                 if nfo is not None:
                     writeNfo(dirPath, fileName, nfo)
-                    logging.info("影片信息创建成功")
+                    logger.info("影片信息创建成功")
                 return True
             else:
                 return False
         except Exception as err:
-            logging.error("生成目录信息", err)
+            logger.error("生成目录信息", err)
 
             return False

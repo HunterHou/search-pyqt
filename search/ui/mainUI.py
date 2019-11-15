@@ -15,6 +15,7 @@ from search.net.javTool import JavTool
 from search.service.fileService import FileService, nfoToJavMovie
 from search.ui.infoUI import InfoUI
 
+logger = logging.getLogger("search")
 
 def getStrJoin(list):
     result = ""
@@ -79,7 +80,7 @@ class MainUI(QMainWindow):
     # 初始化 loadUI
     def __init__(self):
         super().__init__()
-        logging.info("页面初始化...")
+        logger.info("页面初始化...")
         self.fileAct = QToolBar("文件")
         self.displayAct = QToolBar("显示")
         self.addToolBar(Qt.TopToolBarArea, self.fileAct)
@@ -322,7 +323,7 @@ class MainUI(QMainWindow):
             self._load_context_thread(isNew)
         except Exception as err:
             print("load_context has error" + str(err))
-            logging.error("load_context has error" + str(err))
+            logger.error("load_context has error" + str(err))
 
     def _load_context_thread(self, isNew):
         self._sort_files_list(self.dataList)
@@ -462,7 +463,7 @@ class MainUI(QMainWindow):
 
     def _sort_files_list(self, dataList):
         if len(dataList) > 0:
-            logging.info("当前排序：" + self.sortField + self.sortType)
+            logger.info("当前排序：" + self.sortField + self.sortType)
             dataList.sort(key=getSortField(self.sortField), reverse=getReverse(self.sortType))
 
     def _tab_close_all(self):
@@ -491,7 +492,7 @@ class MainUI(QMainWindow):
             self.tab_widget.addTab(widget, title)
             self.tab_widget.setCurrentWidget(widget)
         except Exception as err:
-            logging.error("_tab_add" + str(err))
+            logger.error("_tab_add" + str(err))
 
     # 选择框
     def _open_path(self):
@@ -644,7 +645,7 @@ class MainUI(QMainWindow):
                     self.curPic.setPixmap(pic)
 
         except Exception as err:
-            logging.error("_load_info_to_left" + str(err))
+            logger.error("_load_info_to_left" + str(err))
 
     # loading 数据
     def _load_grid(self):
@@ -674,7 +675,7 @@ class MainUI(QMainWindow):
                     if icon is not None and not icon.isNull():
                         item.setIcon(icon)
                 except Exception as err:
-                    logging.error("_load_grid_data" + str(err))
+                    logger.error("_load_grid_data" + str(err))
                 item.setIconSize(QSize(width, 300))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(data.name)
@@ -775,7 +776,7 @@ class MainUI(QMainWindow):
                 if icon is not None and not icon.isNull():
                     item.setIcon(icon)
             except Exception as err:
-                logging.error("_load_grid_data" + str(err))
+                logger.error("_load_grid_data" + str(err))
             item.setIconSize(QSize(width, 180))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(actressname)
@@ -874,7 +875,7 @@ class MainUI(QMainWindow):
             if tool.dirpath is not None and tool.fileName is not None:
                 newfilepath = tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath)
                 os.rename(filePath, newfilepath)
-                logging.info("文件移动重命名成功:" + newfilepath)
+                logger.info("文件移动重命名成功:" + newfilepath)
         else:
             message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 同步失败！'
         self.statusBar().showMessage(message)
@@ -973,20 +974,20 @@ class MainUI(QMainWindow):
             if ok:
                 self.webUrl = text
                 self.webUrlLable.setText(text)
-                logging.info("切换数据源:" + text)
+                logger.info("切换数据源:" + text)
             return
         elif action.text() == "切换分页":
             text, ok = QInputDialog.getText(self, "切换分页", "每页显示:")
             if ok:
                 self.pageSize = int(text)
-                logging.info("切换分页:" + text)
+                logger.info("切换分页:" + text)
             return
         elif action.text() == "扫描路径":
             self._scan_disk()
-            logging.info("扫描路径")
+            logger.info("扫描路径")
         elif action.text() == "清空路径":
             self._clear_path()
-            logging.info("清空路径")
+            logger.info("清空路径")
 
     # 点击图片box
 
