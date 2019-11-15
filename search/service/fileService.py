@@ -36,6 +36,8 @@ def buildFileFromFilename(filetypes, dirname, dirpath):
 class FileService:
     files = []
     dirs = []
+    names = []
+    actress = []
     fileTypes = []
     rootPath = ""
 
@@ -51,7 +53,7 @@ class FileService:
 
     def getFiles(self):
         '''获取文件列表，前提必须先 build '''
-        return self.fileWalk(self.rootPath, self.dirs, self.files)
+        return self.fileWalk(self.rootPath, self.dirs, self.files, self.names, self.actress)
 
     def osWalkFiles(self):
         '''累加上次查询结果'''
@@ -81,13 +83,13 @@ class FileService:
                 else:
                     dirname = os.path.dirname(folerpath)
                     file = buildFileFromFilename(self.fileTypes, dirname, folder)
-                    if names.index(file.actress) > 0 and file.actress:
-                        pass
-                    else:
-                        names.append(file.actress)
-                        actresses.append({file.actress, file.path})
                     if file != 0:
                         files.append(file)
+                        if names.count(file.actress) > 0 and file.actress:
+                            pass
+                        else:
+                            names.append(file.actress)
+                            actresses.append((file.actress, file.path))
             except IOError as  ioError:
                 print("文件读取失败：")
                 print(ioError)

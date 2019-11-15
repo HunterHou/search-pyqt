@@ -4,7 +4,6 @@ import _thread
 import base64
 import logging
 import math
-import webbrowser
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -118,13 +117,13 @@ class MainUI(QMainWindow):
 
         # 布局 0 栅格 1 表格 3 网页
         grid_layout = QRadioButton(GRID)
-        web_layout = QRadioButton(WEB)
+        web_layout = QRadioButton(ACTRESS)
         table_layout = QRadioButton(TABLE)
         if self.layoutType == GRID:
             grid_layout.toggle()
         elif self.layoutType == TABLE:
             table_layout.toggle()
-        elif self.layoutType == WEB:
+        elif self.layoutType == ACTRESS:
             web_layout.toggle()
         grid_layout.clicked[bool].connect(self._choose_layout)
         table_layout.clicked[bool].connect(self._choose_layout)
@@ -322,7 +321,8 @@ class MainUI(QMainWindow):
         try:
             self._load_context_thread(isNew)
         except Exception as err:
-            logging.exception("load_context has error" + str(err))
+            print("load_context has error" + str(err))
+            logging.error("load_context has error" + str(err))
 
     def _load_context_thread(self, isNew):
         self._sort_files_list(self.dataList)
@@ -336,10 +336,12 @@ class MainUI(QMainWindow):
         if len(self.dataList) == 0:
             self._tab_close_all()
             return
-        if self.layoutType == WEB:
-            # 打开浏览器
-            webbrowser.open(self.webUrl)
-            return
+        if self.layoutType == ACTRESS:
+            gridData = self._load_grid_actress()
+            if isNew:
+                self._tab_add(gridData, 'YY:' + str(len(self.actressLib)))
+            else:
+                self.tab_widget.setCurrentWidget(gridData)
         if self.layoutType == '栅格':
             gridData = self._load_grid()
             if isNew:
@@ -389,15 +391,16 @@ class MainUI(QMainWindow):
         self.dataList = result
 
     def _excute__search_from_disk(self):
-        self.dataLib = []
-        self.actressLib = []
+        self.dataLib.clear()
+        self.actressLib.clear()
         if len(self.rootPath) > 0:
             for path in self.rootPath:
                 if os.path.exists(path):
                     walk = FileService().build(path, self.fileTypes)
-                    curList, curAcress = walk.getFiles()
+                    curList, curAcrtess = walk.getFiles()
                     self.dataLib.extend(curList)
-                    self.actressLib.extend(curAcress)
+                    self.actressLib.extend(curAcrtess)
+        self.scan_status = 0
         self.totalRow = len(self.dataLib)
         self.totalPage = math.ceil(self.totalRow / self.pageSize)
         self.totalSize = self._get_total_size(self.dataLib)
@@ -439,7 +442,6 @@ class MainUI(QMainWindow):
             curPage.triggered[bool].connect(self._change_Page)
             self.pageTool.addAction(curPage)
 
-        self.scan_status = 0
         self._search_button_click()
 
     def _scan_disk(self):
@@ -610,6 +612,17 @@ class MainUI(QMainWindow):
             return
         self._set_curinfo(index)
 
+    def _grid_act_click(self):
+        text = self.sender().text()
+        index = int(text)
+        if index > len(self.actressLib) - 1:
+            return
+        name = self.actressLib[index][0]
+        self.dirName.setText(name)
+        self.layoutType = GRID
+        self.post_cover = POSTER
+        self._search_button_click()
+
     def _load_info_to_left(self):
         if self.curCode is not None:
             self.codeInput.setText(self.curCode)
@@ -725,6 +738,51 @@ class MainUI(QMainWindow):
             self.gridLayout.addWidget(sync, rowspan + 1, colspan + 2, 1, 1)
             self.gridLayout.addWidget(delete, rowspan + 1, colspan + 3, 1, 1)
             self.gridLayout.addWidget(title, rowspan + 2, colspan, 1, 4)
+        self.gridData.setLayout(self.gridLayout)
+        scroll.setWidget(self.gridData)
+        scroll.setAutoFillBackground(True)
+        return scroll
+
+    def _load_grid_actress(self):
+        scroll = QScrollArea()
+        self.gridData = QWidget()
+        self.gridLayout = QGridLayout()
+        for index in range(self.gridLayout.count()):
+            self.gridLayout.itemAt(index).widget().deleteLater()
+        width = 200
+        each = int(self.tab_widget.width() / width)
+        for index in range(len(self.actressLib)):
+            data = self.actressLib[index]
+            actressname = data[0]
+            actresspath = data[1]
+            item = QToolButton()
+            item.setText(str(index))
+            try:
+                iconPath = replaceSuffix(actresspath, PNG)
+                if os.path.exists(iconPath):
+                    pass
+                else:
+                    iconPath = replaceSuffix(actresspath, JPG)
+                icon = QIcon(iconPath)
+                if icon is not None and not icon.isNull():
+                    item.setIcon(icon)
+            except Exception as err:
+                logging.error("_load_grid_data" + str(err))
+            item.setIconSize(QSize(width, 300))
+            item.setToolButtonStyle(Qt.ToolButtonIconOnly)
+            item.setToolTip(actressname)
+            item.clicked[bool].connect(self._grid_act_click)
+            title = QLabel(actressname)
+            title.setMaximumHeight(40)
+            title.setWordWrap(True)
+            title.setMaximumWidth(width)
+            title.setMinimumWidth(width)
+            row = int(index / each)
+            cols = index % each
+            colspan = cols * 1
+            rowspan = row * 2
+            self.gridLayout.addWidget(item, rowspan, colspan, 1, 1)
+            self.gridLayout.addWidget(title, rowspan + 1, colspan, 1, 1)
         self.gridData.setLayout(self.gridLayout)
         scroll.setWidget(self.gridData)
         scroll.setAutoFillBackground(True)
