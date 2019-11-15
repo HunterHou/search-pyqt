@@ -701,7 +701,7 @@ class MainUI(QMainWindow):
             play.setToolButtonStyle(Qt.ToolButtonIconOnly)
 
             info = QToolButton()
-            info.clicked[bool].connect(self._clickPlaybutton)
+            info.clicked[bool].connect(self._clickInfo)
             info.setText(str(index))
             infoPhoto = QPixmap()
             infoStr = base64.b64decode(CHANGE)
@@ -937,6 +937,11 @@ class MainUI(QMainWindow):
 
     def _clickInfo(self):
 
+        text = self.sender().text()
+        if text:
+            targetFile = self.dataList[int(text)]
+            self.curFilePath = targetFile.path
+            # self._set_curinfo(int(text))
         javMovie = None
         nfoPath = replaceSuffix(self.curFilePath, 'nfo')
         if nfoPath is not None and nfoPath != '' and os.path.exists(nfoPath):
