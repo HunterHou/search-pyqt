@@ -18,7 +18,7 @@ def download(url, pathname):
         logger.info("文件创建成功...")
         return True
     except Exception as err:
-        logger.error("文件创建失败..." + url, err)
+        logger.error("文件创建失败..." + url+str(err))
         return False
 
 
