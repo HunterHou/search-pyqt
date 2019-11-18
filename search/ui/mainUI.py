@@ -69,7 +69,7 @@ class MainUI(QMainWindow):
     totalRow = 0
     totalPage = 0
     pageNo = 1
-    pageSize = 200
+    pageSize = 100
     tabTitle = ""
     pageTool = None
 
@@ -251,7 +251,6 @@ class MainUI(QMainWindow):
         # left_layout.addWidget(self.diskLabel, 20, 0, 1, 3)
 
         # 创建右侧组件
-        self.tab_widget = QTabWidget
         self.tab_widget = QTabWidget()
         self.tab_widget.setTabShape(QTabWidget.Triangular)
         self.tab_widget.setDocumentMode(True)
@@ -704,7 +703,7 @@ class MainUI(QMainWindow):
             play.setToolButtonStyle(Qt.ToolButtonIconOnly)
 
             info = QToolButton()
-            info.clicked[bool].connect(self._clickInfo)
+            info.clicked[bool].connect(self._clickLocalInfo)
             info.setText(str(index))
             infoPhoto = QPixmap()
             infoStr = base64.b64decode(CHANGE)
@@ -939,19 +938,9 @@ class MainUI(QMainWindow):
         _thread.start_new_thread(self._sync_move_movie, (targetfile.dirPath, targetfile.path, targetfile.code))
 
     def _clickInfo(self):
-
-        text = self.sender().text()
-        if text:
-            targetFile = self.dataList[int(text)]
-            self.curFilePath = targetFile.path
-            # self._set_curinfo(int(text))
         javMovie = None
-        nfoPath = replaceSuffix(self.curFilePath, 'nfo')
-        if nfoPath is not None and nfoPath != '' and os.path.exists(nfoPath):
-            javMovie = nfoToJavMovie(nfoPath)
-        elif self.codeInput.text() is not None and self.codeInput.text() != '':
-            tool = JavTool(self.webUrl)
-            javMovie = tool.getJavInfo(self.codeInput.text())
+        tool = JavTool(self.webUrl)
+        javMovie = tool.getJavInfo(self.codeInput.text())
         if javMovie is not None:
             try:
                 self.info = InfoUI(javMovie)
@@ -959,6 +948,24 @@ class MainUI(QMainWindow):
             except Exception as err:
                 logger.error('弹窗失败 ' + str(err))
             # self._tab_add(info, javMovie.code)
+
+    def _clickLocalInfo(self):
+
+        text = self.sender().text()
+        if text:
+            targetFile = self.dataList[int(text)]
+            self.curFilePath = targetFile.path
+            self._set_curinfo(int(text))
+        javMovie = None
+        nfoPath = replaceSuffix(self.curFilePath, 'nfo')
+        if nfoPath is not None and nfoPath != '' and os.path.exists(nfoPath):
+            javMovie = nfoToJavMovie(nfoPath)
+        if javMovie is not None:
+            try:
+                self.info = InfoUI(javMovie)
+                self.info.show()
+            except Exception as err:
+                logger.error('弹窗失败 ' + str(err))
 
     # 添加菜单按钮
     def _initMenuButton(self):

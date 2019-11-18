@@ -76,6 +76,12 @@ class JavTool:
             # image
             image = a_img_node.get("href")
             # actress
+            curPic = []
+            curPic_divs = soup.find_all('a', class_='sample-box')
+            for aurl in curPic_divs:
+                actresses_url = aurl.get('href')
+                curPic.append(actresses_url)
+
             actresses = []
             actresses_urls = []
             actress_divs = soup.find_all('div', class_='star-name')
@@ -121,9 +127,9 @@ class JavTool:
             return JavMovie().build(code, img_title, image, "", actresses, actresses_urls, director, pdate, series,
                                     studio,
                                     supplier,
-                                    length, '','')
+                                    length, '', curPic)
         except Exception as err:
-            logger.error("html解析失败"+str(err))
+            logger.error("html解析失败" + str(err))
             logger.error(avResponse)
 
     def makeActress(self, rootpath, movie):
@@ -189,6 +195,6 @@ class JavTool:
             else:
                 return False
         except Exception as err:
-            logger.error("生成目录信息"+str(err))
+            logger.error("生成目录信息" + str(err))
 
             return False
