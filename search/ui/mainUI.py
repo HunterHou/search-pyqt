@@ -534,6 +534,7 @@ class MainUI(QMainWindow):
         self.dataList = []
         self._resetPathTool()
         self._tab_close_all()
+        self.pageTool.clear()
 
     def _changePage(self):
         text = self.sender().text()
