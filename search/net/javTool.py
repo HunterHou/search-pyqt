@@ -121,7 +121,7 @@ class JavTool:
             return JavMovie().build(code, img_title, image, "", actresses, actresses_urls, director, pdate, series,
                                     studio,
                                     supplier,
-                                    length, '')
+                                    length, '','')
         except Exception as err:
             logger.error("html解析失败"+str(err))
             logger.error(avResponse)

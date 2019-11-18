@@ -273,9 +273,10 @@ class JavMovie:
         self.pdate = ""
         self.director = ""
         self.dirPath = ""
+        self.cutPic = []
 
     def build(self, code, title, cover, poster, actress, actressurl, director, pdate, series, studio, maker, length,
-              dirpath):
+              dirpath, cutPic):
         """单独构造方法 方便用__init__ 建新对象"""
         self.code = code
         self.title = title
@@ -290,6 +291,7 @@ class JavMovie:
         self.maker = maker
         self.length = length
         self.dirPath = dirpath
+        self.cutPic = cutPic
         return self
 
     def getActress(self):

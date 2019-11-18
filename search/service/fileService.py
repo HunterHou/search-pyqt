@@ -130,4 +130,4 @@ def nfoToJavMovie(path):
             actress = actor.childNodes[0].data
             actresses.append(actress)
     return JavMovie().build(code, title, cover, poster, actresses, "", director, pdate, series, studio, maker,
-                            length, dirpath)
+                            length, dirpath, [])
