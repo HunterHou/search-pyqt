@@ -953,8 +953,12 @@ class MainUI(QMainWindow):
             tool = JavTool(self.webUrl)
             javMovie = tool.getJavInfo(self.codeInput.text())
         if javMovie is not None:
-            info = InfoUI(javMovie)
-            self._tab_add(info, javMovie.code)
+            try:
+                self.info = InfoUI(javMovie)
+                self.info.show()
+            except Exception as err:
+                logger.error('弹窗失败 ' + str(err))
+            # self._tab_add(info, javMovie.code)
 
     # 添加菜单按钮
     def _initMenuButton(self):

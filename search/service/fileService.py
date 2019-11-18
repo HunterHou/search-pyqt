@@ -101,7 +101,7 @@ def getElementsByTagName(collect, name):
     try:
         return collect.getElementsByTagName(name)[0].childNodes[0].data
     except Exception as err:
-        logger.error("获取失败:" + name + str(err))
+        # logger.info(name + "获取失败:" + str(err))
         return ''
 
 

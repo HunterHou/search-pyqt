@@ -10,10 +10,10 @@ if hasattr(sys, 'frozen'):
 
 from PyQt5.QtWidgets import QApplication
 from search.ui.mainUI import MainUI
+from search.ui.infoUI import InfoUI
 
 
 # pyinstaller.exe -F -w   .\search.py
-
 def loggerInit():
     rootLevel = logging.INFO
     LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"  # 日志格式化输出
@@ -21,7 +21,6 @@ def loggerInit():
     logger = logging.getLogger("search")
     logger.setLevel(rootLevel)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
     console = logging.StreamHandler()
     console.setLevel(rootLevel)
     filehandler = logging.FileHandler("search.log", mode='a', encoding=None, delay=False)
@@ -29,17 +28,15 @@ def loggerInit():
     # 定义handler的输出格式
     console.setFormatter(formatter)
     filehandler.setFormatter(formatter)
-
     logger.addHandler(console)
     logger.addHandler(filehandler)
-
 
 def main():
     try:
         loggerInit()
         app = QApplication(sys.argv)
         logging.info("服务启动中...")
-        sd = MainUI()
+        main = MainUI()
         sys.exit(app.exec_())
     except Exception as err:
         logging.error("主线程错误" + str(err))
@@ -47,3 +44,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
