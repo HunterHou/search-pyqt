@@ -552,7 +552,9 @@ class MainUI(QMainWindow):
                 self.pageNo = self.totalPage
             else:
                 self.pageNo = int(text)
+        self.post_cover = POSTER
         self._clickSearchButton()
+        self.dirName.setText("")
 
     # 点击事件
     def _open_file(self):
@@ -627,6 +629,7 @@ class MainUI(QMainWindow):
         self.layoutType = GRID
         self.post_cover = POSTER
         self._clickSearchButton()
+        self.dirName.setText("")
 
     def _load_info_to_left(self):
         if self.curCode is not None:
