@@ -285,6 +285,7 @@ class MainUI(QMainWindow):
         message += '搜索结果:【' + str(len(self.dataList)) + " | " + self._get_total_size(self.dataList) + '】   执行完毕！！！'
         self.statusBar().showMessage(message)
         self._loadContext()
+        self.dirName.setText("")
 
     def _get_total_size(self, dataList):
         totalSize = 0
@@ -554,7 +555,6 @@ class MainUI(QMainWindow):
                 self.pageNo = int(text)
         self.post_cover = POSTER
         self._clickSearchButton()
-        self.dirName.setText("")
 
     # 点击事件
     def _open_file(self):
@@ -629,7 +629,6 @@ class MainUI(QMainWindow):
         self.layoutType = GRID
         self.post_cover = POSTER
         self._clickSearchButton()
-        self.dirName.setText("")
 
     def _load_info_to_left(self):
         if self.curCode is not None:
