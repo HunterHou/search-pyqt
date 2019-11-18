@@ -351,7 +351,7 @@ class MainUI(QMainWindow):
             else:
                 self.tab_widget.setCurrentWidget(gridData)
         elif self.layoutType == TABLE:
-            tableData = self._init_table()
+            tableData = self._initTable()
             if isNew:
                 self._tab_add(tableData, self.tabTitle)
             else:
@@ -814,7 +814,7 @@ class MainUI(QMainWindow):
         return scroll
 
     # 载入数据 表格形式
-    def _init_table(self):
+    def _initTable(self):
         tableData = self.tableData
         tableData.setRowCount(0)
         tableData.setColumnCount(0)
