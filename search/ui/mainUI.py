@@ -26,6 +26,14 @@ def getStrJoin(list):
     return result
 
 
+def _get_total_size(dataList):
+    totalSize = 0
+    for data in dataList:
+        if data.size:
+            totalSize += data.size
+    return getSizeFromNumber(totalSize)
+
+
 class MainUI(QMainWindow):
     # 定义全局变量
     # 载入数据
@@ -282,17 +290,10 @@ class MainUI(QMainWindow):
         self._searchFromLib()
         # 计算总容量
         message = "库文件数:【" + str(self.totalRow) + " | " + str(self.totalSize) + "】"
-        message += '搜索结果:【' + str(len(self.dataList)) + " | " + self._get_total_size(self.dataList) + '】   执行完毕！！！'
+        message += '搜索结果:【' + str(len(self.dataList)) + " | " + _get_total_size(self.dataList) + '】   执行完毕！！！'
         self.statusBar().showMessage(message)
         self._loadContext()
         self.dirName.setText("")
-
-    def _get_total_size(self, dataList):
-        totalSize = 0
-        for data in dataList:
-            if data.size:
-                totalSize += data.size
-        return getSizeFromNumber(totalSize)
 
     def _choosePostCover(self):
         #  0 海报 1 封面
@@ -407,7 +408,7 @@ class MainUI(QMainWindow):
         '''分页初始化'''
         self.totalRow = len(self.dataLib)
         self.totalPage = math.ceil(self.totalRow / self.pageSize)
-        self.totalSize = self._get_total_size(self.dataLib)
+        self.totalSize = _get_total_size(self.dataLib)
         if self.pageTool is None or self.pageTool == '':
             self.pageTool = self.addToolBar("分页")
         else:
