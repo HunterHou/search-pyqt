@@ -889,9 +889,13 @@ class MainUI(QMainWindow):
         if make_ok:
             # 移动源文件到目标目录 并重命名
             if tool.dirpath is not None and tool.fileName is not None:
-                newfilepath = tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath)
-                os.rename(filePath, newfilepath)
-                logger.info("文件移动重命名成功:" + newfilepath)
+                try:
+                    newfilepath = tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath)
+                    os.rename(filePath, newfilepath)
+                    logger.info("文件移动重命名成功:" + newfilepath)
+                except FileExistsError as err:
+                    message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 移动失败！'
+                    logger.error("文件移动失败:" + newfilepath)
         else:
             message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 同步失败！'
         self.statusBar().showMessage(message)
