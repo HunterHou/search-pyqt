@@ -10,7 +10,6 @@ if hasattr(sys, 'frozen'):
 
 from PyQt5.QtWidgets import QApplication
 from search.ui.mainUI import MainUI
-from search.ui.infoUI import InfoUI
 
 
 # pyinstaller.exe -F -w   .\search.py
@@ -31,6 +30,7 @@ def loggerInit():
     logger.addHandler(console)
     logger.addHandler(filehandler)
 
+
 def main():
     try:
         loggerInit()
@@ -44,6 +44,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
