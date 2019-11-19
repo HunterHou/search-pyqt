@@ -893,9 +893,9 @@ class MainUI(QMainWindow):
                     newfilepath = tool.dirpath + "\\" + tool.fileName + "." + getSuffix(filePath)
                     os.rename(filePath, newfilepath)
                     logger.info("文件移动重命名成功:" + newfilepath)
-                except FileExistsError as err:
+                except OSError as err:
                     message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 移动失败！'
-                    logger.error("文件移动失败:" + newfilepath)
+                    logger.error("文件移动失败:" + newfilepath+str(err))
         else:
             message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 同步失败！'
         self.statusBar().showMessage(message)
