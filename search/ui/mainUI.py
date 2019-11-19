@@ -4,6 +4,7 @@ import _thread
 import base64
 import logging
 import math
+import webbrowser
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -358,17 +359,12 @@ class MainUI(QMainWindow):
 
     # 搜饭
     def _ClickSearchCode(self):
-        tool = JavTool(self.webUrl)
+
         code = self.codeInput.text()
-        movie = tool.getJavInfo(code)
-        if movie is None:
-            QMessageBox().about(self, "提示", "匹配不到影片，请检查番号")
-        else:
-            self.curCode = code
-            self.curActress = movie.getActress()
-            self.curPicUrl = movie.cover
-            self.curTitle = movie.title
-            self._load_info_to_left()
+        if code is None or code == '':
+            QMessageBox().about(self, "提示", "请输入番号")
+        url = self.webUrl + code
+        webbrowser.open(url)
 
     # 填充数据
     def _searchFromLib(self):
@@ -947,7 +943,7 @@ class MainUI(QMainWindow):
         javMovie = tool.getJavInfo(self.codeInput.text())
         if javMovie is not None:
             try:
-                _thread.start_new_thread(self._openNewWindow, (javMovie))
+                _thread.start_new_thread(self._openNewWindow, (javMovie,))
             except Exception as err:
                 logger.error('弹窗失败 ' + str(err))
             # self._tab_add(info, javMovie.code)
@@ -964,9 +960,9 @@ class MainUI(QMainWindow):
         text = self.sender().text()
         if text:
             targetFile = self.dataList[int(text)]
-            self.curFilePath = targetFile.path
+            curFilePath = targetFile.path
             # self._set_curinfo(int(text))
-        nfoPath = replaceSuffix(self.curFilePath, 'nfo')
+        nfoPath = replaceSuffix(curFilePath, 'nfo')
         if nfoPath is not None and nfoPath != '' and os.path.exists(nfoPath):
             javMovie = nfoToJavMovie(nfoPath)
         if javMovie is not None:
