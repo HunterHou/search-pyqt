@@ -895,7 +895,7 @@ class MainUI(QMainWindow):
                     logger.info("文件移动重命名成功:" + newfilepath)
                 except OSError as err:
                     message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 移动失败！'
-                    logger.error("文件移动失败:" + newfilepath+str(err))
+                    logger.error("文件移动失败:" + newfilepath + str(err))
         else:
             message = "当前任务数:" + str(self.curTaskCount) + "【" + movie.title + '】 同步失败！'
         self.statusBar().showMessage(message)
@@ -947,11 +947,17 @@ class MainUI(QMainWindow):
         javMovie = tool.getJavInfo(self.codeInput.text())
         if javMovie is not None:
             try:
-                self.info = InfoUI(javMovie)
-                self.info.show()
+                _thread.start_new_thread(self._openNewWindow, (javMovie))
             except Exception as err:
                 logger.error('弹窗失败 ' + str(err))
             # self._tab_add(info, javMovie.code)
+
+    def _openNewWindow(self, javMovie):
+        try:
+            self.info = InfoUI(javMovie)
+            self.info.show()
+        except Exception as err:
+            logger.error('弹窗失败 ' + str(err))
 
     def _clickLocalInfo(self):
 
@@ -959,17 +965,12 @@ class MainUI(QMainWindow):
         if text:
             targetFile = self.dataList[int(text)]
             self.curFilePath = targetFile.path
-            self._set_curinfo(int(text))
-        javMovie = None
+            # self._set_curinfo(int(text))
         nfoPath = replaceSuffix(self.curFilePath, 'nfo')
         if nfoPath is not None and nfoPath != '' and os.path.exists(nfoPath):
             javMovie = nfoToJavMovie(nfoPath)
         if javMovie is not None:
-            try:
-                self.info = InfoUI(javMovie)
-                self.info.show()
-            except Exception as err:
-                logger.error('弹窗失败 ' + str(err))
+            self._openNewWindow(javMovie)
 
     # 添加菜单按钮
     def _initMenuButton(self):
