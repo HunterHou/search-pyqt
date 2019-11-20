@@ -54,22 +54,22 @@ class InfoUI(QWidget):
         self.layout.addWidget(QLabel(self.javMovie.studio), 4, 1, 1, 4)
         self.layout.addWidget(QLabel("出品商"), 5, 0, 1, 1)
         self.layout.addWidget(QLabel(self.javMovie.maker), 5, 1, 1, 4)
-        if len(self.javMovie.cutPic) > 0:
-            for index in range(len(self.javMovie.cutPic)):
-                cutPic = QLabel()
-                try:
-                    path = self.javMovie.cutPic[index]
-                    # 读取网络图片
-                    response = getResponse(path)
-                    if response.status == 200:
-                        curphoto = QPixmap()
-                        curphoto.loadFromData(response.read())
-                        curphoto = curphoto.scaled(800, 500)
-                        cutPic.setPixmap(curphoto)
-                except Exception as err:
-                    print(" InfoUI 读取图片失败:" + path)
-                    print(err)
-                self.layout.addWidget(cutPic, 6 + index, 0, 1, 5)
+        # if len(self.javMovie.cutPic) > 0:
+        #     for index in range(len(self.javMovie.cutPic)):
+        #         cutPic = QLabel()
+        #         try:
+        #             path = self.javMovie.cutPic[index]
+        #             # 读取网络图片
+        #             response = getResponse(path)
+        #             if response.status == 200:
+        #                 curphoto = QPixmap()
+        #                 curphoto.loadFromData(response.read())
+        #                 curphoto = curphoto.scaled(800, 500)
+        #                 cutPic.setPixmap(curphoto)
+        #         except Exception as err:
+        #             print(" InfoUI 读取图片失败:" + path)
+        #             print(err)
+        #         self.layout.addWidget(cutPic, 6 + index, 0, 1, 5)
 
         mainWidget = QWidget()
         scroll = QScrollArea()
