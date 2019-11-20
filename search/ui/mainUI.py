@@ -810,6 +810,11 @@ class MainUI(QMainWindow):
         scroll.setAutoFillBackground(True)
         return scroll
 
+    def _initList(self):
+        listData = QListWidget()
+        item = QListWidgetItem()
+        listData.addItem(item)
+
     # 载入数据 表格形式
     def _initTable(self):
         tableData = self.tableData
@@ -939,6 +944,8 @@ class MainUI(QMainWindow):
         _thread.start_new_thread(self._sync_move_movie, (targetfile.dirPath, targetfile.path, targetfile.code))
 
     def _clickInfo(self):
+
+        view = QWebEnginerView()
         javMovie = None
         tool = JavTool(self.webUrl)
         javMovie = tool.getJavInfo(self.codeInput.text())
