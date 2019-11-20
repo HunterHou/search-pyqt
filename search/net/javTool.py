@@ -168,6 +168,7 @@ class JavTool:
             os.chdir(fileName)
             # 下载图片
             pic_end = ".jpg"
+            fileName = win10FilenameFilter(fileName)
             filepath = dirPath + "\\" + fileName + pic_end
             if os.path.exists(filepath):
                 os.remove(filepath)

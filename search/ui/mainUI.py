@@ -970,6 +970,7 @@ class MainUI(QMainWindow):
             targetFile = self.dataList[int(text)]
             curFilePath = targetFile.path
             # self._set_curinfo(int(text))
+        javMovie = None
         nfoPath = replaceSuffix(curFilePath, 'nfo')
         if nfoPath is not None and nfoPath != '' and os.path.exists(nfoPath):
             javMovie = nfoToJavMovie(nfoPath)
