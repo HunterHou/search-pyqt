@@ -105,6 +105,11 @@ class MainUI(QMainWindow):
 
     # 载入UI窗口
     def _initUI(self):
+        iconStr = base64.b64decode(YELLOW)
+        iconPhoto = QPixmap()
+        iconPhoto.loadFromData(iconStr)
+        icon = QIcon(iconPhoto)
+        self.setWindowIcon(icon)
         self.setWindowTitle("文件搜索")
         self.resize(1400, 900)
         # 创建搜索按钮

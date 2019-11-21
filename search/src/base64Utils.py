@@ -1,8 +1,6 @@
 import base64
 import os
 
-from search.const.ImgConst import *
-
 
 def getBase64(path):
     with open(path, 'rb') as file:
@@ -23,6 +21,5 @@ def testout():
                 file.write(base64.b64decode(str64))
 
 
-print(OPEN)
-with open('e:\\test.jpg', 'wb') as file:
-    file.write(base64.b64decode(OPEN))
+openf = getBase64("openf.png")
+print(openf)
