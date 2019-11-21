@@ -682,6 +682,9 @@ class MainUI(QMainWindow):
             item.setToolTip(data.name)
             item.clicked[bool].connect(self._clickGrid)
 
+            item.setContextMenuPolicy(Qt.CustomContextMenu)
+            item.customContextMenuRequested.connect(self._rightClick)
+
             title = QLabel(data.name)
             title.setMaximumHeight(40)
             title.setWordWrap(True)
@@ -758,6 +761,29 @@ class MainUI(QMainWindow):
         scroll.setWidget(self.gridData)
         scroll.setAutoFillBackground(True)
         return scroll
+
+    def _rightClick(self, point):
+        text = self.sender().text()
+        self._set_curinfo(int(text))
+        self.popMenu = QMenu()
+        tj = QAction(u'重命名', self)
+        tj.triggered[bool].connect(self._rename)
+        self.popMenu.addAction(tj)
+        self.showContextMenu(QCursor.pos())
+
+    def showContextMenu(self, pos):
+        self.popMenu.move(pos)
+        self.popMenu.show()
+
+    def _rename(self, slot):
+        text, ok = QInputDialog.getText(self, "重命名", "名称:", QLineEdit.Normal, self.curTitle)
+        self
+        if ok:
+            newFileName = self.curDirPath + "\\" + text
+            logger.info("重命名:" + self.curFilePath + " => " + newFileName)
+            os.rename(self.curFilePath, newFileName)
+            self.curFilePath = newFileName
+            QMessageBox.about(self, "提示", "重命名成功，请刷新")
 
     def _initGridActress(self):
         scroll = QScrollArea()
