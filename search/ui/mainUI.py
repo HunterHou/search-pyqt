@@ -590,6 +590,7 @@ class MainUI(QMainWindow):
         if index is None:
             return
         targetfile = self.dataList[index]
+        self.curFile = targetfile
         nfopath = replaceSuffix(targetfile.path, "nfo")
         movieInfo = nfoToJavMovie(nfopath)
         if movieInfo is not None:
@@ -735,28 +736,28 @@ class MainUI(QMainWindow):
             sync.setToolTip("同步")
             sync.setToolButtonStyle(Qt.ToolButtonIconOnly)
 
-            delete = QToolButton()
-            delete.clicked[bool].connect(self._clickDeleteButton)
-            delete.setText(str(index))
-            deletePhoto = QPixmap()
-            deleteStr = base64.b64decode(CLOSE)
-            deletePhoto.loadFromData(deleteStr)
-            delete.setIcon(QIcon(deletePhoto))
-            delete.setIconSize(QSize(20, 20))
-            delete.setToolTip("删除")
-            delete.setToolButtonStyle(Qt.ToolButtonIconOnly)
+            # delete = QToolButton()
+            # delete.clicked[bool].connect(self._clickDeleteButton)
+            # delete.setText(str(index))
+            # deletePhoto = QPixmap()
+            # deleteStr = base64.b64decode(CLOSE)
+            # deletePhoto.loadFromData(deleteStr)
+            # delete.setIcon(QIcon(deletePhoto))
+            # delete.setIconSize(QSize(20, 20))
+            # delete.setToolTip("删除")
+            # delete.setToolButtonStyle(Qt.ToolButtonIconOnly)
             row = int(index / each)
             cols = index % each
-            colspan = cols * 5
+            colspan = cols * 4
             rowspan = row * 3 if self.post_cover != NOPIC else row * 2
             if self.post_cover != NOPIC:
-                self.gridLayout.addWidget(item, rowspan, colspan, 1, 5)
+                self.gridLayout.addWidget(item, rowspan, colspan, 1, 4)
             self.gridLayout.addWidget(play, rowspan + 1, colspan, 1, 1)
             self.gridLayout.addWidget(info, rowspan + 1, colspan + 1, 1, 1)
-            self.gridLayout.addWidget(delete, rowspan + 1, colspan + 2, 1, 1)
-            self.gridLayout.addWidget(openF, rowspan + 1, colspan + 3, 1, 1)
-            self.gridLayout.addWidget(sync, rowspan + 1, colspan + 4, 1, 1)
-            self.gridLayout.addWidget(title, rowspan + 2, colspan, 1, 5)
+            # self.gridLayout.addWidget(delete, rowspan + 1, colspan + 2, 1, 1)
+            self.gridLayout.addWidget(openF, rowspan + 1, colspan + 2, 1, 1)
+            self.gridLayout.addWidget(sync, rowspan + 1, colspan + 3, 1, 1)
+            self.gridLayout.addWidget(title, rowspan + 2, colspan, 1, 4)
         self.gridData.setLayout(self.gridLayout)
         scroll.setWidget(self.gridData)
         scroll.setAutoFillBackground(True)
@@ -766,16 +767,19 @@ class MainUI(QMainWindow):
         text = self.sender().text()
         self._set_curinfo(int(text))
         self.popMenu = QMenu()
-        tj = QAction(u'重命名', self)
-        tj.triggered[bool].connect(self._rename)
-        self.popMenu.addAction(tj)
+        rename = QAction(u'重命名', self)
+        rename.triggered[bool].connect(self._clickRename)
+        self.popMenu.addAction(rename)
+        delete = QAction(u'删除', self)
+        delete.triggered[bool].connect(self._clickDeleteButton)
+        self.popMenu.addAction(delete)
         self.showContextMenu(QCursor.pos())
 
     def showContextMenu(self, pos):
         self.popMenu.move(pos)
         self.popMenu.show()
 
-    def _rename(self, slot):
+    def _clickRename(self, slot):
         text, ok = QInputDialog.getText(self, "重命名", "名称:", QLineEdit.Normal, self.curTitle)
         self
         if ok:
@@ -939,8 +943,8 @@ class MainUI(QMainWindow):
         os.system(command)
 
     def _clickDeleteButton(self):
-        text = self.sender().text()
-        targetfile = self.dataList[int(text)]
+        # text = self.sender().text()
+        targetfile = self.curFile
         filepath = targetfile.path
         ok = QMessageBox().question(self, "提示", "确定删除 " + targetfile.name, QMessageBox.Yes, QMessageBox.No)
         if ok == QMessageBox.No:
