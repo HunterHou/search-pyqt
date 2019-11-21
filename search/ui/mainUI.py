@@ -945,13 +945,12 @@ class MainUI(QMainWindow):
 
     def _clickInfo(self):
 
-        view = QWebEnginerView()
-        javMovie = None
         tool = JavTool(self.webUrl)
         javMovie = tool.getJavInfo(self.codeInput.text())
         if javMovie is not None:
             try:
-                _thread.start_new_thread(self._openNewWindow, (javMovie,))
+                self._openNewWindow(javMovie)
+                # _thread.start_new_thread(self._openNewWindow, (javMovie,))
             except Exception as err:
                 logger.error('弹窗失败 ' + str(err))
             # self._tab_add(info, javMovie.code)
