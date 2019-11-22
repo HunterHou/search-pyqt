@@ -26,7 +26,7 @@ def makeNfo(movie, postname, postpath):
       <thumb>''' + postname + ".png" + '''</thumb>
       <fanart>''' + postname + ".jpg" + '''</fanart>
       <maker>''' + movie.maker + '''</maker>
-      <label>''' + movie.maker + '''</label>
+      <studio>''' + movie.studio + '''</studio>
       <num>''' + movie.code + '''</num>
       <release>''' + movie.pdate + '''</release>
       <cover>''' + postname + ".jpg" + '''</cover>
