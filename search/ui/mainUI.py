@@ -369,6 +369,7 @@ class MainUI(QMainWindow):
         code = self.codeInput.text()
         if code is None or code == '':
             QMessageBox().about(self, "提示", "请输入番号")
+            return
         url = self.webUrl + code
         webbrowser.open(url)
 
