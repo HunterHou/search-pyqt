@@ -549,7 +549,10 @@ class MainUI(QMainWindow):
             if code not in tempCode:
                 tempCode.append(code)
             else:
-                repeatCodes.append(code)
+                if code not in repeatCodes:
+                    repeatCodes.append(code)
+                else:
+                    pass
         message = '暂无重复'
         if len(repeatCodes) > 0:
             message = str(repeatCodes)
