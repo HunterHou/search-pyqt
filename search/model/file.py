@@ -95,7 +95,7 @@ def getSuffix(filename):
         return ""
     arr = filename.split(".")
     if len(arr) <= 1:
-        return arr[0]
+        return None
     return arr[-1]
 
 

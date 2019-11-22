@@ -538,6 +538,23 @@ class MainUI(QMainWindow):
         self._tab_close_all()
         self.pageTool.clear()
 
+    def _repeatCheck(self):
+        if len(self.dataLib) == 0:
+            QMessageBox.about(self, "提示", "请先扫描")
+            return
+        repeatCodes = []
+        tempCode = []
+        for item in self.dataLib:
+            code = item.code
+            if code not in tempCode:
+                tempCode.append(code)
+            else:
+                repeatCodes.append(code)
+        message = '暂无重复'
+        if len(repeatCodes) > 0:
+            message = str(repeatCodes)
+        QMessageBox.about(self, "重复番号", message)
+
     def _changePage(self):
         text = self.sender().text()
         if self.dirName.text() == '' or self.dirName.text() is None:
@@ -789,10 +806,25 @@ class MainUI(QMainWindow):
         text, ok = QInputDialog.getText(self, "重命名", "名称:", QLineEdit.Normal, self.curTitle)
         self
         if ok:
+            oldpath = self.curFilePath
+            if getSuffix(text) is None:
+                text = text + "." + self.curFile.fileType
+            # 当前文件重命名
             newFileName = self.curDirPath + "\\" + text
-            logger.info("重命名:" + self.curFilePath + " => " + newFileName)
-            os.rename(self.curFilePath, newFileName)
+            logger.info("重命名:" + oldpath + " => " + newFileName)
+            os.rename(oldpath, newFileName)
             self.curFilePath = newFileName
+            # 相关文件重命名
+            oldsuffix = getSuffix(oldpath)
+            if oldsuffix is not None:
+                oldsuffix = "." + oldsuffix
+                suffixes = ['.jpg', '.png', '.mp4', '.nfo', '.wmv', '.mkv']
+                for suffix in suffixes:
+                    itempath = oldpath.replace(oldsuffix, suffix)
+                    if os.path.exists(itempath):
+                        newitempath = newFileName.replace(oldsuffix, suffix)
+                        os.rename(itempath, newitempath)
+
             QMessageBox.about(self, "提示", "重命名成功，请刷新")
 
     def _initGridActress(self):
@@ -1039,12 +1071,15 @@ class MainUI(QMainWindow):
         clearDisk = QAction("清空路径", self)
         clearDisk.setShortcut(QKeySequence.Save)
         scanDisk = QAction("扫描路径", self)
+        repeatCheck = QAction("重复校验", self)
         openAction.triggered[bool].connect(self._open_path)
         scanDisk.triggered[bool].connect(self._searchDisk)
         clearDisk.triggered[bool].connect(self._clickClearPath)
+        repeatCheck.triggered[bool].connect(self._repeatCheck)
         self.fileAct.addAction(openAction)
         self.fileAct.addAction(clearDisk)
         self.fileAct.addAction(scanDisk)
+        self.fileAct.addAction(repeatCheck)
 
     # 菜单按钮处理
     def _clickMenu(self, action):
