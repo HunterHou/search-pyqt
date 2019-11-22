@@ -468,7 +468,7 @@ class MainUI(QMainWindow):
 
     def _sort_files_list(self, dataList):
         if len(dataList) > 0:
-            logger.info("当前排序：" + self.sortField + self.sortType)
+            # logger.info("当前排序：" + self.sortField + self.sortType)
             dataList.sort(key=getSortField(self.sortField), reverse=getReverse(self.sortType))
 
     def _tab_close_all(self):
