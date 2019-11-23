@@ -404,10 +404,11 @@ class MainUI(QMainWindow):
                 if os.path.exists(path):
                     walk = FileService().build(path, self.fileTypes)
                     curList, curAcrtess = walk.getFiles(self.dataLib, self.actressNames, self.actressLib)
-                    self.actressNames = sorted(self.actressNames.items(), key=lambda x: (x[1], x[0]),
-                                               reverse=getReverse(self.sortType))
+
                     # self.dataLib.extend(curList)
                     # self.actressLib.extend(curAcrtess)
+        self.actressNames = sorted(self.actressNames.items(), key=lambda x: (x[1], x[0]),
+                                   reverse=getReverse(self.sortType))
         self.scan_status = 0
         self._initPageTools()
 

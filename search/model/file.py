@@ -99,17 +99,6 @@ def getSuffix(filename):
     return arr[-1]
 
 
-def getTitle(filename):
-    """获取文件名"""
-    if filename is None:
-        return ""
-    arr = filename.split(".")
-    if len(arr) > 1:
-        last_suffix = '.' + arr[-1]
-        filename = filename.replace(last_suffix, '')
-    return filename
-
-
 def getSizeFromNumber(fileSize):
     if fileSize <= 1024:
         result = str(int(fileSize))
@@ -165,6 +154,17 @@ def getModifyTime(path):
         print("读取失败：" + ioError)
     finally:
         return modify_time
+
+
+def getTitle(filename):
+    """获取文件名"""
+    if filename is None:
+        return ""
+    arr = filename.split(".")
+    if len(arr) > 1:
+        last_suffix = '.' + arr[-1]
+        filename = filename.replace(last_suffix, '')
+    return filename
 
 
 def getCode(fileName):
