@@ -867,17 +867,17 @@ class MainUI(QMainWindow):
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
             item.setToolTip(tips)
             item.clicked[bool].connect(self._clickGridActress)
-            # title = QLabel(actressname)
-            # title.setMaximumHeight(40)
-            # title.setWordWrap(True)
-            # title.setMaximumWidth(width)
-            # title.setMinimumWidth(width)
+            title = QLabel(tips)
+            title.setMaximumHeight(40)
+            title.setWordWrap(True)
+            title.setMaximumWidth(width)
+            title.setMinimumWidth(width)
             row = int(index / each)
             cols = index % each
             colspan = cols * 1
             rowspan = row * 2
             self.gridLayout.addWidget(item, rowspan, colspan, 1, 1)
-            # self.gridLayout.addWidget(title, rowspan + 1, colspan, 1, 1)
+            self.gridLayout.addWidget(title, rowspan + 1, colspan, 1, 1)
             index += 1
         self.gridData.setLayout(self.gridLayout)
         scroll.setWidget(self.gridData)
