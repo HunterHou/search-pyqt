@@ -846,7 +846,7 @@ class MainUI(QMainWindow):
         for item in self.actressNames:
 
             actressname = item[0]
-            tips = actressname + " x" + str(item[1] + 1)
+            tips = actressname + " x" + str(item[1])
             data = self.actressLib[actressname]
             actresspath = data[1]
             item = QToolButton()
