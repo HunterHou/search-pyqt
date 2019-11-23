@@ -87,11 +87,13 @@ class FileService:
                     file = buildFileFromFilename(self.fileTypes, dirname, folder)
                     if file != 0:
                         files.append(file)
-                        if names.count(file.actress) > 0 and file.actress:
-                            pass
+                        actressname = file.actress
+                        if actressname in names and actressname:
+                            names[actressname] = int(names[actressname]) + 1
                         else:
-                            names.append(file.actress)
-                            actresses.append((file.actress, file.path, file.modify_time))
+                            names[actressname] = 1
+                            actresses[actressname] = (actressname, file.path, file.modify_time)
+                            # actresses.append((actressname, file.path, file.modify_time))
             except IOError as  ioError:
                 logger.error("文件读取失败" + str(ioError))
         return files, actresses

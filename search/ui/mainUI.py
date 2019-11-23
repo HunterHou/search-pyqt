@@ -40,7 +40,8 @@ class MainUI(QMainWindow):
     tabDataList = []
     dataList = []
     dataLib = []
-    actressLib = []
+    actressLib = {}
+    actressNames = {}
     rootPath = ['f:\\emby\\tomake']
     fileTypes = []
     tableData = None
@@ -397,12 +398,14 @@ class MainUI(QMainWindow):
     def _excuteSearchFromDisk(self):
         self.dataLib.clear()
         self.actressLib.clear()
-        names = []
+        self.actressNames = {}
         if len(self.rootPath) > 0:
             for path in self.rootPath:
                 if os.path.exists(path):
                     walk = FileService().build(path, self.fileTypes)
-                    curList, curAcrtess = walk.getFiles(self.dataLib, names, self.actressLib)
+                    curList, curAcrtess = walk.getFiles(self.dataLib, self.actressNames, self.actressLib)
+                    self.actressNames = sorted(self.actressNames.items(), key=lambda x: (x[1], x[0]),
+                                               reverse=getReverse(self.sortType))
                     # self.dataLib.extend(curList)
                     # self.actressLib.extend(curAcrtess)
         self.scan_status = 0
@@ -645,11 +648,11 @@ class MainUI(QMainWindow):
 
     def _clickGridActress(self):
         text = self.sender().text()
-        index = int(text)
-        if index > len(self.actressLib) - 1:
-            return
-        name = self.actressLib[index][0]
-        self.dirName.setText(name)
+        # index = int(text)
+        # if index > len(self.actressLib) - 1:
+        #     return
+        # name = self.actressLib[index][0]
+        self.dirName.setText(text)
         self.layoutType = GRID
         self.post_cover = POSTER
         self._clickSearchButton()
@@ -838,18 +841,16 @@ class MainUI(QMainWindow):
             self.gridLayout.itemAt(index).widget().deleteLater()
         width = 120
         each = int(self.tab_widget.width() / width) - 1
-        if self.sortField == CODE:
-            self.actressLib.sort(key=lambda x: x[0], reverse=getReverse(self.sortType))
-        elif self.sortField == SIZE:
-            self.actressLib.sort(key=lambda x: x[1], reverse=getReverse(self.sortType))
-        else:
-            self.actressLib.sort(key=lambda x: x[2], reverse=getReverse(self.sortType))
-        for index in range(len(self.actressLib)):
-            data = self.actressLib[index]
-            actressname = data[0]
+        self.actressNames = sorted(self.actressNames, key=lambda x: (x[1], x[0]), reverse=getReverse(self.sortType))
+        index = 0
+        for item in self.actressNames:
+
+            actressname = item[0]
+            tips = actressname + " x" + str(item[1] + 1)
+            data = self.actressLib[actressname]
             actresspath = data[1]
             item = QToolButton()
-            item.setText(str(index))
+            item.setText(actressname)
             try:
                 iconPath = replaceSuffix(actresspath, PNG)
                 if os.path.exists(iconPath):
@@ -863,19 +864,20 @@ class MainUI(QMainWindow):
                 logger.error("_load_grid_data" + str(err))
             item.setIconSize(QSize(width, 180))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
-            item.setToolTip(actressname)
+            item.setToolTip(tips)
             item.clicked[bool].connect(self._clickGridActress)
-            title = QLabel(actressname)
-            title.setMaximumHeight(40)
-            title.setWordWrap(True)
-            title.setMaximumWidth(width)
-            title.setMinimumWidth(width)
+            # title = QLabel(actressname)
+            # title.setMaximumHeight(40)
+            # title.setWordWrap(True)
+            # title.setMaximumWidth(width)
+            # title.setMinimumWidth(width)
             row = int(index / each)
             cols = index % each
             colspan = cols * 1
             rowspan = row * 2
             self.gridLayout.addWidget(item, rowspan, colspan, 1, 1)
-            self.gridLayout.addWidget(title, rowspan + 1, colspan, 1, 1)
+            # self.gridLayout.addWidget(title, rowspan + 1, colspan, 1, 1)
+            index += 1
         self.gridData.setLayout(self.gridLayout)
         scroll.setWidget(self.gridData)
         scroll.setAutoFillBackground(True)
