@@ -693,7 +693,7 @@ class MainUI(QMainWindow):
             data = self.dataList[index]
             item = QToolButton()
             item.setText(str(index))
-            showMessage = data.name + " 【" + data.sizeStr + "】"
+            showMessage = "【" + data.sizeStr + "】" + data.name
             if self.post_cover != NOPIC:
                 try:
                     if self.post_cover == POSTER:
