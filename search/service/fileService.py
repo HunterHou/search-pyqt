@@ -88,6 +88,10 @@ class FileService:
                     if file != 0:
                         files.append(file)
                         actressname = file.actress
+                        if actressname is not None:
+                            actressname = actressname.strip()
+                            if actressname == '':
+                                actressname = '未知'
                         if actressname in names and actressname:
                             names[actressname] = int(names[actressname]) + 1
                         else:
