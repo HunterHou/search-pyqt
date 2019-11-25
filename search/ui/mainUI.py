@@ -693,6 +693,7 @@ class MainUI(QMainWindow):
             data = self.dataList[index]
             item = QToolButton()
             item.setText(str(index))
+            showMessage = data.name + " 【" + data.sizeStr + "】"
             if self.post_cover != NOPIC:
                 try:
                     if self.post_cover == POSTER:
@@ -710,13 +711,13 @@ class MainUI(QMainWindow):
                     logger.error("_load_grid_data" + str(err))
                 item.setIconSize(QSize(width, 300))
             item.setToolButtonStyle(Qt.ToolButtonIconOnly)
-            item.setToolTip(data.name)
+            item.setToolTip(showMessage)
             item.clicked[bool].connect(self._clickGrid)
 
             item.setContextMenuPolicy(Qt.CustomContextMenu)
             item.customContextMenuRequested.connect(self._rightClick)
 
-            title = QLabel(data.name)
+            title = QLabel(showMessage)
             title.setMaximumHeight(40)
             title.setWordWrap(True)
             title.setMaximumWidth(width)
