@@ -546,21 +546,23 @@ class MainUI(QMainWindow):
         if len(self.dataLib) == 0:
             QMessageBox.about(self, "提示", "请先扫描")
             return
-        repeatCodes = []
-        tempCode = []
+        repeatFile = []
+        tempDict = {}
         for item in self.dataLib:
             code = item.code
-            if code not in tempCode:
-                tempCode.append(code)
+            if tempDict.get(code) is not None:
+                if repeatFile.count(item) == 0:
+                    repeatFile.append(tempDict[code])
+                repeatFile.append(item)
             else:
-                if code not in repeatCodes:
-                    repeatCodes.append(code)
-                else:
-                    pass
-        message = '暂无重复'
-        if len(repeatCodes) > 0:
-            message = str(repeatCodes)
-        QMessageBox.about(self, "重复番号", message)
+                tempDict[code] = item
+
+        if len(repeatFile) == 0:
+            message = '暂无重复'
+            QMessageBox.about(self, "重复番号", message)
+        else:
+            self.dataList = repeatFile
+            self._loadContext()
 
     def _changePage(self):
         text = self.sender().text()
