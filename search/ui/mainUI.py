@@ -801,12 +801,23 @@ class MainUI(QMainWindow):
         text = self.sender().text()
         self._set_curinfo(int(text))
         self.popMenu = QMenu()
+
+        actress = QAction(u'优优', self)
+        actress.triggered[bool].connect(self._clickInfo)
+        self.popMenu.addAction(actress)
+
+        srcJav = QAction(u'JAV来源', self)
+        srcJav.triggered[bool].connect(self._ClickSearchCode)
+        self.popMenu.addAction(srcJav)
+
         rename = QAction(u'重命名', self)
         rename.triggered[bool].connect(self._clickRename)
         self.popMenu.addAction(rename)
+
         delete = QAction(u'删除', self)
         delete.triggered[bool].connect(self._clickDeleteButton)
         self.popMenu.addAction(delete)
+
         self.showContextMenu(QCursor.pos())
 
     def showContextMenu(self, pos):
