@@ -42,7 +42,8 @@ class MainUI(QMainWindow):
     dataLib = []
     actressLib = {}
     actressNames = {}
-    rootPath = ['f:\\emby\\tomake']
+    rootPath = ['e:\\emby\\tomake', 'f:\\emby\\tomake', 'f:\\emby\\emby-rename', 'h:\\emby\\tomake',
+                'h:\\emby\\emby-rename']
     fileTypes = []
     tableData = None
     # 搜索文本框
@@ -126,7 +127,7 @@ class MainUI(QMainWindow):
         openDir.clicked[bool].connect(self._open_file)
         codeSearch = QPushButton("番号搜索")
         codeSearch.clicked[bool].connect(self._ClickSearchCode)
-        infoButton = QPushButton("info")
+        infoButton = QPushButton("优优")
         infoButton.clicked[bool].connect(self._clickInfo)
 
         syncJav = QPushButton("数据同步")
@@ -1021,16 +1022,10 @@ class MainUI(QMainWindow):
         _thread.start_new_thread(self._sync_move_movie, (targetfile.dirPath, targetfile.path, targetfile.code))
 
     def _clickInfo(self):
-
-        tool = JavTool(self.webUrl)
-        javMovie = tool.getJavInfo(self.codeInput.text())
-        if javMovie is not None:
-            try:
-                self._openNewWindow(javMovie)
-                # _thread.start_new_thread(self._openNewWindow, (javMovie,))
-            except Exception as err:
-                logger.error('弹窗失败 ' + str(err))
-            # self._tab_add(info, javMovie.code)
+        self.dirName.setText(self.curActress)
+        self.layoutType = GRID
+        self.post_cover = POSTER
+        self._clickSearchButton()
 
     def _openNewWindow(self, javMovie):
         try:
