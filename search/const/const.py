@@ -28,6 +28,6 @@ CODE = "番号"
 SIZE = "大小"
 MODIFY_TIME = "修改时间"
 
-ACTRESS = "优优"
+ACTRESS = "图鉴"
 TABLE = "表格"
 GRID = "栅格"

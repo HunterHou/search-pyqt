@@ -44,7 +44,7 @@ class MainUI(QMainWindow):
     actressNames = {}
     rootPath = ['e:\\emby\\tomake', 'f:\\emby\\tomake', 'f:\\emby\\emby-rename', 'h:\\emby\\tomake',
                 'h:\\emby\\emby-rename']
-    fileTypes = []
+    fileTypes = ['txt','java','png','jpg','py','sql','txt']
     tableData = None
     # 搜索文本框
     dirName = None
@@ -127,7 +127,7 @@ class MainUI(QMainWindow):
         openDir.clicked[bool].connect(self._open_file)
         codeSearch = QPushButton("番号搜索")
         codeSearch.clicked[bool].connect(self._ClickSearchCode)
-        infoButton = QPushButton("优优")
+        infoButton = QPushButton("图鉴")
         infoButton.clicked[bool].connect(self._clickInfo)
 
         syncJav = QPushButton("数据同步")
@@ -406,8 +406,8 @@ class MainUI(QMainWindow):
                     walk = FileService().build(path, self.fileTypes)
                     curList, curAcrtess = walk.getFiles(self.dataLib, self.actressNames, self.actressLib)
 
-                    # self.dataLib.extend(curList)
-                    # self.actressLib.extend(curAcrtess)
+                    self.dataLib.extend(curList)
+                    self.actressLib.extend(curAcrtess)
         self.actressNames = sorted(self.actressNames.items(), key=lambda x: (x[1], x[0]),
                                    reverse=getReverse(self.sortType))
         self.scan_status = 0
@@ -802,7 +802,7 @@ class MainUI(QMainWindow):
         self._set_curinfo(int(text))
         self.popMenu = QMenu()
 
-        actress = QAction(u'优优', self)
+        actress = QAction(u'图鉴', self)
         actress.triggered[bool].connect(self._clickInfo)
         self.popMenu.addAction(actress)
 
@@ -913,7 +913,7 @@ class MainUI(QMainWindow):
         tableData.setRowCount(len(self.dataList))
         # 自适应列宽度
 
-        tableData.setHorizontalHeaderLabels(['图片', NAME, "番号", "路径", "优优", "大小", "创建时间", "修改时间"])
+        tableData.setHorizontalHeaderLabels(['图片', NAME, "番号", "路径", "图鉴", "大小", "创建时间", "修改时间"])
         tableData.doubleClicked.connect(self._table_line_double_click)
         tableData.itemClicked.connect(self._table_line_click)
         tableData.setColumnWidth(0, 200 if self.post_cover != NOPIC else 80)
